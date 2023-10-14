@@ -89,13 +89,15 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(SolutionDir)/../../../vclib/assimp/include;$(SolutionDir)/../../../vclib/glew-2.1.0/include;$(SolutionDir)/../../../vclib/glfw-3.3.8.bin.WIN32/include;$(SolutionDir)/../../../vclib/glm/</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)/RTRProjectApp/Vendor/assimp/include;$(SolutionDir)/RTRProjectApp/Vendor/glew-2.1.0/include;$(SolutionDir)/RTRProjectApp/Vendor/glfw-3.3.8.bin.WIN64/include;$(SolutionDir)/RTRProjectApp/Vendor/glm/</AdditionalIncludeDirectories>
+      <TranslateIncludes>true</TranslateIncludes>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)/../../../vclib/assimp/lib/Release;$(SolutionDir)/../../../vclib/glew-2.1.0/lib/Release/Win32;$(SolutionDir)/../../../vclib/glfw-3.3.8.bin.WIN32/lib-vc2022/;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>opengl32.lib;glew32.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)/RTRProjectApp/Vendor/glew-2.1.0/lib/Release;$(SolutionDir)/RTRProjectApp/Vendor/glfw-3.3.8.bin.WIN64/lib-vc2022;$(SolutionDir)/RTRProjectApp/Vendor/assimp/lib/Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>assimp-vc143-mtd.lib;glew32.lib;opengl32.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <IgnoreSpecificDefaultLibraries>MSVCRT</IgnoreSpecificDefaultLibraries>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -105,13 +107,13 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(SolutionDir)/../../../vclib/glew-2.1.0/include;$(SolutionDir)/../../../vclib/glfw-3.3.8.bin.WIN32/include;$(SolutionDir)/../../../vclib/glm/</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)/RTRProjectApp/Vendor/glew-2.1.0/include;$(SolutionDir)/RTRProjectApp/Vendor/glm;$(SolutionDir)/RTRProjectApp/Vendor/glfw-3.3.8.bin.WIN64/include;$(SolutionDir)/RTRProjectApp/Vendor/assimp/include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)/../../../vclib/glew-2.1.0/lib/Release/Win32;$(SolutionDir)/../../../vclib/glfw-3.3.8.bin.WIN32/lib-vc2022/;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>opengl32.lib;glew32.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)/RTRProjectApp/Vendor/glew-2.1.0/lib/Release;$(SolutionDir)/RTRProjectApp/Vendor/glfw-3.3.8.bin.WIN64/lib-vc2022;$(SolutionDir)/RTRProjectApp/Vendor/assimp/lib/Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>assimp-vc143-mtd.lib;glew32.lib;opengl32.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -123,16 +125,17 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(SolutionDir)/RTRProjectApp/Vendor/assimp/include;$(SolutionDir)/RTRProjectApp/Vendor/glew-2.1.0/include;$(SolutionDir)/RTRProjectApp/Vendor/glfw-3.3.8.bin.WIN32/include;$(SolutionDir)/RTRProjectApp/Vendor/glm/</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)/RTRProjectApp/Vendor/assimp/include;$(SolutionDir)/RTRProjectApp/Vendor/glew-2.1.0/include;$(SolutionDir)/RTRProjectApp/Vendor/glfw-3.3.8.bin.WIN64/include;$(SolutionDir)/RTRProjectApp/Vendor/glm/</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)/RTRProjectApp/Vendor/assimp/lib/Release;$(SolutionDir)/RTRProjectApp/Vendor/glew-2.1.0/lib/Release/Win32;$(SolutionDir)/RTRProjectApp/Vendor/glfw-3.3.8.bin.WIN32/lib-vc2022/;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>opengl32.lib;glew32.lib;glfw3.lib;assimp-vc140-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)/RTRProjectApp/Vendor/glew-2.1.0/lib/Release;$(SolutionDir)/RTRProjectApp/Vendor/glfw-3.3.8.bin.WIN64/lib-vc2022;$(SolutionDir)/RTRProjectApp/Vendor/assimp/lib/Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>assimp-vc143-mtd.lib;glew32.lib;opengl32.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <PerUserRedirection>true</PerUserRedirection>
+      <IgnoreSpecificDefaultLibraries>MSVCRT</IgnoreSpecificDefaultLibraries>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -144,15 +147,15 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(SolutionDir)/../../../vclib/glew-2.1.0/include;$(SolutionDir)/../../../vclib/glfw-3.3.8.bin.WIN32/include;$(SolutionDir)/../../../vclib/glm/</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)/RTRProjectApp/Vendor/glew-2.1.0/include;$(SolutionDir)/RTRProjectApp/Vendor/glm;$(SolutionDir)/RTRProjectApp/Vendor/glfw-3.3.8.bin.WIN64/include;$(SolutionDir)/RTRProjectApp/Vendor/assimp/include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)/../../../vclib/glew-2.1.0/lib/Release/Win32;$(SolutionDir)/../../../vclib/glfw-3.3.8.bin.WIN32/lib-vc2022/;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>opengl32.lib;glew32.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)/RTRProjectApp/Vendor/glew-2.1.0/lib/Release;$(SolutionDir)/RTRProjectApp/Vendor/glfw-3.3.8.bin.WIN64/lib-vc2022;$(SolutionDir)/RTRProjectApp/Vendor/assimp/lib/Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>assimp-vc143-mtd.lib;glew32.lib;opengl32.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

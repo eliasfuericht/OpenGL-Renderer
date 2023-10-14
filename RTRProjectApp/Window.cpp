@@ -39,15 +39,15 @@ int Window::Initialise()
 
 	// Setup GLFW Windows Properties
 	// OpenGL version
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
 	// Core Profile
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	// Allow forward compatiblity
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 
 	// Create the window
-	mainWindow = glfwCreateWindow(width, height, "Test Window", NULL, NULL);
+	mainWindow = glfwCreateWindow(width, height, "Night at the museum", NULL, NULL);
 	if (!mainWindow)
 	{
 		printf("Error creating GLFW window!");
@@ -93,16 +93,16 @@ void Window::createCallbacks()
 
 GLfloat Window::getXChange()
 {
-	GLfloat theChange = xChange;
+	GLfloat changeValueX = xChange;
 	xChange = 0.0f;
-	return theChange;
+	return changeValueX;
 }
 
 GLfloat Window::getYChange()
 {
-	GLfloat theChange = yChange;
+	GLfloat changeValueY = yChange;
 	yChange = 0.0f;
-	return theChange;
+	return changeValueY;
 }
 
 void Window::handleKeys(GLFWwindow* window, int key, int code, int action, int mode)

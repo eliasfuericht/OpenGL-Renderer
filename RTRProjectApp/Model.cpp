@@ -105,7 +105,7 @@ void Model::LoadMaterials(const aiScene* scene)
 
 		if (!textureList[i])
 		{
-			textureList[i] = new Texture("Textures/plain.png");
+			textureList[i] = new Texture("Textures/fallback.png");
 			textureList[i]->LoadTextureA();
 		}
 	}
