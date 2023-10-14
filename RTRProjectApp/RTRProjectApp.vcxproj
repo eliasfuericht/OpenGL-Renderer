@@ -112,7 +112,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)/RTRProjectApp/Vendor/glew-2.1.0/lib/Release;$(SolutionDir)/RTRProjectApp/Vendor/glfw-3.3.8.bin.WIN64/lib-vc2022;$(SolutionDir)/RTRProjectApp/Vendor/assimp/lib/Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)/RTRProjectApp/Vendor/glew-2.1.0/lib;$(SolutionDir)/RTRProjectApp/Vendor/glfw-3.3.8.bin.WIN64/lib-vc2022;$(SolutionDir)/RTRProjectApp/Vendor/assimp/lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>assimp-vc143-mtd.lib;glew32.lib;opengl32.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -154,7 +154,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)/RTRProjectApp/Vendor/glew-2.1.0/lib/Release;$(SolutionDir)/RTRProjectApp/Vendor/glfw-3.3.8.bin.WIN64/lib-vc2022;$(SolutionDir)/RTRProjectApp/Vendor/assimp/lib/Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)/RTRProjectApp/Vendor/glew-2.1.0/lib;$(SolutionDir)/RTRProjectApp/Vendor/glfw-3.3.8.bin.WIN64/lib-vc2022;$(SolutionDir)/RTRProjectApp/Vendor/assimp/lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>assimp-vc143-mtd.lib;glew32.lib;opengl32.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
