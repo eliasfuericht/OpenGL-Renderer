@@ -13,7 +13,7 @@ public:
 	~Light();
 
 protected:
-	glm::vec3 colour;
+	glm::vec3 color;
 	GLfloat ambientIntensity;
 	GLfloat diffuseIntensity;
 };

@@ -27,7 +27,7 @@ public:
 	GLuint GetModelLocation();
 	GLuint GetViewLocation();
 	GLuint GetAmbientIntensityLocation();
-	GLuint GetAmbientColourLocation();
+	GLuint GetAmbientcolorLocation();
 	GLuint GetDiffuseIntensityLocation();
 	GLuint GetDirectionLocation();
 	GLuint GetSpecularIntensityLocation();
@@ -51,7 +51,7 @@ private:
 		uniformSpecularIntensity, uniformShininess;
 
 	struct {
-		GLuint uniformColour;
+		GLuint uniformcolor;
 		GLuint uniformAmbientIntensity;
 		GLuint uniformDiffuseIntensity;
 
@@ -61,7 +61,7 @@ private:
 	GLuint uniformPointLightCount;
 
 	struct {
-		GLuint uniformColour;
+		GLuint uniformcolor;
 		GLuint uniformAmbientIntensity;
 		GLuint uniformDiffuseIntensity;
 
@@ -74,7 +74,7 @@ private:
 	GLuint uniformSpotLightCount;
 
 	struct {
-		GLuint uniformColour;
+		GLuint uniformcolor;
 		GLuint uniformAmbientIntensity;
 		GLuint uniformDiffuseIntensity;
 

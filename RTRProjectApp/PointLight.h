@@ -11,7 +11,7 @@ public:
 		GLfloat xPos, GLfloat yPos, GLfloat zPos,
 		GLfloat con, GLfloat lin, GLfloat exp);
 
-	void UseLight(GLuint ambientIntensityLocation, GLuint ambientColourLocation,
+	void UseLight(GLuint ambientIntensityLocation, GLuint ambientcolorLocation,
 		GLuint diffuseIntensityLocation, GLuint positionLocation,
 		GLuint constantLocation, GLuint linearLocation, GLuint exponentLocation);
 

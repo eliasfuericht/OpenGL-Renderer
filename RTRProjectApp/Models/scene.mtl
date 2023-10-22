@@ -1,0 +1,69 @@
+# Blender MTL File: 'scene.blend'
+# Material Count: 6
+
+newmtl Bark.002
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Bump C:\\Users\\eliaf\\Desktop\\NatureAssets\\bark_willow_2k.blend\\textures\\bark_willow_nor_gl_2k.exr
+map_Kd C:\\Users\\eliaf\\Desktop\\NatureAssets\\bark_willow_2k.blend\\textures\\bark_willow_diff_2k.jpg
+map_Ns C:\\Users\\eliaf\\Desktop\\NatureAssets\\bark_willow_2k.blend\\textures\\bark_willow_rough_2k.exr
+
+newmtl Concrete_Pavement_wlrvaf3
+Ns 199.999995
+Ka 1.000000 1.000000 1.000000
+Kd 0.603827 0.603827 0.603827
+Ks 1.000000 1.000000 1.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 3
+map_Kd -o 0.000000 -1.000000 0.000000 D:\\Program Files (x86)\\Megascans Assets\\Downloaded\\surface\\concrete_rough_wlrvaf3\\wlrvaf3_2K_Albedo.jpg
+
+newmtl Leaves.002
+Ns 359.999993
+Ka 1.000000 1.000000 1.000000
+Kd 0.206201 0.800000 0.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+
+newmtl Mat.1
+Ns 319.999996
+Ka 1.000000 1.000000 1.000000
+Kd 0.147319 0.147319 0.147319
+Ks 1.000000 1.000000 1.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd -s 30.000000 30.000000 30.000000 C:\\Users\\eliaf\\Desktop\\sfknaeoa_2K_Albedo.png
+
+newmtl Stained_Patterned_xephfh3
+Ns 199.999995
+Ka 1.000000 1.000000 1.000000
+Kd 0.603827 0.603827 0.603827
+Ks 1.000000 1.000000 1.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 3
+map_Kd -o 0.000000 -1.000000 0.000000 D:\\Program Files (x86)\\Megascans Assets\\Downloaded\\surface\\tile_ceramic_xephfh3\\xephfh3_2K_Albedo.jpg
+
+newmtl Wood_Veneer_Wall_vlskbcz
+Ns 199.999995
+Ka 1.000000 1.000000 1.000000
+Kd 0.603827 0.603827 0.603827
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+map_Kd -o 0.000000 -1.000000 0.000000 D:\\Program Files (x86)\\Megascans Assets\\Downloaded\\surface\\wood_plank_vlskbcz\\vlskbcz_2K_Albedo.jpg
