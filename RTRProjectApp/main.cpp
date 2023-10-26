@@ -40,6 +40,8 @@ Material dullMaterial;
 //Model scene;
 Model tree;
 
+Texture dirtTexture;
+
 DirectionalLight mainDirectionalLight;
 PointLight pointLights[MAX_POINT_LIGHTS];
 SpotLight spotLights[MAX_SPOT_LIGHTS];
@@ -78,7 +80,7 @@ int main()
 	//scene.LoadModel("Models/scene.fbx");
 
 	tree = Model();
-	tree.LoadModel("Models/tree.fbx");
+	tree.LoadModel("Models/plane.obj");
 
 	// setting up lights (position, color, ambientIntensity, diffuseIntensity, direction, edge)
 	// and incrementing the corresponding lightCount
@@ -190,7 +192,7 @@ int main()
 		model = glm::mat4(1.0f);
 
 		// transforming model matrix 
-		model = glm::translate(model, glm::vec3(0.0f, -2.5f, 0.0f));
+		model = glm::translate(model, glm::vec3(0.0f, -1.0f, 0.0f));
 		model = glm::scale(model, glm::vec3(5.0f, 5.0f, 5.0f));
 
 		// sends model matrix to (vertex)shader to corresponding locations
@@ -199,6 +201,8 @@ int main()
 		//comparable to UseLight() in DirectionalLight.cpp (but for Material)
 		shinyMaterial.UseMaterial(uniformSpecularIntensity, uniformShininess);
 		
+		dirtTexture.UseTexture();
+
 		tree.RenderModel();
 
 		//scene.RenderModel();
