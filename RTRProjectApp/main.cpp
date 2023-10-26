@@ -37,8 +37,8 @@ Camera camera;
 Material shinyMaterial;
 Material dullMaterial;
 
-//Model scene;
 Model tree;
+Model plane;
 
 Texture dirtTexture;
 
@@ -77,16 +77,16 @@ int main()
 	shinyMaterial = Material(4.0f, 256);
 	dullMaterial = Material(0.3f, 4);
 
-	//scene = Model();
-	//scene.LoadModel("Models/scene.fbx");
-
 	tree = Model();
-	tree.LoadModel("Models/plane.obj");
+	tree.LoadModel("Models/tree.obj");
+
+	plane = Model();
+	plane.LoadModel("Models/plane.obj");
 
 	// setting up lights (position, color, ambientIntensity, diffuseIntensity, direction, edge)
 	// and incrementing the corresponding lightCount
 	mainDirectionalLight = DirectionalLight(1.0f, 1.0f, 1.0f,
-								0.1f, 0.1f,
+								0.75f, 0.1f,
 								0.0f, 0.0f, -1.0f);
 
 	unsigned int pointLightCount = 0;
@@ -96,7 +96,7 @@ int main()
 								0.3f, 0.2f, 0.1f);
 	pointLightCount++;
 	pointLights[1] = PointLight(0.0f, 1.0f, 0.0f,
-								1.0f, 0.1f,
+								0.1f, 0.1f,
 								-4.0f, 2.0f, 0.0f,
 								0.3f, 0.1f, 0.1f);
 	pointLightCount++;
@@ -200,21 +200,24 @@ int main()
 
 		model = glm::mat4(1.0f);
 
-		// transforming model matrix 
 		model = glm::translate(model, glm::vec3(0.0f, -1.0f, 0.0f));
-		model = glm::scale(model, glm::vec3(glm::sin(now), 5.0f, glm::sin(now/2)));
 
 		// sends model matrix to (vertex)shader to corresponding locations
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		
 		//comparable to UseLight() in DirectionalLight.cpp (but for Material)
-		shinyMaterial.UseMaterial(uniformSpecularIntensity, uniformShininess);
-		
-		dirtTexture.UseTexture();
+		dullMaterial.UseMaterial(uniformSpecularIntensity, uniformShininess);
 
 		tree.RenderModel();
 
-		//scene.RenderModel();
+		// transforming model matrix 
+		model = glm::scale(model, glm::vec3(5.0f, 5.0f, 5.0f));
+
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+
+		shinyMaterial.UseMaterial(uniformSpecularIntensity, uniformShininess);
+
+		plane.RenderModel();
 
 		glUseProgram(0);
 

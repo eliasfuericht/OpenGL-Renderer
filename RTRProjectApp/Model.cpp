@@ -134,7 +134,7 @@ void Model::LoadMaterials(const aiScene* scene)
 				textureList[i] = new Texture(texPath.c_str());
 
 				// loades the texture and checks if it was successful
-				if (!textureList[i]->LoadTexture()) {
+				if (!textureList[i]->LoadTextureA()) {
 					printf("Failed to load texture at: %s", texPath);
 					delete textureList[i];
 					textureList[i] = nullptr;
