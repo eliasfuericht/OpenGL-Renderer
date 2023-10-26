@@ -38,15 +38,13 @@ int Window::Initialise()
 	}
 
 	// Setup GLFW Windows Properties
-	// OpenGL version
+	// OpenGL version, profile and compatability
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
-	// Core Profile
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	// Allow forward compatiblity
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 
-	// Create the window
+	// Create window
 	mainWindow = glfwCreateWindow(width, height, "Night at the museum", NULL, NULL);
 	if (!mainWindow)
 	{
@@ -55,17 +53,17 @@ int Window::Initialise()
 		return 1;
 	}
 
-	// Get buffer size information
+	// Get Framebuffer information and set it to variables
 	glfwGetFramebufferSize(mainWindow, &bufferWidth, &bufferHeight);
 
 	// Set the current context
 	glfwMakeContextCurrent(mainWindow);
 
-	// Handle Key + Mouse Input
+	// Handle Key + Mouse Input 
 	createCallbacks();
 	glfwSetInputMode(mainWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
-	// Allow modern extension access
+	// Allow modern extensions 
 	glewExperimental = GL_TRUE;
 
 	GLenum error = glewInit();
@@ -77,6 +75,7 @@ int Window::Initialise()
 		return 1;
 	}
 
+	// Enable Z buffer
 	glEnable(GL_DEPTH_TEST);
 
 	// Create Viewport
@@ -87,6 +86,7 @@ int Window::Initialise()
 
 void Window::createCallbacks()
 {
+	// Sets handleKeys as callback function for keys and mouse
 	glfwSetKeyCallback(mainWindow, handleKeys);
 	glfwSetCursorPosCallback(mainWindow, handleMouse);
 }
@@ -105,6 +105,7 @@ GLfloat Window::getYChange()
 	return changeValueY;
 }
 
+// handleKeys function has to be the exact signature as below for it to work (see -> GLFWkeyfun)
 void Window::handleKeys(GLFWwindow* window, int key, int code, int action, int mode)
 {
 	Window* theWindow = static_cast<Window*>(glfwGetWindowUserPointer(window));

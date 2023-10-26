@@ -17,6 +17,7 @@ void Shader::CreateFromString(const char* vertexCode, const char* fragmentCode)
 
 void Shader::CreateFromFiles(const char* vertexLocation, const char* fragmentLocation)
 {
+	// read vertex and fragment shaders from files
 	std::string vertexString = ReadFile(vertexLocation);
 	std::string fragmentString = ReadFile(fragmentLocation);
 	const char* vertexCode = vertexString.c_str();
@@ -25,6 +26,7 @@ void Shader::CreateFromFiles(const char* vertexLocation, const char* fragmentLoc
 	CompileShader(vertexCode, fragmentCode);
 }
 
+// function to parse shader files
 std::string Shader::ReadFile(const char* fileLocation)
 {
 	std::string content;
@@ -48,6 +50,7 @@ std::string Shader::ReadFile(const char* fileLocation)
 
 void Shader::CompileShader(const char* vertexCode, const char* fragmentCode)
 {
+	// creates shader program and returns its ID - a shader program is a collection of shaders (not just vertex or just fragment, both combined!)
 	shaderID = glCreateProgram();
 
 	if (!shaderID)
@@ -56,6 +59,7 @@ void Shader::CompileShader(const char* vertexCode, const char* fragmentCode)
 		return;
 	}
 
+	// compile vertex and fragment shaders and attach them to shader program
 	AddShader(shaderID, vertexCode, GL_VERTEX_SHADER);
 	AddShader(shaderID, fragmentCode, GL_FRAGMENT_SHADER);
 
@@ -154,46 +158,42 @@ void Shader::CompileShader(const char* vertexCode, const char* fragmentCode)
 	}
 }
 
-GLuint Shader::GetProjectionLocation()
+// function to compile shaderCode and attach to shader program
+void Shader::AddShader(GLuint shaderProgram, const char* shaderCode, GLenum shaderType)
 {
-	return uniformProjection;
+	// creates shader object of specified type and returns its ID
+	GLuint theShader = glCreateShader(shaderType);
+
+	// transforms shader code into a format that OpenGL can understand
+	const GLchar* theCode[1];
+	theCode[0] = shaderCode;
+
+	// specify length of shader code
+	GLint codeLength[1];
+	codeLength[0] = strlen(shaderCode);
+
+	// sets the source code in shader object (accessed by ID) to the source code in shaderCode (=our defined shader)
+	glShaderSource(theShader, 1, theCode, codeLength);
+
+	// compiles shader object/code
+	glCompileShader(theShader);
+
+	GLint result = 0;
+	GLchar eLog[1024] = { 0 };
+
+	// retrieves compile status of shader object and stores it in result
+	glGetShaderiv(theShader, GL_COMPILE_STATUS, &result);
+	if (!result)
+	{
+		glGetShaderInfoLog(theShader, sizeof(eLog), NULL, eLog);
+		printf("Error compiling the %d shader: '%s'\n", shaderType, eLog);
+		return;
+	}
+
+	// attaches shader object to shader program (created in CompileShader())
+	glAttachShader(shaderProgram, theShader);
 }
-GLuint Shader::GetModelLocation()
-{
-	return uniformModel;
-}
-GLuint Shader::GetViewLocation()
-{
-	return uniformView;
-}
-GLuint Shader::GetAmbientcolorLocation()
-{
-	return uniformDirectionalLight.uniformcolor;
-}
-GLuint Shader::GetAmbientIntensityLocation()
-{
-	return uniformDirectionalLight.uniformAmbientIntensity;
-}
-GLuint Shader::GetDiffuseIntensityLocation()
-{
-	return uniformDirectionalLight.uniformDiffuseIntensity;
-}
-GLuint Shader::GetDirectionLocation()
-{
-	return uniformDirectionalLight.uniformDirection;
-}
-GLuint Shader::GetSpecularIntensityLocation()
-{
-	return uniformSpecularIntensity;
-}
-GLuint Shader::GetShininessLocation()
-{
-	return uniformShininess;
-}
-GLuint Shader::GetEyePositionLocation()
-{
-	return uniformEyePosition;
-}
+
 
 void Shader::SetDirectionalLight(DirectionalLight * dLight)
 {
@@ -235,6 +235,47 @@ void Shader::UseShader()
 	glUseProgram(shaderID);
 }
 
+GLuint Shader::GetProjectionLocation()
+{
+	return uniformProjection;
+}
+GLuint Shader::GetModelLocation()
+{
+	return uniformModel;
+}
+GLuint Shader::GetViewLocation()
+{
+	return uniformView;
+}
+GLuint Shader::GetAmbientcolorLocation()
+{
+	return uniformDirectionalLight.uniformcolor;
+}
+GLuint Shader::GetAmbientIntensityLocation()
+{
+	return uniformDirectionalLight.uniformAmbientIntensity;
+}
+GLuint Shader::GetDiffuseIntensityLocation()
+{
+	return uniformDirectionalLight.uniformDiffuseIntensity;
+}
+GLuint Shader::GetDirectionLocation()
+{
+	return uniformDirectionalLight.uniformDirection;
+}
+GLuint Shader::GetSpecularIntensityLocation()
+{
+	return uniformSpecularIntensity;
+}
+GLuint Shader::GetShininessLocation()
+{
+	return uniformShininess;
+}
+GLuint Shader::GetEyePositionLocation()
+{
+	return uniformEyePosition;
+}
+
 void Shader::ClearShader()
 {
 	if (shaderID != 0)
@@ -245,34 +286,6 @@ void Shader::ClearShader()
 
 	uniformModel = 0;
 	uniformProjection = 0;
-}
-
-
-void Shader::AddShader(GLuint theProgram, const char* shaderCode, GLenum shaderType)
-{
-	GLuint theShader = glCreateShader(shaderType);
-
-	const GLchar* theCode[1];
-	theCode[0] = shaderCode;
-
-	GLint codeLength[1];
-	codeLength[0] = strlen(shaderCode);
-
-	glShaderSource(theShader, 1, theCode, codeLength);
-	glCompileShader(theShader);
-
-	GLint result = 0;
-	GLchar eLog[1024] = { 0 };
-
-	glGetShaderiv(theShader, GL_COMPILE_STATUS, &result);
-	if (!result)
-	{
-		glGetShaderInfoLog(theShader, sizeof(eLog), NULL, eLog);
-		printf("Error compiling the %d shader: '%s'\n", shaderType, eLog);
-		return;
-	}
-
-	glAttachShader(theProgram, theShader);
 }
 
 Shader::~Shader()
