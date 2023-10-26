@@ -26,7 +26,7 @@ void Shader::CreateFromFiles(const char* vertexLocation, const char* fragmentLoc
 	CompileShader(vertexCode, fragmentCode);
 }
 
-// function to parse shader files
+// function to parse shader file and return its content as a string
 std::string Shader::ReadFile(const char* fileLocation)
 {
 	std::string content;
@@ -66,15 +66,19 @@ void Shader::CompileShader(const char* vertexCode, const char* fragmentCode)
 	GLint result = 0;
 	GLchar eLog[1024] = { 0 };
 
+	// links shader program to OpenGL pipeline (if vertex/fragment shaders are found -> executable is created)
 	glLinkProgram(shaderID);
+	// check if linking worked and store evaluation in result
 	glGetProgramiv(shaderID, GL_LINK_STATUS, &result);
 	if (!result)
 	{
+		// if linking failed, store error message in eLog
 		glGetProgramInfoLog(shaderID, sizeof(eLog), NULL, eLog);
 		printf("Error linking program: '%s'\n", eLog);
 		return;
 	}
 
+	// checks if executable (created by glLinkProgram) can be executed given current OpenGL state.
 	glValidateProgram(shaderID);
 	glGetProgramiv(shaderID, GL_VALIDATE_STATUS, &result);
 	if (!result)
@@ -84,9 +88,13 @@ void Shader::CompileShader(const char* vertexCode, const char* fragmentCode)
 		return;
 	}
 
-	uniformProjection = glGetUniformLocation(shaderID, "projection");
+	// stores location of uniform variables of shaderprogram in corresponding membervariables
+	//vertex shader
 	uniformModel = glGetUniformLocation(shaderID, "model");
+	uniformProjection = glGetUniformLocation(shaderID, "projection");
 	uniformView = glGetUniformLocation(shaderID, "view");
+
+	//fragment shader
 	uniformDirectionalLight.uniformcolor = glGetUniformLocation(shaderID, "directionalLight.base.color");
 	uniformDirectionalLight.uniformAmbientIntensity = glGetUniformLocation(shaderID, "directionalLight.base.ambientIntensity");
 	uniformDirectionalLight.uniformDirection = glGetUniformLocation(shaderID, "directionalLight.direction");
@@ -97,10 +105,12 @@ void Shader::CompileShader(const char* vertexCode, const char* fragmentCode)
 
 	uniformPointLightCount = glGetUniformLocation(shaderID, "pointLightCount");
 
+	// also stores location of uniform variables of shaderprogram in corresponding membervariables
 	for (size_t i = 0; i < MAX_POINT_LIGHTS; i++)
 	{
 		char locBuff[100] = { '\0' };
-
+		// stores char* into "locBuff" for retrieving uniform location of pointLights[i].base.color
+		// has to be done this way because glGetUniformLocation() only accepts char* as input
 		snprintf(locBuff, sizeof(locBuff), "pointLights[%d].base.color", i);
 		uniformPointLight[i].uniformcolor = glGetUniformLocation(shaderID, locBuff);
 
@@ -124,7 +134,8 @@ void Shader::CompileShader(const char* vertexCode, const char* fragmentCode)
 	}
 
 	uniformSpotLightCount = glGetUniformLocation(shaderID, "spotLightCount");
-
+	
+	// same for spotlights
 	for (size_t i = 0; i < MAX_SPOT_LIGHTS; i++)
 	{
 		char locBuff[100] = { '\0' };
@@ -197,16 +208,21 @@ void Shader::AddShader(GLuint shaderProgram, const char* shaderCode, GLenum shad
 
 void Shader::SetDirectionalLight(DirectionalLight * dLight)
 {
+	// not iterating over anything because there will be only 1 directionalLight in the scene
 	dLight->UseLight(uniformDirectionalLight.uniformAmbientIntensity, uniformDirectionalLight.uniformcolor,
 		uniformDirectionalLight.uniformDiffuseIntensity, uniformDirectionalLight.uniformDirection);
 }
 
 void Shader::SetPointLights(PointLight * pLight, unsigned int lightCount)
 {
+	// MAX_POINT_LIGHTS is defined in CommonValues.h
 	if (lightCount > MAX_POINT_LIGHTS) lightCount = MAX_POINT_LIGHTS;
 
+	// sets uniform variable of pointLightCount in fragment.glsl
+	// = uniform pointLightCount (int);
 	glUniform1i(uniformPointLightCount, lightCount);
 
+	// iterates over all pointLights in scene and calls UseLight()
 	for (size_t i = 0; i < lightCount; i++)
 	{
 		pLight[i].UseLight(uniformPointLight[i].uniformAmbientIntensity, uniformPointLight[i].uniformcolor,
@@ -217,10 +233,14 @@ void Shader::SetPointLights(PointLight * pLight, unsigned int lightCount)
 
 void Shader::SetSpotLights(SpotLight * sLight, unsigned int lightCount)
 {
+	// MAX_SPOT_LIGHTS is defined in CommonValues.h
 	if (lightCount > MAX_SPOT_LIGHTS) lightCount = MAX_SPOT_LIGHTS;
 
+	// sets uniform variable of spotLightCount in fragment.glsl
+	// = uniform spotLightCount (int);
 	glUniform1i(uniformSpotLightCount, lightCount);
 
+	// iterates over all spotLights in scene and calls UseLight()
 	for (size_t i = 0; i < lightCount; i++)
 	{
 		sLight[i].UseLight(uniformSpotLight[i].uniformAmbientIntensity, uniformSpotLight[i].uniformcolor,
@@ -232,9 +252,11 @@ void Shader::SetSpotLights(SpotLight * sLight, unsigned int lightCount)
 
 void Shader::UseShader()
 {
+	// sets executables of shaderprogram (at location ShaderID) to be used for rendering
 	glUseProgram(shaderID);
 }
 
+// Getters for the uniform variable locations (used in main.cpp to retrieve uniform variable locations)
 GLuint Shader::GetProjectionLocation()
 {
 	return uniformProjection;
@@ -276,6 +298,7 @@ GLuint Shader::GetEyePositionLocation()
 	return uniformEyePosition;
 }
 
+// cleanup function
 void Shader::ClearShader()
 {
 	if (shaderID != 0)

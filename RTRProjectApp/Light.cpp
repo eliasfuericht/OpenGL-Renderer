@@ -1,5 +1,7 @@
 #include "Light.h"
 
+// Base class for all Lights
+// Does nothing other than initialize the variables
 Light::Light()
 {
 	color = glm::vec3(1.0f, 1.0f, 1.0f);

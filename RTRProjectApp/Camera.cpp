@@ -18,9 +18,10 @@ Camera::Camera(glm::vec3 startPosition, glm::vec3 startUp, GLfloat startYaw, GLf
 
 void Camera::keyControl(bool* keys, GLfloat deltaTime)
 {
-	//calculate velocity based on deltaTime
+	// calculate velocity based on deltaTime
 	GLfloat velocity = moveSpeed * deltaTime;
 
+	// looks into window.keys array and checks if certain key has been pressed 
 	if (keys[GLFW_KEY_W])
 	{
 		position += front * velocity;
@@ -54,6 +55,7 @@ void Camera::keyControl(bool* keys, GLfloat deltaTime)
 
 void Camera::mouseControl(GLfloat xChange, GLfloat yChange)
 {
+	//applying mouse movement to yaw and pitch for recalculation of camera vectors in update()
 	xChange *= turnSpeed;
 	yChange *= turnSpeed;
 

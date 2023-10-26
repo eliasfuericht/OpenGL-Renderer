@@ -37,10 +37,10 @@ Camera camera;
 Material shinyMaterial;
 Material dullMaterial;
 
-Model scene;
+//Model scene;
 Model tree;
 
-DirectionalLight mainLight;
+DirectionalLight mainDirectionalLight;
 PointLight pointLights[MAX_POINT_LIGHTS];
 SpotLight spotLights[MAX_SPOT_LIGHTS];
 
@@ -56,7 +56,9 @@ static const char* fShader = "Shaders/fragment.glsl";
 void CreateShaders()
 {
 	Shader *shader1 = new Shader();
+	// reads, compiles and sets shader as shaderprogram to use!
 	shader1->CreateFromFiles(vShader, fShader);
+	//pushes into shaderList vector (for later use of multiple shaders)
 	shaderList.push_back(*shader1);
 }
 
@@ -72,13 +74,15 @@ int main()
 	shinyMaterial = Material(4.0f, 256);
 	dullMaterial = Material(0.3f, 4);
 
-	scene = Model();
+	//scene = Model();
 	//scene.LoadModel("Models/scene.fbx");
 
 	tree = Model();
 	tree.LoadModel("Models/tree.fbx");
 
-	mainLight = DirectionalLight(1.0f, 1.0f, 1.0f, 
+	// setting up lights (position, color, ambientIntensity, diffuseIntensity, direction, edge)
+	// and incrementing the corresponding lightCount
+	mainDirectionalLight = DirectionalLight(1.0f, 1.0f, 1.0f, 
 								0.1f, 0.1f,
 								0.0f, 0.0f, -1.0f);
 
@@ -141,7 +145,7 @@ int main()
 		glfwPollEvents();
 
 		// Handle camera movement
-		camera.keyControl(mainWindow.getsKeys(), deltaTime);
+		camera.keyControl(mainWindow.getKeys(), deltaTime);
 		camera.mouseControl(mainWindow.getXChange(), mainWindow.getYChange());
 
 		// Clear the window
@@ -149,6 +153,8 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		shaderList[0].UseShader();
+		// retreive uniform locations (ID) from shader membervariables
+		// and stores them in local varibale for passing projection, model and view matrices to shader
 		uniformModel = shaderList[0].GetModelLocation();
 		uniformProjection = shaderList[0].GetProjectionLocation();
 		uniformView = shaderList[0].GetViewLocation();
@@ -157,25 +163,42 @@ int main()
 		uniformShininess = shaderList[0].GetShininessLocation();
 
 		//Flashlight
+		// copies camera position and lowers y value by 0.3f (so flashlight feels like it's in hand)
 		//glm::vec3 lowerLight = camera.getCameraPosition();
 		//lowerLight.y -= 0.3f;
+	
+		// SetFlash() sets the direction of the light to always face the same direction as the camera
 		//spotLights[0].SetFlash(lowerLight, camera.getCameraDirection());
 
-		shaderList[0].SetDirectionalLight(&mainLight);
+		// sends data about the lights from CPU to the (fragement)shader to corresponding locations
+		shaderList[0].SetDirectionalLight(&mainDirectionalLight);
 		shaderList[0].SetPointLights(pointLights, pointLightCount);
 		shaderList[0].SetSpotLights(spotLights, spotLightCount);
 
+		// sends transformationmatrix to (vertex)shader to corresponding locations
+		// = uniform mat4 projection;
 		glUniformMatrix4fv(uniformProjection, 1, GL_FALSE, glm::value_ptr(projection));
+		// = uniform mat4 view;
 		glUniformMatrix4fv(uniformView, 1, GL_FALSE, glm::value_ptr(camera.calculateViewMatrix()));
+
+		// sends camera position to (fragment)shader to corresponding locations
+		// = uniform vec3 eyePosition;
 		glUniform3f(uniformEyePosition, camera.getCameraPosition().x, camera.getCameraPosition().y, camera.getCameraPosition().z);
 
 		glm::mat4 model(1.0f);	
 
 		model = glm::mat4(1.0f);
+
+		// transforming model matrix 
 		model = glm::translate(model, glm::vec3(0.0f, -2.5f, 0.0f));
 		model = glm::scale(model, glm::vec3(5.0f, 5.0f, 5.0f));
+
+		// sends model matrix to (vertex)shader to corresponding locations
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		
+		//comparable to UseLight() in DirectionalLight.cpp (but for Material)
 		shinyMaterial.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		
 		tree.RenderModel();
 
 		//scene.RenderModel();

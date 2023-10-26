@@ -115,6 +115,7 @@ void Window::handleKeys(GLFWwindow* window, int key, int code, int action, int m
 		glfwSetWindowShouldClose(window, GL_TRUE);
 	}
 
+	// sets key to true if pressed and false if released
 	if (key >= 0 && key < 1024)
 	{
 		if (action == GLFW_PRESS)
@@ -128,6 +129,7 @@ void Window::handleKeys(GLFWwindow* window, int key, int code, int action, int m
 	}
 }
 
+// function has to be the exact signature as below for it to work (see -> GLFWcursorposfun)
 void Window::handleMouse(GLFWwindow* window, double xPos, double yPos)
 {
 	Window* theWindow = static_cast<Window*>(glfwGetWindowUserPointer(window));
