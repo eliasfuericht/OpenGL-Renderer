@@ -50,23 +50,23 @@ std::string Shader::ReadFile(const char* fileLocation)
 
 void Shader::CompileShader(const char* vertexCode, const char* fragmentCode)
 {
-	// creates shader program and returns its ID - a shader program is a collection of shaders (not just vertex or just fragment, both combined!)
+	// creates shaderprogram and returns its ID - a shaderprogram is a collection of shaders (not just vertex or just fragment, both combined!)
 	shaderID = glCreateProgram();
 
 	if (!shaderID)
 	{
-		printf("Error creating shader program!\n");
+		printf("Error creating shaderprogram!\n");
 		return;
 	}
 
-	// compile vertex and fragment shaders and attach them to shader program
+	// compile vertex and fragment shaders and attach them to shaderprogram
 	AddShader(shaderID, vertexCode, GL_VERTEX_SHADER);
 	AddShader(shaderID, fragmentCode, GL_FRAGMENT_SHADER);
 
 	GLint result = 0;
 	GLchar eLog[1024] = { 0 };
 
-	// links shader program to OpenGL pipeline (if vertex/fragment shaders are found -> executable is created)
+	// links shaderprogram to OpenGL pipeline (if vertex/fragment shaders are found -> executable is created)
 	glLinkProgram(shaderID);
 	// check if linking worked and store evaluation in result
 	glGetProgramiv(shaderID, GL_LINK_STATUS, &result);
@@ -169,7 +169,7 @@ void Shader::CompileShader(const char* vertexCode, const char* fragmentCode)
 	}
 }
 
-// function to compile shaderCode and attach to shader program
+// function to compile shaderCode and attach to shaderprogram
 void Shader::AddShader(GLuint shaderProgram, const char* shaderCode, GLenum shaderType)
 {
 	// creates shader object of specified type and returns its ID
@@ -201,7 +201,7 @@ void Shader::AddShader(GLuint shaderProgram, const char* shaderCode, GLenum shad
 		return;
 	}
 
-	// attaches shader object to shader program (created in CompileShader())
+	// attaches shader object to shaderprogram (created in CompileShader())
 	glAttachShader(shaderProgram, theShader);
 }
 

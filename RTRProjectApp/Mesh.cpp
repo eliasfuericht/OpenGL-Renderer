@@ -8,17 +8,17 @@ Mesh::Mesh()
 	indexCount = 0;
 }
 
-// this function is just preparing the data to be sent to the GPU (so setting up the VAO, VBO and IBO to be used in RenderModel() later)
+// this function is preparing the data to be sent to the GPU (so setting up the VAO, VBO and IBO to be used in RenderModel() later)
 void Mesh::CreateMesh(GLfloat *vertices, unsigned int *indices, unsigned int numOfVertices, unsigned int numOfIndices)
 {
 	indexCount = numOfIndices;
 
 	// generate Vertex Array Object(VAO) (stores information about how vertex attribute data is laid out in VBO)
 	glGenVertexArrays(1, &VAO);
-	// bind VAO, meaning "make VAO the current VAO"
+	// bind VAO, meaning "make this VAO the currently used VAO"
 	glBindVertexArray(VAO);
 
-	// generate Index Buffer Object(IBO) (stores indices of vertices for efficient rendering(throw away duplicates)
+	// generate Index Buffer Object(IBO) (stores indices of vertices for efficient rendering(throw away duplicates))
 	// is used during the pipeline to fetch the corresponding vertices from the VBO
 	glGenBuffers(1, &IBO);
 	// bind IBO to GL_ELEMENT_ARRAY_BUFFER
@@ -32,7 +32,7 @@ void Mesh::CreateMesh(GLfloat *vertices, unsigned int *indices, unsigned int num
 	// bind VBO to GL_ARRAY_BUFFER
 	// Any calls made to the GL_ARRAY_BUFFER target will affect the currently bound buffer, in this case VBO
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	// copy data from vertices array to Vertex Buffer on GPU (VBO)
+	// copy data from vertices array to Vertex Buffer (VBO)
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices[0]) * numOfVertices, vertices, GL_STATIC_DRAW);
 
 	// Configures the vertex attribute pointers stored in the VAO

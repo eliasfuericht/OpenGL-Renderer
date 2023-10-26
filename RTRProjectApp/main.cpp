@@ -71,6 +71,7 @@ int main()
 
 	CreateShaders();
 
+	// setting up basic camera
 	camera = Camera(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), -60.0f, 0.0f, 5.0f, 0.05f);
 
 	shinyMaterial = Material(4.0f, 256);
@@ -84,7 +85,7 @@ int main()
 
 	// setting up lights (position, color, ambientIntensity, diffuseIntensity, direction, edge)
 	// and incrementing the corresponding lightCount
-	mainDirectionalLight = DirectionalLight(1.0f, 1.0f, 1.0f, 
+	mainDirectionalLight = DirectionalLight(1.0f, 1.0f, 1.0f,
 								0.1f, 0.1f,
 								0.0f, 0.0f, -1.0f);
 
@@ -116,7 +117,10 @@ int main()
 		20.0f);
 	spotLightCount++;
 
+	// setting up GLuints for uniform locations for later use
 	GLuint uniformProjection = 0, uniformModel = 0, uniformView = 0, uniformEyePosition = 0, uniformSpecularIntensity = 0, uniformShininess = 0;
+	
+	// calculating projection matrix
 	glm::mat4 projection = glm::perspective(glm::radians(45.0f), (GLfloat)mainWindow.getBufferWidth() / mainWindow.getBufferHeight(), 0.1f, 100.0f);
 	
 	//print OpenGL Version
@@ -126,12 +130,13 @@ int main()
 	GLfloat lastFrame = 0.0f;
 	int frameCount = 0;
 	int fps = 0;
+	int avgFps = 0;
 	
 	// Loop until window closed
 	while (!mainWindow.getShouldClose())
 	{
-		printf("\rCurrent FPS: %d", fps);
 		GLfloat now = glfwGetTime();
+		printf("\rCurrent FPS: %d", fps);
 		deltaTime = now - lastTime;
 		lastTime = now;
 
@@ -142,6 +147,8 @@ int main()
 			frameCount = 0;
 			lastFrame = now;
 		}
+
+		avgFps = (avgFps + fps) / 2;
 
 		// Get + Handle User Input
 		glfwPollEvents();
@@ -154,7 +161,9 @@ int main()
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+		// sets shaderprogram at shaderList[0] as shaderprogram to use
 		shaderList[0].UseShader();
+
 		// retreive uniform locations (ID) from shader membervariables
 		// and stores them in local varibale for passing projection, model and view matrices to shader
 		uniformModel = shaderList[0].GetModelLocation();
@@ -193,7 +202,7 @@ int main()
 
 		// transforming model matrix 
 		model = glm::translate(model, glm::vec3(0.0f, -1.0f, 0.0f));
-		model = glm::scale(model, glm::vec3(5.0f, 5.0f, 5.0f));
+		model = glm::scale(model, glm::vec3(glm::sin(now), 5.0f, glm::sin(now/2)));
 
 		// sends model matrix to (vertex)shader to corresponding locations
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
@@ -212,5 +221,6 @@ int main()
 		mainWindow.swapBuffers();
 	}
 
+	printf("\nAverage FPS: %d", avgFps);
 	return 0;
 }
