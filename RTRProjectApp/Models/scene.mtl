@@ -1,0 +1,68 @@
+# Blender MTL File: 'scene.blend'
+# Material Count: 6
+
+newmtl Concrete_Pavement_wlrvaf3
+Ns 199.999995
+Ka 1.000000 1.000000 1.000000
+Kd 0.013702 0.013702 0.013702
+Ks 1.000000 1.000000 1.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 3
+map_Kd C:\\Users\\eliaf\\OneDrive\\TU Wien\\1.Semester\\Echtzeitgraphik\\Project\\rtr23-nightatthemuseum\\RTRProjectApp\\Textures\\1f1f1f.png
+
+newmtl Leavs
+Ns 359.999993
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd C:\\Users\\eliaf\\Desktop\\textures\\Leavs_basecolor_.tga.png
+
+newmtl Mat.1
+Ns 319.999996
+Ka 1.000000 1.000000 1.000000
+Kd 0.147319 0.147319 0.147319
+Ks 1.000000 1.000000 1.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd -s 30.000000 30.000000 30.000000 C:\\Users\\eliaf\\OneDrive\\TU Wien\\1.Semester\\Echtzeitgraphik\\Project\\rtr23-nightatthemuseum\\RTRProjectApp\\Textures\\dirt.png
+
+newmtl Stained_Patterned_xephfh3
+Ns 199.999995
+Ka 1.000000 1.000000 1.000000
+Kd 0.013702 0.013702 0.013702
+Ks 1.000000 1.000000 1.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 3
+map_Kd C:\\Users\\eliaf\\OneDrive\\TU Wien\\1.Semester\\Echtzeitgraphik\\Project\\rtr23-nightatthemuseum\\RTRProjectApp\\Textures\\1f1f1f.png
+
+newmtl Trank
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd C:\\Users\\eliaf\\Desktop\\textures\\Trank_basecolor.tga.png
+
+newmtl Wood_Veneer_Wall_vlskbcz
+Ns 199.999995
+Ka 1.000000 1.000000 1.000000
+Kd 0.603827 0.603827 0.603827
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+map_Kd C:\\Users\\eliaf\\OneDrive\\TU Wien\\1.Semester\\Echtzeitgraphik\\Project\\rtr23-nightatthemuseum\\RTRProjectApp\\Textures\\Trank_basecolor.tga.png

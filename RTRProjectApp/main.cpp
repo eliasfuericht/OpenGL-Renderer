@@ -4,6 +4,7 @@
 #include <string.h>
 #include <cmath>
 #include <vector>
+#include <numeric>
 
 #include <GL\glew.h>
 #include <GLFW\glfw3.h>
@@ -39,6 +40,7 @@ Material dullMaterial;
 
 Model tree;
 Model plane;
+Model scene;
 
 Texture dirtTexture;
 
@@ -82,6 +84,9 @@ int main()
 
 	plane = Model();
 	plane.LoadModel("Models/plane.obj");
+
+	scene = Model();
+	scene.LoadModel("Models/scene.obj");
 
 	// setting up lights (position, color, ambientIntensity, diffuseIntensity, direction, edge)
 	// and incrementing the corresponding lightCount
@@ -130,8 +135,8 @@ int main()
 	GLfloat lastFrame = 0.0f;
 	int frameCount = 0;
 	int fps = 0;
-	int avgFps = 0;
-	
+	std::vector<int> fpsList;
+
 	// Loop until window closed
 	while (!mainWindow.getShouldClose())
 	{
@@ -144,11 +149,10 @@ int main()
 		if (now - lastFrame >= 1.0)
 		{
 			fps = frameCount;
+			fpsList.push_back(fps);
 			frameCount = 0;
 			lastFrame = now;
 		}
-
-		avgFps = (avgFps + fps) / 2;
 
 		// Get + Handle User Input
 		glfwPollEvents();
@@ -208,22 +212,27 @@ int main()
 		//comparable to UseLight() in DirectionalLight.cpp (but for Material)
 		dullMaterial.UseMaterial(uniformSpecularIntensity, uniformShininess);
 
-		tree.RenderModel();
+		//tree.RenderModel();
+
 
 		// transforming model matrix 
 		model = glm::scale(model, glm::vec3(5.0f, 5.0f, 5.0f));
 
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 
-		shinyMaterial.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		dullMaterial.UseMaterial(uniformSpecularIntensity, uniformShininess);
 
-		plane.RenderModel();
+		scene.RenderModel();
+
+		//plane.RenderModel();
 
 		glUseProgram(0);
 
 		mainWindow.swapBuffers();
 	}
 
-	printf("\nAverage FPS: %d", avgFps);
+	int averageFPS = 0;
+	averageFPS = std::accumulate(fpsList.begin(), fpsList.end(), 0) / fpsList.size();
+	printf("\nAverage FPS: %d\n", averageFPS);
 	return 0;
 }
