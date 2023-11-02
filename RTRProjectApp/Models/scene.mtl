@@ -1,5 +1,5 @@
 # Blender MTL File: 'scene.blend'
-# Material Count: 6
+# Material Count: 9
 
 newmtl Concrete_Pavement_wlrvaf3
 Ns 199.999995
@@ -21,18 +21,18 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 2
-map_Kd C:\\Users\\eliaf\\Desktop\\textures\\Leavs_basecolor_.tga.png
+map_Kd C:\\Users\\eliaf\\OneDrive\\TU Wien\\1.Semester\\Echtzeitgraphik\\Project\\rtr23-nightatthemuseum\\RTRProjectApp\\Textures\\Leavs_basecolor_.tga.png
 
-newmtl Mat.1
-Ns 319.999996
+newmtl Material
+Ns 250.000000
 Ka 1.000000 1.000000 1.000000
-Kd 0.147319 0.147319 0.147319
-Ks 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.500000 0.500000 0.500000
 Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 2
-map_Kd -s 30.000000 30.000000 30.000000 C:\\Users\\eliaf\\OneDrive\\TU Wien\\1.Semester\\Echtzeitgraphik\\Project\\rtr23-nightatthemuseum\\RTRProjectApp\\Textures\\dirt.png
+map_Kd C:\\Users\\eliaf\\OneDrive\\TU Wien\\1.Semester\\Echtzeitgraphik\\Project\\rtr23-nightatthemuseum\\RTRProjectApp\\Textures\\Forest-Ground_01.png
 
 newmtl Stained_Patterned_xephfh3
 Ns 199.999995
@@ -54,7 +54,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 2
-map_Kd C:\\Users\\eliaf\\Desktop\\textures\\Trank_basecolor.tga.png
+map_Kd C:\\Users\\eliaf\\OneDrive\\TU Wien\\1.Semester\\Echtzeitgraphik\\Project\\rtr23-nightatthemuseum\\RTRProjectApp\\Textures\\Trank_basecolor.tga.png
 
 newmtl Wood_Veneer_Wall_vlskbcz
 Ns 199.999995
@@ -66,3 +66,36 @@ Ni 1.450000
 d 1.000000
 illum 1
 map_Kd C:\\Users\\eliaf\\OneDrive\\TU Wien\\1.Semester\\Echtzeitgraphik\\Project\\rtr23-nightatthemuseum\\RTRProjectApp\\Textures\\Trank_basecolor.tga.png
+
+newmtl default
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Kd 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+map_Kd C:\\Users\\eliaf\\OneDrive\\TU Wien\\1.Semester\\Echtzeitgraphik\\Project\\rtr23-nightatthemuseum\\RTRProjectApp\\Textures\\white.png
+
+newmtl default.001
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Kd 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+map_Kd C:\\Users\\eliaf\\OneDrive\\TU Wien\\1.Semester\\Echtzeitgraphik\\Project\\rtr23-nightatthemuseum\\RTRProjectApp\\Textures\\white.png
+
+newmtl default.002
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Kd 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+map_Kd C:\\Users\\eliaf\\OneDrive\\TU Wien\\1.Semester\\Echtzeitgraphik\\Project\\rtr23-nightatthemuseum\\RTRProjectApp\\Textures\\white.png
