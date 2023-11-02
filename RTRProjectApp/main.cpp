@@ -254,6 +254,8 @@ int main()
 		// transforming model matrix 
 		model = glm::scale(model, glm::vec3(5.0f, 5.0f, 5.0f));
 
+		model = glm::translate(model, glm::vec3(0.0f, -1.5f, 0.0f));
+
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 
 		dullMaterial.UseMaterial(uniformSpecularIntensity, uniformShininess);
