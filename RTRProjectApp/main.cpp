@@ -110,7 +110,7 @@ int main()
 	plane.LoadModel("Models/plane.obj");
 
 	scene = Model();
-	scene.LoadModel("Models/sceneTest.obj");
+	scene.LoadModel("Models/scene.obj");
 
 	// setting up lights (position, color, ambientIntensity, diffuseIntensity, direction, edge)
 	// and incrementing the corresponding lightCount
@@ -184,8 +184,8 @@ int main()
 		glfwPollEvents();
 
 		// Handle camera movement
-		camera.keyControl(mainWindow.getKeys(), deltaTime);
 		camera.mouseControl(mainWindow.getXChange(), mainWindow.getYChange());
+		camera.keyControl(mainWindow.getKeys(), deltaTime);
 
 		// Clear the window
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
