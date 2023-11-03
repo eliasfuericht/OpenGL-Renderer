@@ -88,7 +88,7 @@ std::vector<glm::vec3> readCoordinatesFromFile(const std::string& filePath) {
 
 int main() 
 {
-	mainWindow = Window(1366, 768);
+	mainWindow = Window(1920, 1080);
 	mainWindow.Initialise();
 
 	CreateShaders();
@@ -98,13 +98,6 @@ int main()
 
 	shinyMaterial = Material(4.0f, 256);
 	dullMaterial = Material(0.3f, 4);
-
-	tree = Model();
-	tree.LoadModel("Models/tree.obj");
-	treePositions = readCoordinatesFromFile("Models/treeCoordinates.txt");
-	for (const auto& pos : treePositions) {
-		//printf("x: %f, y: %f, z: %f\n", pos.x, pos.y, pos.z);
-	}
 
 	plane = Model();
 	plane.LoadModel("Models/plane.obj");
@@ -233,22 +226,6 @@ int main()
 		//comparable to UseLight() in DirectionalLight.cpp (but for Material)
 		dullMaterial.UseMaterial(uniformSpecularIntensity, uniformShininess);
 
-		/*for (size_t i = 0; i < treePositions.size(); i++)
-		{
-			model = glm::mat4(1.0f);
-
-			model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
-
-
-			model = glm::translate(model, glm::vec3(treePositions[i].x, treePositions[i].z, treePositions[i].y));
-
-
-			// sends model matrix to (vertex)shader to corresponding locations
-			glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-
-			tree.RenderModel();
-		}*/
-
 		model = glm::mat4(1.0f);
 
 		// transforming model matrix 
@@ -261,8 +238,6 @@ int main()
 		dullMaterial.UseMaterial(uniformSpecularIntensity, uniformShininess);
 
 		scene.RenderModel();
-
-		//plane.RenderModel();
 
 		glUseProgram(0);
 
