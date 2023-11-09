@@ -48,8 +48,12 @@ bool Texture::LoadTexture()
 	// for when the texture is further away from the camera (prevents aliasing))
 	glGenerateMipmap(GL_TEXTURE_2D);
 
+	/*GLfloat anisotropyLevel;
+	glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &anisotropyLevel);
+	printf("Max anisotropy level: %f\n", anisotropyLevel);*/
+
 	if (glfwExtensionSupported("GL_ARB_texture_filter_anisotropic")) {
-		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 16.0f);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 8.0f);
 	}
 
 	// now the texture is being unbound from GL_TEXTURE_2D
@@ -93,7 +97,7 @@ bool Texture::LoadTextureA()
 	glGenerateMipmap(GL_TEXTURE_2D);
 
 	if (glfwExtensionSupported("GL_ARB_texture_filter_anisotropic")) {
-		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 16.0f);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 8.0f);
 	}
 
 	// now the texture is being unbound from GL_TEXTURE_2D

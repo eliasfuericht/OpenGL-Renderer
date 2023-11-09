@@ -20,6 +20,7 @@ PointLight::PointLight(GLfloat red, GLfloat green, GLfloat blue,
 	linear = lin;
 	exponent = exp;
 }
+
 //called from Shader.SetPointLights(...) with the corresponding locations retrieved from shaderprogram
 void PointLight::UseLight(GLuint ambientIntensityLocation, GLuint ambientcolorLocation,
 	GLuint diffuseIntensityLocation, GLuint positionLocation,

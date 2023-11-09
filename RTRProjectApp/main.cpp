@@ -39,8 +39,7 @@ Camera camera;
 Material shinyMaterial;
 Material dullMaterial;
 
-Model tree;
-Model plane;
+Model debugOBJ;
 Model scene;
 
 Texture dirtTexture;
@@ -99,21 +98,21 @@ int main()
 	shinyMaterial = Material(4.0f, 256);
 	dullMaterial = Material(0.3f, 4);
 
-	plane = Model();
-	plane.LoadModel("Models/plane.obj");
+	debugOBJ = Model();
+	debugOBJ.LoadModel("Models/tree.obj");
 
 	scene = Model();
 	scene.LoadModel("Models/scene.obj");
 
 	// setting up lights (position, color, ambientIntensity, diffuseIntensity, direction, edge)
 	// and incrementing the corresponding lightCount
-	mainDirectionalLight = DirectionalLight(1.0f, 1.0f, 1.0f,
+	mainDirectionalLight = DirectionalLight(104.0f/255.0f, 50.0f / 255.0f, 168.0f/ 255.0f,
 								0.75f, 0.1f,
 								0.0f, 0.0f, -1.0f);
 
 	unsigned int pointLightCount = 0;
 	pointLights[0] = PointLight(0.0f, 0.0f, 1.0f,
-								0.0f, 0.1f,
+								1.0f, 0.1f,
 								0.0f, 0.0f, 0.0f,
 								0.3f, 0.2f, 0.1f);
 	pointLightCount++;
@@ -123,13 +122,17 @@ int main()
 								0.3f, 0.1f, 0.1f);
 	pointLightCount++;
 
+
+	//flashlight
 	unsigned int spotLightCount = 0;
 	spotLights[0] = SpotLight(1.0f, 1.0f, 1.0f,
-						0.0f, 2.0f,
+						0.0f, 0.5f,
 						0.0f, 0.0f, 0.0f,
 						0.0f, -1.0f, 0.0f,
-						1.0f, 0.0f, 0.0f,
-						20.0f);
+						0.8f, 0.0f, 0.0f,
+						10.0f);
+
+
 	spotLightCount++;
 	spotLights[1] = SpotLight(1.0f, 1.0f, 1.0f,
 		0.0f, 1.0f,
@@ -173,6 +176,8 @@ int main()
 			lastFrame = now;
 		}
 
+		//pointLights[0].SetLightPosition(glm::vec3(camera.getCameraPosition().x+2.0f, camera.getCameraPosition().y, camera.getCameraPosition().z));
+
 		// Get + Handle User Input
 		glfwPollEvents();
 
@@ -198,11 +203,11 @@ int main()
 
 		//Flashlight
 		// copies camera position and lowers y value by 0.3f (so flashlight feels like it's in hand)
-		//glm::vec3 lowerLight = camera.getCameraPosition();
-		//lowerLight.y -= 0.3f;
+		glm::vec3 lowerLight = camera.getCameraPosition();
+		lowerLight.y -= 0.3f;
 	
 		// SetFlash() sets the direction of the light to always face the same direction as the camera
-		//spotLights[0].SetFlash(lowerLight, camera.getCameraDirection());
+		spotLights[0].SetFlash(lowerLight, camera.getCameraDirection());
 
 		// sends data about the lights from CPU to the (fragement)shader to corresponding locations
 		shaderList[0].SetDirectionalLight(&mainDirectionalLight);
@@ -228,6 +233,19 @@ int main()
 
 		model = glm::mat4(1.0f);
 
+		model = glm::rotate(model, camera.getCameraDirection().x * toRadians, glm::vec3(1.0f, 0.0f, 0.0f));
+		model = glm::rotate(model, camera.getCameraDirection().y * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::rotate(model, camera.getCameraDirection().z * toRadians, glm::vec3(0.0f, 0.0f, 1.0f));
+		model = glm::translate(model, glm::vec3(camera.getCameraPosition().x + 2.0f, camera.getCameraPosition().y-2.0f, camera.getCameraPosition().z));
+		model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
+
+
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+
+		//debugOBJ.RenderModel();
+
+		model = glm::mat4(1.0f);
+
 		// transforming model matrix 
 		model = glm::scale(model, glm::vec3(5.0f, 5.0f, 5.0f));
 
@@ -238,6 +256,7 @@ int main()
 		dullMaterial.UseMaterial(uniformSpecularIntensity, uniformShininess);
 
 		scene.RenderModel();
+
 
 		glUseProgram(0);
 
