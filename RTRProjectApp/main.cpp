@@ -45,7 +45,9 @@ Texture dirtTexture;
 
 BezierCurve cameraPath;
 
-std::vector<glm::vec3> controlPoints = { glm::vec3(19.5f, -0.60f, 17.0f), glm::vec3(0.0f, 0.0f, 0.0f) };
+std::vector<glm::vec3> controlPoints = { glm::vec3(19.5f, -0.60f, 17.0f), glm::vec3(17.50, -0.65, 17.01), glm::vec3(16.02, -0.66, 16.99), 
+										glm::vec3(14.60, -0.66, 16.89), glm::vec3(11.04, -0.77, 15.00),  glm::vec3(10.29, -0.87, 10.54),
+										glm::vec3(8.45, 0.09, 5.93),  glm::vec3(5.95, 0.69, 5.22), glm::vec3(3.91, 1.09, 3.48) };
 
 DirectionalLight mainDirectionalLight;
 PointLight pointLights[MAX_POINT_LIGHTS];
@@ -53,6 +55,7 @@ SpotLight spotLights[MAX_SPOT_LIGHTS];
 
 GLfloat deltaTime = 0.0f;
 GLfloat elapsedTime = 0.0f;
+GLfloat animationDuration = 60.0f;
 GLfloat lastTime = 0.0f;
 GLfloat t = 0.0f; //Bezier parameter t
 
@@ -172,7 +175,6 @@ int main()
 		static double startTime = glfwGetTime();
 		double now = glfwGetTime();
 		printf("\rCurrent FPS: %d", fps);
-		elapsedTime = now - startTime;
 		deltaTime = now - lastTime;
 		lastTime = now;
 
@@ -190,18 +192,31 @@ int main()
 
 		// Get + Handle User Input
 		glfwPollEvents();
-
-		glm::vec3 nextPosition;
-		//setting up camera animation
-		t = elapsedTime / 60.0f;
-		t = glm::clamp(t, 0.0f, 1.0f);
-		nextPosition = cameraPath.value_at(t);
-		camera.updatePosition(nextPosition);
 		
 
 		// Handle camera movement
 		camera.mouseControl(mainWindow.getXChange(), mainWindow.getYChange());
 		camera.keyControl(mainWindow.getKeys(), deltaTime);
+
+		//setting up camera animation
+
+		if (camera.animationOn) {
+			glm::vec3 nextPosition;
+			glm::vec3 tangent;
+			glm::vec3 nextControlPoint;
+
+			elapsedTime = now - startTime;
+			t = elapsedTime / animationDuration;
+			t = t * 3;
+			t = glm::clamp(t, 0.0f, 1.0f);
+
+			nextPosition = cameraPath.value_at(t);
+			tangent = cameraPath.slope_at(t);
+			nextControlPoint = cameraPath.value_at(t + 0.1);
+
+			camera.updatePosition(nextPosition);
+			//camera.updateOrientation(tangent);
+		}
 
 		// Clear the window
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -264,13 +279,12 @@ int main()
 	averageFPS = std::accumulate(fpsList.begin(), fpsList.end(), 0) / fpsList.size();
 	printf("\nAverage FPS: %d\n", averageFPS);
 
-	/*glm::vec3 currentCameraPos = camera.getCameraPosition();
+	glm::vec3 currentCameraPos = camera.getCameraPosition();
 	double positionX = currentCameraPos[0];
 	double positionY = currentCameraPos[1];
 	double positionZ = currentCameraPos[2];
-	printf("\nX: %lf\n", positionX);
-	printf("\nY: %lf\n", positionY);
-	printf("\nZ: %lf\n", positionZ);*/
+	printf("\nglm::vec3( %.2f, %.2f, %.2f)\n", positionX, positionY, positionZ);
+
 
 	return 0;
 }
