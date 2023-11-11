@@ -102,6 +102,11 @@ void Camera::update()
 	up = glm::normalize(glm::cross(right, front));
 }
 
+void Camera::updatePosition(glm::vec3 nextPosition)
+{
+	position = nextPosition;
+}
+
 
 Camera::~Camera()
 {

@@ -24,6 +24,7 @@
 #include "SpotLight.h"
 #include "Material.h"
 #include "Model.h"
+#include "BezierCurve.h"
 
 #include <assimp/Importer.hpp>
 
@@ -42,12 +43,18 @@ Model scene;
 
 Texture dirtTexture;
 
+BezierCurve cameraPath;
+
+std::vector<glm::vec3> controlPoints = { glm::vec3(19.5f, -0.60f, 17.0f), glm::vec3(0.0f, 0.0f, 0.0f) };
+
 DirectionalLight mainDirectionalLight;
 PointLight pointLights[MAX_POINT_LIGHTS];
 SpotLight spotLights[MAX_SPOT_LIGHTS];
 
 GLfloat deltaTime = 0.0f;
+GLfloat elapsedTime = 0.0f;
 GLfloat lastTime = 0.0f;
+GLfloat t = 0.0f; //Bezier parameter t
 
 // Vertex Shader
 static const char* vShader = "Shaders/vertex.glsl";
@@ -89,6 +96,8 @@ int main()
 	// setting up basic camera
 	camera = Camera(glm::vec3(19.5f, -0.60f, 17.0f), glm::vec3(0.0f, 1.0f, 0.0f), -60.0f, 0.0f, 5.0f, 0.05f);
 
+	cameraPath = BezierCurve(controlPoints);
+
 	shinyMaterial = Material(4.0f, 256);
 	dullMaterial = Material(0.3f, 4);
 
@@ -99,6 +108,7 @@ int main()
 
 	scene = Model();
 	scene.LoadModel("Models/sceneWODRagon.obj");
+
 
 	printf("Initial loading took: %f seconds\n", glfwGetTime());
 
@@ -154,12 +164,15 @@ int main()
 	int frameCount = 0;
 	int fps = 0;
 	std::vector<int> fpsList;
+	//glfwSetTime(0.0f);
 
 	// Loop until window closed
 	while (!mainWindow.getShouldClose())
-	{
+	{   
+		static double startTime = glfwGetTime();
 		double now = glfwGetTime();
 		printf("\rCurrent FPS: %d", fps);
+		elapsedTime = now - startTime;
 		deltaTime = now - lastTime;
 		lastTime = now;
 
@@ -172,10 +185,19 @@ int main()
 			lastFrame = now;
 		}
 
+
 		//pointLights[0].SetLightPosition(glm::vec3(camera.getCameraPosition().x+2.0f, camera.getCameraPosition().y, camera.getCameraPosition().z));
 
 		// Get + Handle User Input
 		glfwPollEvents();
+
+		glm::vec3 nextPosition;
+		//setting up camera animation
+		t = elapsedTime / 60.0f;
+		t = glm::clamp(t, 0.0f, 1.0f);
+		nextPosition = cameraPath.value_at(t);
+		camera.updatePosition(nextPosition);
+		
 
 		// Handle camera movement
 		camera.mouseControl(mainWindow.getXChange(), mainWindow.getYChange());
@@ -241,5 +263,14 @@ int main()
 	int averageFPS = 0;
 	averageFPS = std::accumulate(fpsList.begin(), fpsList.end(), 0) / fpsList.size();
 	printf("\nAverage FPS: %d\n", averageFPS);
+
+	/*glm::vec3 currentCameraPos = camera.getCameraPosition();
+	double positionX = currentCameraPos[0];
+	double positionY = currentCameraPos[1];
+	double positionZ = currentCameraPos[2];
+	printf("\nX: %lf\n", positionX);
+	printf("\nY: %lf\n", positionY);
+	printf("\nZ: %lf\n", positionZ);*/
+
 	return 0;
 }

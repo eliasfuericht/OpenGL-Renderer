@@ -2,13 +2,13 @@
 #include "MathUtils.h"
 
 
-	bezier_curve::bezier_curve(std::vector<glm::vec3> pControlPoints)
+	BezierCurve::BezierCurve(std::vector<glm::vec3> pControlPoints)
 		: Interpolation{ std::move(pControlPoints) }
 	{
 
 	}
 
-	glm::vec3 bezier_curve::value_at(float t)
+	glm::vec3 BezierCurve::value_at(float t)
 	{
 		uint32_t n = static_cast<uint32_t>(num_control_points()) - 1u;
 		glm::vec3 sum(0.0f, 0.0f, 0.0f);
@@ -19,7 +19,7 @@
 		return sum;
 	}
 
-	glm::vec3 bezier_curve::slope_at(float t)
+	glm::vec3 BezierCurve::slope_at(float t)
 	{
 		uint32_t n = static_cast<uint32_t>(num_control_points()) - 1u;
 		uint32_t nMinusOne = n - 1;

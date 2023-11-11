@@ -19,6 +19,8 @@ public:
 
 	glm::mat4 calculateViewMatrix();
 
+	void updatePosition(glm::vec3 nextPosition);
+
 	~Camera();
 
 private:

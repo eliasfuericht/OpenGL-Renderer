@@ -4,17 +4,17 @@
 #include "Interpolation.h"
 
 
-class bezier_curve : public Interpolation
+class BezierCurve : public Interpolation
 {
 		public:
-		bezier_curve() = default;
+		BezierCurve() = default;
 		// Initializes a instance with a set of control points
-		bezier_curve(std::vector<glm::vec3> pControlPoints);
-		bezier_curve(bezier_curve&&) = default;
-		bezier_curve(const bezier_curve&) = default;
-		bezier_curve& operator=(bezier_curve&&) = default;
-		bezier_curve& operator=(const bezier_curve&) = default;
-		~bezier_curve() = default;
+		BezierCurve(std::vector<glm::vec3> pControlPoints);
+		BezierCurve(BezierCurve&&) = default;
+		BezierCurve(const BezierCurve&) = default;
+		BezierCurve& operator=(BezierCurve&&) = default;
+		BezierCurve& operator=(const BezierCurve&) = default;
+		~BezierCurve() = default;
 
 		glm::vec3 value_at(float t) override;
 
