@@ -24,6 +24,7 @@
 #include "SpotLight.h"
 #include "Material.h"
 #include "Model.h"
+#include "BezierCurve.h"
 
 #include <assimp/Importer.hpp>
 
@@ -42,12 +43,21 @@ Model scene;
 
 Texture dirtTexture;
 
+BezierCurve cameraPath;
+
+std::vector<glm::vec3> controlPoints = { glm::vec3(19.5f, -0.60f, 17.0f), glm::vec3(17.50, -0.65, 17.01), glm::vec3(16.02, -0.66, 16.99), 
+										glm::vec3(14.60, -0.66, 16.89), glm::vec3(11.04, -0.77, 15.00),  glm::vec3(10.29, -0.87, 10.54),
+										glm::vec3(8.45, 0.09, 5.93),  glm::vec3(5.95, 0.69, 5.22), glm::vec3(3.91, 1.09, 3.48) };
+
 DirectionalLight mainDirectionalLight;
 PointLight pointLights[MAX_POINT_LIGHTS];
 SpotLight spotLights[MAX_SPOT_LIGHTS];
 
 GLfloat deltaTime = 0.0f;
+GLfloat elapsedTime = 0.0f;
+GLfloat animationDuration = 60.0f;
 GLfloat lastTime = 0.0f;
+GLfloat t = 0.0f; //Bezier parameter t
 
 // Vertex Shader
 static const char* vShader = "Shaders/vertex.glsl";
@@ -89,6 +99,8 @@ int main()
 	// setting up basic camera
 	camera = Camera(glm::vec3(19.5f, -0.60f, 17.0f), glm::vec3(0.0f, 1.0f, 0.0f), -60.0f, 0.0f, 5.0f, 0.05f);
 
+	cameraPath = BezierCurve(controlPoints);
+
 	shinyMaterial = Material(4.0f, 256);
 	dullMaterial = Material(0.3f, 4);
 
@@ -99,6 +111,7 @@ int main()
 
 	scene = Model();
 	scene.LoadModel("Models/scene.obj");
+
 
 	printf("Initial loading took: %f seconds\n", glfwGetTime());
 
@@ -154,10 +167,12 @@ int main()
 	int frameCount = 0;
 	int fps = 0;
 	std::vector<int> fpsList;
+	//glfwSetTime(0.0f);
 
 	// Loop until window closed
 	while (!mainWindow.getShouldClose())
-	{
+	{   
+		static double startTime = glfwGetTime();
 		double now = glfwGetTime();
 		printf("\rCurrent FPS: %d", fps);
 		deltaTime = now - lastTime;
@@ -172,14 +187,36 @@ int main()
 			lastFrame = now;
 		}
 
+
 		//pointLights[0].SetLightPosition(glm::vec3(camera.getCameraPosition().x+2.0f, camera.getCameraPosition().y, camera.getCameraPosition().z));
 
 		// Get + Handle User Input
 		glfwPollEvents();
+		
 
 		// Handle camera movement
 		camera.mouseControl(mainWindow.getXChange(), mainWindow.getYChange());
 		camera.keyControl(mainWindow.getKeys(), deltaTime);
+
+		//setting up camera animation
+
+		if (camera.animationOn) {
+			glm::vec3 nextPosition;
+			glm::vec3 tangent;
+			glm::vec3 nextControlPoint;
+
+			elapsedTime = now - startTime;
+			t = elapsedTime / animationDuration;
+			t = t * 3;
+			t = glm::clamp(t, 0.0f, 1.0f);
+
+			nextPosition = cameraPath.value_at(t);
+			tangent = cameraPath.slope_at(t);
+			nextControlPoint = cameraPath.value_at(t + 0.1);
+
+			camera.updatePosition(nextPosition);
+			//camera.updateOrientation(tangent);
+		}
 
 		// Clear the window
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -241,5 +278,13 @@ int main()
 	int averageFPS = 0;
 	averageFPS = std::accumulate(fpsList.begin(), fpsList.end(), 0) / fpsList.size();
 	printf("\nAverage FPS: %d\n", averageFPS);
+
+	glm::vec3 currentCameraPos = camera.getCameraPosition();
+	double positionX = currentCameraPos[0];
+	double positionY = currentCameraPos[1];
+	double positionZ = currentCameraPos[2];
+	printf("\nglm::vec3( %.2f, %.2f, %.2f)\n", positionX, positionY, positionZ);
+
+
 	return 0;
 }

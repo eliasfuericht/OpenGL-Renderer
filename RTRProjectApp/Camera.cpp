@@ -13,6 +13,8 @@ Camera::Camera(glm::vec3 startPosition, glm::vec3 startUp, GLfloat startYaw, GLf
 	moveSpeed = startMoveSpeed;
 	turnSpeed = startTurnSpeed;
 
+	animationOn = true;
+
 	update();
 }
 
@@ -50,6 +52,11 @@ void Camera::keyControl(bool* keys, GLfloat deltaTime)
 	if (keys[GLFW_KEY_LEFT_CONTROL] || keys[GLFW_KEY_RIGHT_CONTROL])
 	{
 		position -= up * velocity;
+	}
+
+	if (keys[GLFW_KEY_F1])
+	{
+		animationOn = !animationOn;
 	}
 }
 
@@ -100,6 +107,23 @@ void Camera::update()
 	//calculate right and up vectors from the updated front vector
 	right = glm::normalize(glm::cross(front, worldUp));
 	up = glm::normalize(glm::cross(right, front));
+}
+
+void Camera::updatePosition(glm::vec3 nextPosition)
+{
+	position = nextPosition;
+
+}
+
+void Camera::updateOrientation(glm::vec3 tangent)
+{
+	// Calculate yaw angle based on the tangent vector
+	yaw = atan2(tangent.x, tangent.z);
+
+	// Calculate pitch angle based on the tangent vector
+	pitch = atan2(-tangent.y, glm::length(glm::vec2(tangent.x, tangent.z)));
+
+	update();
 }
 
 
