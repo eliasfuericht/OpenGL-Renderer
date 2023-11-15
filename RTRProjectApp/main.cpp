@@ -98,7 +98,7 @@ int main()
 	debugOBJ.LoadModel("Models/tree.obj");
 
 	scene = Model();
-	scene.LoadModel("Models/sceneWODRagon.obj");
+	scene.LoadModel("Models/scene.obj");
 
 	printf("Initial loading took: %f seconds\n", glfwGetTime());
 

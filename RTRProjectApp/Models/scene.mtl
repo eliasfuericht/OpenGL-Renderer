@@ -1,5 +1,5 @@
 # Blender MTL File: 'scene.blend'
-# Material Count: 10
+# Material Count: 9
 
 newmtl Concrete_Pavement_wlrvaf3
 Ns 199.999995
@@ -11,16 +11,6 @@ Ni 1.450000
 d 1.000000
 illum 3
 map_Kd C:\\Users\\eliaf\\OneDrive\\TU Wien\\1.Semester\\Echtzeitgraphik\\Project\\rtr23-nightatthemuseum\\RTRProjectApp\\Textures\\1f1f1f.png
-
-newmtl Default_OBJ
-Ns 250.000000
-Ka 1.000000 1.000000 1.000000
-Kd 0.800000 0.800000 0.800000
-Ks 0.500000 0.500000 0.500000
-Ke 0.000000 0.000000 0.000000
-Ni 1.450000
-d 1.000000
-illum 2
 
 newmtl Default_OBJ.001
 Ns 250.000000
