@@ -37,7 +37,8 @@ Camera camera;
 Material shinyMaterial;
 Material dullMaterial;
 
-Model debugOBJ;
+Model debugPlane;
+Model debugCube;
 Model scene;
 
 Texture dirtTexture;
@@ -64,21 +65,6 @@ void CreateShaders()
 	shaderList.push_back(*shader1);
 }
 
-std::vector<glm::vec3> readCoordinatesFromFile(const std::string& filePath) {
-	std::ifstream file(filePath);
-	std::vector<glm::vec3> coordinates;
-	std::string line;
-
-	while (std::getline(file, line)) {
-		glm::vec3 vec;
-		sscanf(line.c_str(), "%f, %f, %f,", &vec.x, &vec.y, &vec.z);
-		vec *= 10;
-		coordinates.push_back(vec);
-	}
-
-	return coordinates;
-}
-
 int main() 
 {
 	mainWindow = Window(1920, 1080);
@@ -87,18 +73,27 @@ int main()
 	CreateShaders();
 
 	// setting up basic camera
-	camera = Camera(glm::vec3(19.5f, -0.60f, 17.0f), glm::vec3(0.0f, 1.0f, 0.0f), -60.0f, 0.0f, 5.0f, 0.05f);
+	// camera with correct startposition for final scene
+	//camera = Camera(glm::vec3(19.5f, -0.60f, 17.0f), glm::vec3(0.0f, 1.0f, 0.0f), -60.0f, 0.0f, 5.0f, 0.05f);
+	// debug camera
+	camera = Camera(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), -60.0f, 0.0f, 5.0f, 0.05f);
 
 	shinyMaterial = Material(4.0f, 256);
 	dullMaterial = Material(0.3f, 4);
 
+	dirtTexture = Texture("Textures/dirt.png");
+	dirtTexture.LoadTextureA();
+
 	printf("loading models...\n");
 
-	debugOBJ = Model();
-	debugOBJ.LoadModel("Models/tree.obj");
+	debugPlane = Model();
+	debugPlane.LoadModel("Models/plane.obj");
+
+	debugCube = Model();
+	debugCube.LoadModel("Models/cube.obj");
 
 	scene = Model();
-	scene.LoadModel("Models/scene.obj");
+	//scene.LoadModel("Models/scene.obj");
 
 	printf("Initial loading took: %f seconds\n", glfwGetTime());
 
@@ -200,7 +195,7 @@ int main()
 		//Flashlight
 		// copies camera position and lowers y value by 0.3f (so flashlight feels like it's in hand)
 		glm::vec3 lowerLight = camera.getCameraPosition();
-		lowerLight.y -= 0.3f + glm::sin(glfwGetTime()*2.0f) * 0.1f;
+		lowerLight.y -= 0.3f;
 	
 		// SetFlash() sets the direction of the light to always face the same direction as the camera
 		spotLights[0].SetFlash(lowerLight, camera.getCameraDirection());
@@ -227,11 +222,25 @@ int main()
 
 		model = glm::mat4(1.0f);
 
-		model = glm::translate(model, glm::vec3(0.0f, -1.5f, 0.0f));
+		model = glm::translate(model, glm::vec3(0.0f, -0.5f, 0.0f));
 
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 
-		scene.RenderModel();
+		debugPlane.RenderModel();
+
+
+		model = glm::mat4(1.0f);
+
+		model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
+
+		model = glm::scale(model, glm::vec3(0.25f, 0.25f, 0.25f));
+
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+
+		//dirtTexture.UseTexture();
+
+		debugCube.RenderModel();
+		//scene.RenderModel();
 
 		glUseProgram(0);
 
