@@ -207,7 +207,7 @@ int main()
 
 			elapsedTime = now - startTime;
 			t = elapsedTime / animationDuration;
-			t = t * 3;
+			t = t * 2;
 			t = glm::clamp(t, 0.0f, 1.0f);
 
 			nextPosition = cameraPath.value_at(t);
@@ -215,7 +215,7 @@ int main()
 			nextControlPoint = cameraPath.value_at(t + 0.1);
 
 			camera.updatePosition(nextPosition);
-			//camera.updateOrientation(tangent);
+			camera.updateOrientation(tangent, nextControlPoint);
 		}
 
 		// Clear the window

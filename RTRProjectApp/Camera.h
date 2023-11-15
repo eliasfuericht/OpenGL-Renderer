@@ -22,7 +22,7 @@ public:
 	glm::mat4 calculateViewMatrix();
 
 	void updatePosition(glm::vec3 nextPosition);
-	void updateOrientation(glm::vec3 tangent);
+	void updateOrientation(glm::vec3 tangent, glm::vec3 nextPoint);
 
 	~Camera();
 

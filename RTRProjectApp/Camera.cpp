@@ -115,15 +115,25 @@ void Camera::updatePosition(glm::vec3 nextPosition)
 
 }
 
-void Camera::updateOrientation(glm::vec3 tangent)
+void Camera::updateOrientation(glm::vec3 tangent, glm::vec3 nextPoint)
 {
-	// Calculate yaw angle based on the tangent vector
-	yaw = atan2(tangent.x, tangent.z);
+	//// Calculate yaw angle based on the tangent vector
+	//yaw = atan2(tangent.x, tangent.z);
 
-	// Calculate pitch angle based on the tangent vector
-	pitch = atan2(-tangent.y, glm::length(glm::vec2(tangent.x, tangent.z)));
+	//// Calculate pitch angle based on the tangent vector
+	//pitch = atan2(-tangent.y, glm::length(glm::vec2(tangent.x, tangent.z)));
+
+	//look at the next bezier curve
+
+	front = glm::normalize(tangent);
+	right = glm::normalize(glm::cross(up, front));
+	up = glm::cross(front, right);
+
+	pitch = glm::degrees(asin(-front.y));
+	yaw = glm::degrees(atan2(front.x, front.z));
 
 	update();
+	calculateViewMatrix();
 }
 
 
