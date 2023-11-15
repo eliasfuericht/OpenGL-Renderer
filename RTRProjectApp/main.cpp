@@ -4,6 +4,8 @@
 #include <string.h>
 #include <cmath>
 #include <vector>
+#include <numeric>
+#include <cstdlib>
 
 #include <GL\glew.h>
 #include <GLFW\glfw3.h>
@@ -11,8 +13,6 @@
 #include <glm\glm.hpp>
 #include <glm\gtc\matrix_transform.hpp>
 #include <glm\gtc\type_ptr.hpp>
-
-#include "CommonValues.h"
 
 #include "Window.h"
 #include "Mesh.h"
@@ -37,8 +37,8 @@ Camera camera;
 Material shinyMaterial;
 Material dullMaterial;
 
-Model tree;
-Model plane;
+Model debugOBJ;
+Model scene;
 
 Texture dirtTexture;
 
@@ -64,34 +64,53 @@ void CreateShaders()
 	shaderList.push_back(*shader1);
 }
 
+std::vector<glm::vec3> readCoordinatesFromFile(const std::string& filePath) {
+	std::ifstream file(filePath);
+	std::vector<glm::vec3> coordinates;
+	std::string line;
+
+	while (std::getline(file, line)) {
+		glm::vec3 vec;
+		sscanf(line.c_str(), "%f, %f, %f,", &vec.x, &vec.y, &vec.z);
+		vec *= 10;
+		coordinates.push_back(vec);
+	}
+
+	return coordinates;
+}
+
 int main() 
 {
-	mainWindow = Window(1366, 768);
+	mainWindow = Window(1920, 1080);
 	mainWindow.Initialise();
 
 	CreateShaders();
 
 	// setting up basic camera
-	camera = Camera(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), -60.0f, 0.0f, 5.0f, 0.05f);
+	camera = Camera(glm::vec3(19.5f, -0.60f, 17.0f), glm::vec3(0.0f, 1.0f, 0.0f), -60.0f, 0.0f, 5.0f, 0.05f);
 
 	shinyMaterial = Material(4.0f, 256);
 	dullMaterial = Material(0.3f, 4);
 
-	tree = Model();
-	tree.LoadModel("Models/tree.obj");
+	printf("loading models...\n");
 
-	plane = Model();
-	plane.LoadModel("Models/plane.obj");
+	debugOBJ = Model();
+	debugOBJ.LoadModel("Models/tree.obj");
+
+	scene = Model();
+	scene.LoadModel("Models/scene.obj");
+
+	printf("Initial loading took: %f seconds\n", glfwGetTime());
 
 	// setting up lights (position, color, ambientIntensity, diffuseIntensity, direction, edge)
 	// and incrementing the corresponding lightCount
-	mainDirectionalLight = DirectionalLight(1.0f, 1.0f, 1.0f,
-								0.75f, 0.1f,
+	mainDirectionalLight = DirectionalLight(255.0f/255.0f, 211.0f / 255.0f, 168.0f/ 255.0f,
+								0.25f, 0.1f,
 								0.0f, 0.0f, -1.0f);
 
 	unsigned int pointLightCount = 0;
 	pointLights[0] = PointLight(0.0f, 0.0f, 1.0f,
-								0.0f, 0.1f,
+								1.0f, 0.1f,
 								0.0f, 0.0f, 0.0f,
 								0.3f, 0.2f, 0.1f);
 	pointLightCount++;
@@ -101,13 +120,17 @@ int main()
 								0.3f, 0.1f, 0.1f);
 	pointLightCount++;
 
+
+	//flashlight
 	unsigned int spotLightCount = 0;
 	spotLights[0] = SpotLight(1.0f, 1.0f, 1.0f,
-						0.0f, 2.0f,
+						0.1f, 0.5f,
 						0.0f, 0.0f, 0.0f,
 						0.0f, -1.0f, 0.0f,
-						1.0f, 0.0f, 0.0f,
-						20.0f);
+						0.8f, 0.0f, 0.0f,
+						10.0f);
+
+
 	spotLightCount++;
 	spotLights[1] = SpotLight(1.0f, 1.0f, 1.0f,
 		0.0f, 1.0f,
@@ -127,15 +150,15 @@ int main()
 	const GLubyte* version = glGetString(GL_VERSION);
 	std::cout << "OpenGL version: " << version << std::endl;
 
-	GLfloat lastFrame = 0.0f;
+	double lastFrame = 0.0f;
 	int frameCount = 0;
 	int fps = 0;
-	int avgFps = 0;
-	
+	std::vector<int> fpsList;
+
 	// Loop until window closed
 	while (!mainWindow.getShouldClose())
 	{
-		GLfloat now = glfwGetTime();
+		double now = glfwGetTime();
 		printf("\rCurrent FPS: %d", fps);
 		deltaTime = now - lastTime;
 		lastTime = now;
@@ -144,18 +167,19 @@ int main()
 		if (now - lastFrame >= 1.0)
 		{
 			fps = frameCount;
+			fpsList.push_back(fps);
 			frameCount = 0;
 			lastFrame = now;
 		}
 
-		avgFps = (avgFps + fps) / 2;
+		//pointLights[0].SetLightPosition(glm::vec3(camera.getCameraPosition().x+2.0f, camera.getCameraPosition().y, camera.getCameraPosition().z));
 
 		// Get + Handle User Input
 		glfwPollEvents();
 
 		// Handle camera movement
-		camera.keyControl(mainWindow.getKeys(), deltaTime);
 		camera.mouseControl(mainWindow.getXChange(), mainWindow.getYChange());
+		camera.keyControl(mainWindow.getKeys(), deltaTime);
 
 		// Clear the window
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -175,11 +199,11 @@ int main()
 
 		//Flashlight
 		// copies camera position and lowers y value by 0.3f (so flashlight feels like it's in hand)
-		//glm::vec3 lowerLight = camera.getCameraPosition();
-		//lowerLight.y -= 0.3f;
+		glm::vec3 lowerLight = camera.getCameraPosition();
+		lowerLight.y -= 0.3f + glm::sin(glfwGetTime()*2.0f) * 0.1f;
 	
 		// SetFlash() sets the direction of the light to always face the same direction as the camera
-		//spotLights[0].SetFlash(lowerLight, camera.getCameraDirection());
+		spotLights[0].SetFlash(lowerLight, camera.getCameraDirection());
 
 		// sends data about the lights from CPU to the (fragement)shader to corresponding locations
 		shaderList[0].SetDirectionalLight(&mainDirectionalLight);
@@ -198,32 +222,24 @@ int main()
 
 		glm::mat4 model(1.0f);	
 
-		model = glm::mat4(1.0f);
-
-		model = glm::translate(model, glm::vec3(0.0f, -1.0f, 0.0f));
-
-		// sends model matrix to (vertex)shader to corresponding locations
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		
 		//comparable to UseLight() in DirectionalLight.cpp (but for Material)
 		dullMaterial.UseMaterial(uniformSpecularIntensity, uniformShininess);
 
-		tree.RenderModel();
+		model = glm::mat4(1.0f);
 
-		// transforming model matrix 
-		model = glm::scale(model, glm::vec3(5.0f, 5.0f, 5.0f));
+		model = glm::translate(model, glm::vec3(0.0f, -1.5f, 0.0f));
 
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 
-		shinyMaterial.UseMaterial(uniformSpecularIntensity, uniformShininess);
-
-		plane.RenderModel();
+		scene.RenderModel();
 
 		glUseProgram(0);
 
 		mainWindow.swapBuffers();
 	}
 
-	printf("\nAverage FPS: %d", avgFps);
+	int averageFPS = 0;
+	averageFPS = std::accumulate(fpsList.begin(), fpsList.end(), 0) / fpsList.size();
+	printf("\nAverage FPS: %d\n", averageFPS);
 	return 0;
 }

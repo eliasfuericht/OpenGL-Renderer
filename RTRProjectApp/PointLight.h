@@ -15,6 +15,10 @@ public:
 		GLuint diffuseIntensityLocation, GLuint positionLocation,
 		GLuint constantLocation, GLuint linearLocation, GLuint exponentLocation);
 
+	void SetLightPosition(glm::vec3 pos) { position = pos; }
+
+	glm::vec3 GetLightPosition() { return position; }
+
 	~PointLight();
 
 protected:

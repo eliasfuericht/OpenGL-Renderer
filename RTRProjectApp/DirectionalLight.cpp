@@ -14,8 +14,8 @@ DirectionalLight::DirectionalLight(GLfloat red, GLfloat green, GLfloat blue,
 }
 
 // called from Shader.SetDirectionalLight(...) with the corresponding locations retrieved from shaderprogram
-void DirectionalLight::UseLight(GLfloat ambientIntensityLocation, GLfloat ambientcolorLocation,
-	GLfloat diffuseIntensityLocation, GLfloat directionLocation)
+void DirectionalLight::UseLight(GLuint ambientIntensityLocation, GLuint ambientcolorLocation,
+	GLuint diffuseIntensityLocation, GLuint directionLocation)
 {
 	// sets Uniforms of DirectionalLight in shader (GPU) to the values of the DirectionalLight on CPU
 	// if you compare these lines to the lines in fragment.glsl you will see that the structure is the same

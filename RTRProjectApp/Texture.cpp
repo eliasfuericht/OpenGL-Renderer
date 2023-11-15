@@ -37,7 +37,7 @@ bool Texture::LoadTexture()
 	// no texutre/image is being created/passed yet
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 	// now the texture(image) is being created and the data is being passed to it (via texData)
@@ -47,6 +47,14 @@ bool Texture::LoadTexture()
 	// generates mipmaps for the texture (downscaled versions of the texture 
 	// for when the texture is further away from the camera (prevents aliasing))
 	glGenerateMipmap(GL_TEXTURE_2D);
+
+	/*GLfloat anisotropyLevel;
+	glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &anisotropyLevel);
+	printf("Max anisotropy level: %f\n", anisotropyLevel);*/
+
+	if (glfwExtensionSupported("GL_ARB_texture_filter_anisotropic")) {
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 8.0f);
+	}
 
 	// now the texture is being unbound from GL_TEXTURE_2D
 	glBindTexture(GL_TEXTURE_2D, 0);
@@ -76,7 +84,8 @@ bool Texture::LoadTextureA()
 	// no texutre/image is being created/passed yet
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 	// now the texture(image) is being created and the data is being passed to it (via texData)
@@ -86,6 +95,10 @@ bool Texture::LoadTextureA()
 	// generates mipmaps for the texture (downscaled versions of the texture
 	// for when the texture is further away from the camera (prevents aliasing))
 	glGenerateMipmap(GL_TEXTURE_2D);
+
+	if (glfwExtensionSupported("GL_ARB_texture_filter_anisotropic")) {
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 8.0f);
+	}
 
 	// now the texture is being unbound from GL_TEXTURE_2D
 	glBindTexture(GL_TEXTURE_2D, 0);
