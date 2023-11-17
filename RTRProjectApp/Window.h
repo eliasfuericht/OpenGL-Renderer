@@ -40,8 +40,10 @@ private:
 	GLfloat xChange;
 	GLfloat yChange;
 	bool mouseFirstMoved;
+	bool leftButtonPressed;
 
 	void createCallbacks();
 	static void handleKeys(GLFWwindow* window, int key, int code, int action, int mode);
 	static void handleMouse(GLFWwindow* window, double xPos, double yPos);
+	static void handleMouseButton(GLFWwindow* window, int button, int action, int mods);
 };

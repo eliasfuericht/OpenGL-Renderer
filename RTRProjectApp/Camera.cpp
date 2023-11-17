@@ -14,6 +14,7 @@ Camera::Camera(glm::vec3 startPosition, glm::vec3 startUp, GLfloat startYaw, GLf
 	turnSpeed = startTurnSpeed;
 
 	animationOn = true;
+	printposition = false;
 
 	update();
 }
@@ -57,6 +58,11 @@ void Camera::keyControl(bool* keys, GLfloat deltaTime)
 	if (keys[GLFW_KEY_F1])
 	{
 		animationOn = !animationOn;
+	}
+
+	if (keys[GLFW_KEY_P])
+	{
+		printposition = !printposition;
 	}
 }
 
