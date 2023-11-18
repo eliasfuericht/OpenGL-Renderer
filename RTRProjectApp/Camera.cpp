@@ -89,6 +89,16 @@ glm::vec3 Camera::getCameraDirection()
 	return glm::normalize(front);
 }
 
+void Camera::setCameraPosition(glm::vec3 newPosition)
+{
+	position = newPosition;
+}
+
+void Camera::setCameraDirection(glm::vec3 newDirection)
+{
+	front = newDirection;
+}
+
 void Camera::update()
 {
 	//recalculate front vector after updating yaw and pitch

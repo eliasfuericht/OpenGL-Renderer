@@ -145,7 +145,6 @@ void Model::LoadMaterials(const aiScene* scene)
 		// if the current material has no texture, a fallback texture is used
 		if (!textureList[i])
 		{
-			printf("no texture specified for this model - using fallback!\n");
 			textureList[i] = new Texture("Textures/fallback.png");
 			textureList[i]->LoadTexture();
 		}
