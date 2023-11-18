@@ -24,7 +24,6 @@
 #include "SpotLight.h"
 #include "Material.h"
 #include "Model.h"
-#include "bezier_curve.h"
 #include "quadratic_uniform_b_spline.h"
 #include "BezierCurve.h"
 
@@ -39,7 +38,7 @@ std::vector<Shader> shaderList;
 
 Camera camera;
 
-std::vector<glm::vec3> controlPoints = { 
+std::vector<glm::vec3> controlPointsComplete = { 
 	//start
 	glm::vec3(19.50, -0.60, 17.00),
 	glm::vec3(19.50, -0.60, 17.00),
@@ -130,9 +129,6 @@ std::vector<glm::vec3> debugTargetPoints = {
 	glm::vec3(-2.0f, 0.0, 4.0f),
 };
 
-bezier_curve debugCurve;
-bezier_curve debugTargetCurve;
-
 quadratic_uniform_b_spline debugSpline;
 quadratic_uniform_b_spline debugTargetSpline;
 
@@ -146,86 +142,86 @@ Model scene;
 Texture dirtTexture;
 
 //BezierCurve cameraPath;
-BezierCurve cameraPath1;
-BezierCurve cameraPath2;
-BezierCurve cameraPath3;
-
-std::vector<glm::vec3> controlPoints1 = { //forest path
-	glm::vec3(19.50, -0.60, 17.00),
-	glm::vec3(19.50, -0.60, 17.00),
-	glm::vec3(19.50, -0.60, 17.00),
-	glm::vec3(16.03, -0.55, 19.66),
-	glm::vec3(15.62, -0.19, 15.26),
-	glm::vec3(15.84, -0.06, 9.98),
-	glm::vec3(15.84, -0.06, 9.98),
-	glm::vec3(14.71, -0.02, 7.99),
-	glm::vec3(9.73, 0.41, 6.60),
-	glm::vec3(5.44, 0.79, 6.14),
-	//bunny
-	glm::vec3(5.44, 0.79, 6.14),
-	glm::vec3(3.20, 0.80, 3.99),
-	glm::vec3(3.29, 0.96, 2.51),
-	glm::vec3(5.72, 1.10, 2.75),
-	glm::vec3(5.53, 1.06, 2.90),
-	glm::vec3(6.29, 1.07, 2.52),
-	glm::vec3(6.29, 1.07, 2.52),
-	glm::vec3(6.95, 1.07, 2.03),
-	glm::vec3(6.95, 1.07, 2.03),
-	glm::vec3(6.95, 1.07, 2.03),
-	glm::vec3(7.31, 1.07, 0.52),
-	glm::vec3(7.31, 1.07, 0.52),
-	glm::vec3(7.31, 1.07, 0.52),
-	glm::vec3(6.68, 1.08, -0.65),
-	glm::vec3(5.29, 1.04, -1.04),
-	glm::vec3(4.20, 0.90, -2.90),
-	glm::vec3(4.44, 0.85, -3.17),
-};
-
-std::vector<glm::vec3> controlPoints2 = { //teapot
-glm::vec3(4.20, 0.90, -2.90),
-glm::vec3(4.44, 0.85, -3.17),
-glm::vec3(3.42, 0.92, -3.44),
-glm::vec3(2.16, 0.97, -4.87),
-glm::vec3(2.16, 0.97, -4.87),
-glm::vec3(2.16, 0.97, -4.87),
-glm::vec3(0.42, 0.98, -4.60),
-glm::vec3(-1.80, 1.18, -7.18),
-glm::vec3(-0.91, 1.15, -8.70),
-glm::vec3(-1.62, 1.08, -7.39),
-glm::vec3(-1.62, 1.08, -7.39),
-glm::vec3(-1.62, 1.08, -7.39),
-glm::vec3(-2.24, 1.04, -6.22),
-glm::vec3(-2.24, 1.04, -6.22),
-
-
-//dragon
-glm::vec3(-3.10, 1.10, -4.90),
-glm::vec3(-3.47, 0.96, -3.05),
-glm::vec3(-3.56, 0.95, -2.15),
-glm::vec3(-3.56, 0.95, -2.15),
-glm::vec3(-4.63, 0.99, -0.83),
-glm::vec3(-4.63, 0.99, -0.83),
-glm::vec3(-4.63, 0.99, -0.83),
-glm::vec3(-6.30, 1.05, -1.12),
-glm::vec3(-6.30, 1.05, -1.12),
-glm::vec3(-6.30, 1.05, -1.12),
-glm::vec3(-6.81, 0.98, -2.85),
-glm::vec3(-6.78, 0.90, -0.70)
-};
-
-
-std::vector<glm::vec3> controlPoints3 = { //endpath
-glm::vec3(-6.78, 0.90, -0.70),
-glm::vec3(-6.62, 0.92, 0.47),
-glm::vec3(-4.35, 1.07, 2.12),
-glm::vec3(-3.83, 1.15, 3.82),
-glm::vec3(-1.12, 1.19, 4.27),
-glm::vec3(2.07, 1.03, 2.97),
-glm::vec3(4.70, 1.12, 4.66),
-glm::vec3(7.36, 0.0, 6.52),
-glm::vec3(11.74, 0.0, 7.66),
-glm::vec3(11.0, 0.0, 7.35)
-};
+//BezierCurve cameraPath1;
+//BezierCurve cameraPath2;
+//BezierCurve cameraPath3;
+//
+//std::vector<glm::vec3> controlPoints1 = { //forest path
+//	glm::vec3(19.50, -0.60, 17.00),
+//	glm::vec3(19.50, -0.60, 17.00),
+//	glm::vec3(19.50, -0.60, 17.00),
+//	glm::vec3(16.03, -0.55, 19.66),
+//	glm::vec3(15.62, -0.19, 15.26),
+//	glm::vec3(15.84, -0.06, 9.98),
+//	glm::vec3(15.84, -0.06, 9.98),
+//	glm::vec3(14.71, -0.02, 7.99),
+//	glm::vec3(9.73, 0.41, 6.60),
+//	glm::vec3(5.44, 0.79, 6.14),
+//	//bunny
+//	glm::vec3(5.44, 0.79, 6.14),
+//	glm::vec3(3.20, 0.80, 3.99),
+//	glm::vec3(3.29, 0.96, 2.51),
+//	glm::vec3(5.72, 1.10, 2.75),
+//	glm::vec3(5.53, 1.06, 2.90),
+//	glm::vec3(6.29, 1.07, 2.52),
+//	glm::vec3(6.29, 1.07, 2.52),
+//	glm::vec3(6.95, 1.07, 2.03),
+//	glm::vec3(6.95, 1.07, 2.03),
+//	glm::vec3(6.95, 1.07, 2.03),
+//	glm::vec3(7.31, 1.07, 0.52),
+//	glm::vec3(7.31, 1.07, 0.52),
+//	glm::vec3(7.31, 1.07, 0.52),
+//	glm::vec3(6.68, 1.08, -0.65),
+//	glm::vec3(5.29, 1.04, -1.04),
+//	glm::vec3(4.20, 0.90, -2.90),
+//	glm::vec3(4.44, 0.85, -3.17),
+//};
+//
+//std::vector<glm::vec3> controlPoints2 = { //teapot
+//glm::vec3(4.20, 0.90, -2.90),
+//glm::vec3(4.44, 0.85, -3.17),
+//glm::vec3(3.42, 0.92, -3.44),
+//glm::vec3(2.16, 0.97, -4.87),
+//glm::vec3(2.16, 0.97, -4.87),
+//glm::vec3(2.16, 0.97, -4.87),
+//glm::vec3(0.42, 0.98, -4.60),
+//glm::vec3(-1.80, 1.18, -7.18),
+//glm::vec3(-0.91, 1.15, -8.70),
+//glm::vec3(-1.62, 1.08, -7.39),
+//glm::vec3(-1.62, 1.08, -7.39),
+//glm::vec3(-1.62, 1.08, -7.39),
+//glm::vec3(-2.24, 1.04, -6.22),
+//glm::vec3(-2.24, 1.04, -6.22),
+//
+//
+////dragon
+//glm::vec3(-3.10, 1.10, -4.90),
+//glm::vec3(-3.47, 0.96, -3.05),
+//glm::vec3(-3.56, 0.95, -2.15),
+//glm::vec3(-3.56, 0.95, -2.15),
+//glm::vec3(-4.63, 0.99, -0.83),
+//glm::vec3(-4.63, 0.99, -0.83),
+//glm::vec3(-4.63, 0.99, -0.83),
+//glm::vec3(-6.30, 1.05, -1.12),
+//glm::vec3(-6.30, 1.05, -1.12),
+//glm::vec3(-6.30, 1.05, -1.12),
+//glm::vec3(-6.81, 0.98, -2.85),
+//glm::vec3(-6.78, 0.90, -0.70)
+//};
+//
+//
+//std::vector<glm::vec3> controlPoints3 = { //endpath
+//glm::vec3(-6.78, 0.90, -0.70),
+//glm::vec3(-6.62, 0.92, 0.47),
+//glm::vec3(-4.35, 1.07, 2.12),
+//glm::vec3(-3.83, 1.15, 3.82),
+//glm::vec3(-1.12, 1.19, 4.27),
+//glm::vec3(2.07, 1.03, 2.97),
+//glm::vec3(4.70, 1.12, 4.66),
+//glm::vec3(7.36, 0.0, 6.52),
+//glm::vec3(11.74, 0.0, 7.66),
+//glm::vec3(11.0, 0.0, 7.35)
+//};
 
 
 
@@ -263,14 +259,12 @@ int main()
 
 	// setting up basic camera
 	// camera with correct startposition for final scene
-	//camera = Camera(glm::vec3(19.5f, -0.60f, 17.0f), glm::vec3(0.0f, 1.0f, 0.0f), -60.0f, 0.0f, 5.0f, 0.05f);
+	camera = Camera(glm::vec3(19.5f, -0.60f, 17.0f), glm::vec3(0.0f, 1.0f, 0.0f), -60.0f, 0.0f, 5.0f, 0.05f);
 	// debug camera
-	camera = Camera(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), -60.0f, 0.0f, 5.0f, 0.05f);
+	//camera = Camera(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), -60.0f, 0.0f, 5.0f, 0.05f);
 
-	debugCurve = bezier_curve(debugPoints);
-	debugTargetCurve = bezier_curve(debugTargetPoints);
 
-	debugSpline = quadratic_uniform_b_spline(controlPoints);
+	debugSpline = quadratic_uniform_b_spline(controlPointsComplete);
 	debugTargetSpline = quadratic_uniform_b_spline(debugTargetPoints);
 
 	shinyMaterial = Material(4.0f, 256);
@@ -345,7 +339,7 @@ int main()
 	int frameCount = 0;
 	int fps = 0;
 	std::vector<int> fpsList;
-	//glfwSetTime(0.0f);
+	glfwSetTime(0.0f);
 
 	// Loop until window closed
 	while (!mainWindow.getShouldClose())
@@ -387,33 +381,16 @@ int main()
 		//setting up camera animation
 
 		if (camera.animationOn) {
-			glm::vec3 nextPosition;
-			glm::vec3 tangent;
-			glm::vec3 nextControlPoint;
+			camera.setCameraPosition(debugSpline.value_at(glm::clamp(now * 0.01, 0.0, 1.0)));
 
-			elapsedTime = now - startTime;
-			t = elapsedTime / animationDuration;
-			t = t * 5;
-			t = glm::clamp(t, 0.0f, 3.0f);
+			glm::vec3 target = debugTargetSpline.value_at(glm::clamp(now * 0.01 + 0.1, 0.0, 1.0));
 
-			if (t <= 1.0) {
-				nextPosition = cameraPath1.value_at(t);
-				tangent = cameraPath1.slope_at(t);
-				nextControlPoint = cameraPath1.value_at(t + 0.1);
-			} else if (t <= 2.0) {
-				float t2 = t - 1.0;
-				nextPosition = cameraPath2.value_at(t2);
-				tangent = cameraPath2.slope_at(t2);
-				nextControlPoint = cameraPath2.value_at(t2 + 0.1);
-			} else if (t <= 3.0) {
-				float t3 = t - 2.0;
-				nextPosition = cameraPath3.value_at(t3);
-				tangent = cameraPath3.slope_at(t3);
-				nextControlPoint = cameraPath3.value_at(t3 + 0.1);
-			}
+			glm::mat4 viewMatrix = glm::lookAt(camera.getCameraPosition(), target, glm::vec3(0.0f, 1.0f, 0.0f));
 
-			camera.updatePosition(nextPosition);
-			camera.updateOrientation(tangent, nextControlPoint);
+			// Extract the direction vector from the view matrix
+			glm::vec3 cameraDirection = glm::normalize(glm::vec3(viewMatrix[0][2], viewMatrix[1][2], viewMatrix[2][2]));
+
+			camera.setCameraDirection(-cameraDirection);
 		}
 
 		// Clear the window
@@ -423,16 +400,6 @@ int main()
 		// sets shaderprogram at shaderList[0] as shaderprogram to use
 		shaderList[0].UseShader();
 
-		camera.setCameraPosition(debugSpline.value_at(glm::clamp(now * 0.01,0.0,1.0)));
-
-		glm::vec3 target = debugTargetSpline.value_at(glm::clamp(now * 0.01+0.1, 0.0, 1.0));
-		
-		glm::mat4 viewMatrix = glm::lookAt(camera.getCameraPosition(), target, glm::vec3(0.0f, 1.0f, 0.0f));
-
-		// Extract the direction vector from the view matrix
-		glm::vec3 cameraDirection = glm::normalize(glm::vec3(viewMatrix[0][2], viewMatrix[1][2], viewMatrix[2][2]));
-		
-		camera.setCameraDirection(-cameraDirection);
 
 		// retreive uniform locations (ID) from shader membervariables
 		// and stores them in local varibale for passing projection, model and view matrices to shader
