@@ -24,8 +24,7 @@
 #include "SpotLight.h"
 #include "Material.h"
 #include "Model.h"
-#include "bezier_curve.h"
-#include "quadratic_uniform_b_spline.h"
+#include "cubic_uniform_b_spline.h"
 
 #include <assimp/Importer.hpp>
 
@@ -41,11 +40,8 @@ Camera camera;
 std::vector<glm::vec3> controlPoints = { 
 	//start
 	glm::vec3(19.50, -0.60, 17.00),
-	glm::vec3(19.50, -0.60, 17.00),
-	glm::vec3(19.50, -0.60, 17.00),
 	glm::vec3(16.03, -0.55, 19.66),
 	glm::vec3(15.62, -0.19, 15.26),
-	glm::vec3(15.84, -0.06, 9.98),
 	glm::vec3(15.84, -0.06, 9.98),
 	glm::vec3(14.71, -0.02, 7.99),
 	glm::vec3(9.73, 0.41, 6.60),
@@ -57,12 +53,7 @@ std::vector<glm::vec3> controlPoints = {
 	glm::vec3(5.72, 1.10, 2.75),
 	glm::vec3(5.53, 1.06, 2.90),
 	glm::vec3(6.29, 1.07, 2.52),
-	glm::vec3(6.29, 1.07, 2.52),
 	glm::vec3(6.95, 1.07, 2.03),
-	glm::vec3(6.95, 1.07, 2.03),
-	glm::vec3(6.95, 1.07, 2.03),
-	glm::vec3(7.31, 1.07, 0.52),
-	glm::vec3(7.31, 1.07, 0.52),
 	glm::vec3(7.31, 1.07, 0.52),
 	glm::vec3(6.68, 1.08, -0.65),
 	glm::vec3(5.29, 1.04, -1.04),
@@ -73,27 +64,17 @@ std::vector<glm::vec3> controlPoints = {
 	glm::vec3(4.44, 0.85, -3.17),
 	glm::vec3(3.42, 0.92, -3.44),
 	glm::vec3(2.16, 0.97, -4.87),
-	glm::vec3(2.16, 0.97, -4.87),
-	glm::vec3(2.16, 0.97, -4.87),
 	glm::vec3(0.42, 0.98, -4.60),
 	glm::vec3(-1.80, 1.18, -7.18),
 	glm::vec3(-0.91, 1.15, -8.70),
 	glm::vec3(-1.62, 1.08, -7.39),
-	glm::vec3(-1.62, 1.08, -7.39),
-	glm::vec3(-1.62, 1.08, -7.39),
-	glm::vec3(-2.24, 1.04, -6.22),
 	glm::vec3(-2.24, 1.04, -6.22),
 
 	//dragon
 	glm::vec3(-3.10, 1.10, -4.90),
 	glm::vec3(-3.47, 0.96, -3.05),
 	glm::vec3(-3.56, 0.95, -2.15),
-	glm::vec3(-3.56, 0.95, -2.15),
 	glm::vec3(-4.63, 0.99, -0.83),
-	glm::vec3(-4.63, 0.99, -0.83),
-	glm::vec3(-4.63, 0.99, -0.83),
-	glm::vec3(-6.30, 1.05, -1.12),
-	glm::vec3(-6.30, 1.05, -1.12),
 	glm::vec3(-6.30, 1.05, -1.12),
 	glm::vec3(-6.81, 0.98, -2.85),
 	glm::vec3(-6.78, 0.90, -0.70),
@@ -112,28 +93,20 @@ std::vector<glm::vec3> controlPoints = {
 };
 
 std::vector<glm::vec3> debugPoints = {
-	glm::vec3(0.0f, 0.0, 5.0f),
+	glm::vec3(0.0f, 5.0, 5.0f),
+	glm::vec3(5.0f, 0.0, 5.0f),
+	glm::vec3(5.0f, 5.0, 0.0f),
+	glm::vec3(5.0f, 0.0, -5.0f),
+	glm::vec3(0.0f, 5.0, -5.0f),
+	glm::vec3(-5.0f, 0.0, -5.0f),
 	glm::vec3(-5.0f, 5.0, 0.0f),
-	glm::vec3(0.0f, 0.0, -5.0f),
-	glm::vec3(5.0f, 0.0, 0.0f),
 	glm::vec3(-5.0f, 0.0, 5.0f),
-	glm::vec3(-2.0f, 0.0, 5.0f),
+	glm::vec3(0.0f, 5.0, 5.0f),
 };
 
-std::vector<glm::vec3> debugTargetPoints = {
-	glm::vec3(0.0f, 0.0, 3.0f),
-	glm::vec3(3.0f, 0.0, -3.0f),
-	glm::vec3(-3.0f, 0.0, -3.0f),
-	glm::vec3(-3.0f, 0.0, 3.0f),
-	glm::vec3(-5.0f, 0.0, 5.0f),
-	glm::vec3(-2.0f, 0.0, 4.0f),
-};
 
-bezier_curve debugCurve;
-bezier_curve debugTargetCurve;
-
-quadratic_uniform_b_spline debugSpline;
-quadratic_uniform_b_spline debugTargetSpline;
+cubic_uniform_b_spline debugTargetSpline;
+cubic_uniform_b_spline debugSpline;
 
 Material shinyMaterial;
 Material dullMaterial;
@@ -179,11 +152,7 @@ int main()
 	// debug camera
 	camera = Camera(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), -60.0f, 0.0f, 5.0f, 0.05f);
 
-	debugCurve = bezier_curve(debugPoints);
-	debugTargetCurve = bezier_curve(debugTargetPoints);
-
-	debugSpline = quadratic_uniform_b_spline(controlPoints);
-	debugTargetSpline = quadratic_uniform_b_spline(debugTargetPoints);
+	debugSpline = cubic_uniform_b_spline(controlPoints);
 
 	shinyMaterial = Material(4.0f, 256);
 	dullMaterial = Material(0.3f, 4);
@@ -264,14 +233,16 @@ int main()
 	{
 		double now = glfwGetTime();
 
-		//pointLights[0].SetLightPosition(glm::vec3(camera.getCameraPosition().x+2.0f, camera.getCameraPosition().y, camera.getCameraPosition().z));
+		if (now >= 10.0) {
+			glfwSetTime(0.0);
+		}
 
 		// Get + Handle User Input
 		glfwPollEvents();
 
 		// Handle camera movement
-		//camera.mouseControl(mainWindow.getXChange(), mainWindow.getYChange());
-		//camera.keyControl(mainWindow.getKeys(), deltaTime);
+		camera.mouseControl(mainWindow.getXChange(), mainWindow.getYChange());
+		camera.keyControl(mainWindow.getKeys(), deltaTime);
 
 		// Clear the window
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -280,15 +251,14 @@ int main()
 		// sets shaderprogram at shaderList[0] as shaderprogram to use
 		shaderList[0].UseShader();
 
-		camera.setCameraPosition(debugSpline.value_at(glm::clamp(now * 0.01,0.0,1.0)));
+		camera.setCameraPosition(debugSpline.value_at(glm::clamp(now * 0.1, 0.0, 1.0)));
 
-		glm::vec3 target = debugTargetSpline.value_at(glm::clamp(now * 0.01+0.1, 0.0, 1.0));
-		
+		glm::vec3 target = debugSpline.value_at(glm::clamp(now * 0.05 + 0.1, 0.0, 1.0));
+
 		glm::mat4 viewMatrix = glm::lookAt(camera.getCameraPosition(), target, glm::vec3(0.0f, 1.0f, 0.0f));
 
-		// Extract the direction vector from the view matrix
 		glm::vec3 cameraDirection = glm::normalize(glm::vec3(viewMatrix[0][2], viewMatrix[1][2], viewMatrix[2][2]));
-		
+
 		camera.setCameraDirection(-cameraDirection);
 
 		// retreive uniform locations (ID) from shader membervariables
@@ -302,15 +272,10 @@ int main()
 
 		//Flashlight
 		// copies camera position and lowers y value by 0.3f (so flashlight feels like it's in hand)
-		//glm::vec3 lowerLight = camera.getCameraPosition();
-		//lowerLight.y -= 0.3f;
-	
+		glm::vec3 lowerLight = camera.getCameraPosition();
+
 		// SetFlash() sets the direction of the light to always face the same direction as the camera
-		//spotLights[0].SetFlash(lowerLight, camera.getCameraDirection());
-
-		//target = debugTargetCurve.value_at(glm::clamp(now * 0.1, 0.0, 1.0));
-
-		//spotLights[0].SetLightPosition(target);
+		spotLights[0].SetFlash(lowerLight, camera.getCameraDirection());
 
 		// sends data about the lights from CPU to the (fragement)shader to corresponding locations
 		shaderList[0].SetDirectionalLight(&mainDirectionalLight);
@@ -327,7 +292,7 @@ int main()
 		// = uniform vec3 eyePosition;
 		glUniform3f(uniformEyePosition, camera.getCameraPosition().x, camera.getCameraPosition().y, camera.getCameraPosition().z);
 
-		glm::mat4 model(1.0f);	
+		glm::mat4 model(1.0f);
 
 		//comparable to UseLight() in DirectionalLight.cpp (but for Material)
 		dullMaterial.UseMaterial(uniformSpecularIntensity, uniformShininess);
@@ -340,20 +305,47 @@ int main()
 
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 
-		//debugPlane.RenderModel();
+		debugPlane.RenderModel();
 
+		//debugcube moving along spline
+		/*model = glm::mat4(1.0f);
 
-		model = glm::mat4(1.0f);
+		model = glm::translate(model, debugSpline.value_at(glm::clamp(now * 0.1, 0.0, 1.0)));
 
-		model = glm::translate(model, glm::vec3(0.0f, -1.25f, 0.0f));
-
-		//model = glm::scale(model, glm::vec3(0.25f, 0.25f, 0.25f));
+		model = glm::scale(model, glm::vec3(0.25f, 0.25f, 0.25f));
 
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 
-		//dirtTexture.UseTexture();
+		debugCube.RenderModel();*/
 
-		//debugCube.RenderModel();
+
+		for (glm::vec3 point : debugPoints) {
+
+			model = glm::mat4(1.0f);
+
+			model = glm::translate(model, point);
+
+			model = glm::scale(model, glm::vec3(0.25f, 0.25f, 0.25f));
+
+			glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+
+			debugCube.RenderModel();
+		}
+
+		model = glm::mat4(1.0f);
+
+		/*model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
+
+		model = glm::scale(model, glm::vec3(0.25f, 0.25f, 0.25f));
+
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+
+		debugCube.RenderModel();*/
+
+		model = glm::translate(model, glm::vec3(0.0f, -1.5f, 0.0f));
+
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+
 		scene.RenderModel();
 
 		glUseProgram(0);
