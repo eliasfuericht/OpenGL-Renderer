@@ -44,36 +44,88 @@ Model scene;
 Texture dirtTexture;
 
 //BezierCurve cameraPath;
-BezierCurve forestPath;
-BezierCurve BunnyPath;
+BezierCurve cameraPath1;
+BezierCurve cameraPath2;
+BezierCurve cameraPath3;
 
-std::vector<glm::vec3> controlPointsForest = { //forest path
-glm::vec3(19.50, -0.60, 17.00),
-glm::vec3(17.24, -1.10, 18.89),
-glm::vec3(15.68, -0.39, 15.41),
-glm::vec3(15.91, -0.13, 10.06),
-glm::vec3(13.28, 0.06, 7.48),
-glm::vec3(7.15, 0.67, 6.74) };
+std::vector<glm::vec3> controlPoints1 = { //forest path
+	glm::vec3(19.50, -0.60, 17.00),
+	glm::vec3(19.50, -0.60, 17.00),
+	glm::vec3(19.50, -0.60, 17.00),
+	glm::vec3(16.03, -0.55, 19.66),
+	glm::vec3(15.62, -0.19, 15.26),
+	glm::vec3(15.84, -0.06, 9.98),
+	glm::vec3(15.84, -0.06, 9.98),
+	glm::vec3(14.71, -0.02, 7.99),
+	glm::vec3(9.73, 0.41, 6.60),
+	glm::vec3(5.44, 0.79, 6.14),
+	//bunny
+	glm::vec3(5.44, 0.79, 6.14),
+	glm::vec3(3.20, 0.80, 3.99),
+	glm::vec3(3.29, 0.96, 2.51),
+	glm::vec3(5.72, 1.10, 2.75),
+	glm::vec3(5.53, 1.06, 2.90),
+	glm::vec3(6.29, 1.07, 2.52),
+	glm::vec3(6.29, 1.07, 2.52),
+	glm::vec3(6.95, 1.07, 2.03),
+	glm::vec3(6.95, 1.07, 2.03),
+	glm::vec3(6.95, 1.07, 2.03),
+	glm::vec3(7.31, 1.07, 0.52),
+	glm::vec3(7.31, 1.07, 0.52),
+	glm::vec3(7.31, 1.07, 0.52),
+	glm::vec3(6.68, 1.08, -0.65),
+	glm::vec3(5.29, 1.04, -1.04),
+	glm::vec3(4.20, 0.90, -2.90),
+	glm::vec3(4.44, 0.85, -3.17),
+};
 
-std::vector<glm::vec3> controlPointsBunny = { //bunny room
-glm::vec3(7.15, 0.67, 6.74),
-glm::vec3(4.36, 0.87, 5.72),
-glm::vec3(6.46, 1.07, 2.42),
-glm::vec3(6.65, 1.14, -0.14),
-glm::vec3(5.12, 0.99, -1.40),
-glm::vec3(4.58, 0.99, -3.09) };
+std::vector<glm::vec3> controlPoints2 = { //teapot
+glm::vec3(4.20, 0.90, -2.90),
+glm::vec3(4.44, 0.85, -3.17),
+glm::vec3(3.42, 0.92, -3.44),
+glm::vec3(2.16, 0.97, -4.87),
+glm::vec3(2.16, 0.97, -4.87),
+glm::vec3(2.16, 0.97, -4.87),
+glm::vec3(0.42, 0.98, -4.60),
+glm::vec3(-1.80, 1.18, -7.18),
+glm::vec3(-0.91, 1.15, -8.70),
+glm::vec3(-1.62, 1.08, -7.39),
+glm::vec3(-1.62, 1.08, -7.39),
+glm::vec3(-1.62, 1.08, -7.39),
+glm::vec3(-2.24, 1.04, -6.22),
+glm::vec3(-2.24, 1.04, -6.22),
 
-////bunny room
-//glm::vec3(4.36, 0.87, 5.72),
-//glm::vec3(6.46, 1.07, 2.42),
-//glm::vec3(6.65, 1.14, -0.14),
-//glm::vec3(5.12, 0.99, -1.40),
-//glm::vec3(4.58, 0.99, -3.09),
-//
-////teapot room
-//glm::vec3(3.27, 1.04, -3.82),
-//glm::vec3(2.22, 1.08, -6.21)
-// };
+
+//dragon
+glm::vec3(-3.10, 1.10, -4.90),
+glm::vec3(-3.47, 0.96, -3.05),
+glm::vec3(-3.56, 0.95, -2.15),
+glm::vec3(-3.56, 0.95, -2.15),
+glm::vec3(-4.63, 0.99, -0.83),
+glm::vec3(-4.63, 0.99, -0.83),
+glm::vec3(-4.63, 0.99, -0.83),
+glm::vec3(-6.30, 1.05, -1.12),
+glm::vec3(-6.30, 1.05, -1.12),
+glm::vec3(-6.30, 1.05, -1.12),
+glm::vec3(-6.81, 0.98, -2.85),
+glm::vec3(-6.78, 0.90, -0.70)
+};
+
+
+std::vector<glm::vec3> controlPoints3 = { //endpath
+glm::vec3(-6.78, 0.90, -0.70),
+glm::vec3(-6.62, 0.92, 0.47),
+glm::vec3(-4.35, 1.07, 2.12),
+glm::vec3(-3.83, 1.15, 3.82),
+glm::vec3(-1.12, 1.19, 4.27),
+glm::vec3(2.07, 1.03, 2.97),
+glm::vec3(4.70, 1.12, 4.66),
+glm::vec3(7.36, 0.0, 6.52),
+glm::vec3(11.74, 0.0, 7.66),
+glm::vec3(11.0, 0.0, 7.35)
+};
+
+
 
 DirectionalLight mainDirectionalLight;
 PointLight pointLights[MAX_POINT_LIGHTS];
@@ -81,7 +133,7 @@ SpotLight spotLights[MAX_SPOT_LIGHTS];
 
 GLfloat deltaTime = 0.0f;
 GLfloat elapsedTime = 0.0f;
-GLfloat animationDuration = 60.0f;
+GLfloat animationDuration = 180.0f;
 GLfloat lastTime = 0.0f;
 GLfloat t = 0.0f; //Bezier parameter t
 
@@ -123,10 +175,18 @@ int main()
 	CreateShaders();
 
 	// setting up basic camera
-	camera = Camera(glm::vec3(19.5f, -0.60f, 17.0f), glm::vec3(0.0f, 1.0f, 0.0f), -60.0f, 0.0f, 5.0f, 0.05f);
+	camera = Camera(glm::vec3(19.50, -0.60, 17.00), glm::vec3(0.0f, 1.0f, 0.0f), -60.0f, 0.0f, 5.0f, 0.05f);
 
-	forestPath = BezierCurve(controlPointsForest);
-	BunnyPath = BezierCurve(controlPointsBunny);
+	cameraPath1 = BezierCurve(controlPoints1);
+	cameraPath2 = BezierCurve(controlPoints2);
+	cameraPath3 = BezierCurve(controlPoints3);
+
+	//smooth transition
+	/*glm::vec3 tangent1 = cameraPath1.slope_at(1.0);
+	glm::vec3 tangent2 = cameraPath2.slope_at(0.0);
+	glm::vec3 adjustedTangent = 0.5f * (tangent1 + tangent2);*/
+
+
 
 
 	shinyMaterial = Material(4.0f, 256);
@@ -243,24 +303,24 @@ int main()
 
 			elapsedTime = now - startTime;
 			t = elapsedTime / animationDuration;
-			t = t * 2;
-			t = glm::clamp(t, 0.0f, 2.0f);
+			t = t * 5;
+			t = glm::clamp(t, 0.0f, 3.0f);
 
 			if (t <= 1.0) {
-				nextPosition = forestPath.value_at(t);
-				tangent = forestPath.slope_at(t);
-				nextControlPoint = forestPath.value_at(t + 0.1);
-			}
-			else {
+				nextPosition = cameraPath1.value_at(t);
+				tangent = cameraPath1.slope_at(t);
+				nextControlPoint = cameraPath1.value_at(t + 0.1);
+			} else if (t <= 2.0) {
 				float t2 = t - 1.0;
-				nextPosition = BunnyPath.value_at(t2);
-				tangent = BunnyPath.slope_at(t2);
-				nextControlPoint = BunnyPath.value_at(t2 + 0.1);
+				nextPosition = cameraPath2.value_at(t2);
+				tangent = cameraPath2.slope_at(t2);
+				nextControlPoint = cameraPath2.value_at(t2 + 0.1);
+			} else if (t <= 3.0) {
+				float t3 = t - 2.0;
+				nextPosition = cameraPath3.value_at(t3);
+				tangent = cameraPath3.slope_at(t3);
+				nextControlPoint = cameraPath3.value_at(t3 + 0.1);
 			}
-
-			/*nextPosition = cameraPath.value_at(t);
-			tangent = cameraPath.slope_at(t);
-			nextControlPoint = cameraPath.value_at(t + 0.1);*/
 
 			camera.updatePosition(nextPosition);
 			camera.updateOrientation(tangent, nextControlPoint);
