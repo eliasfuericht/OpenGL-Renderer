@@ -25,7 +25,6 @@
 #include "Material.h"
 #include "Model.h"
 #include "quadratic_uniform_b_spline.h"
-#include "BezierCurve.h"
 
 #include <assimp/Importer.hpp>
 
@@ -39,189 +38,103 @@ std::vector<Shader> shaderList;
 Camera camera;
 
 std::vector<glm::vec3> controlPointsComplete = { 
-	//start
-	glm::vec3(19.50, -0.60, 17.00),
-	glm::vec3(19.50, -0.60, 17.00),
-	glm::vec3(19.50, -0.60, 17.00),
-	glm::vec3(16.03, -0.55, 19.66),
-	glm::vec3(15.62, -0.19, 15.26),
-	glm::vec3(15.84, -0.06, 9.98),
-	glm::vec3(15.84, -0.06, 9.98),
-	glm::vec3(14.71, -0.02, 7.99),
-	glm::vec3(9.73, 0.41, 6.60),
-	glm::vec3(5.44, 0.79, 6.14),
-	//bunny
-	glm::vec3(5.44, 0.79, 6.14),
-	glm::vec3(3.20, 0.80, 3.99),
-	glm::vec3(3.29, 0.96, 2.51),
-	glm::vec3(5.72, 1.10, 2.75),
-	glm::vec3(5.53, 1.06, 2.90),
-	glm::vec3(6.29, 1.07, 2.52),
-	glm::vec3(6.29, 1.07, 2.52),
-	glm::vec3(6.95, 1.07, 2.03),
-	glm::vec3(6.95, 1.07, 2.03),
-	glm::vec3(6.95, 1.07, 2.03),
-	glm::vec3(7.31, 1.07, 0.52),
-	glm::vec3(7.31, 1.07, 0.52),
-	glm::vec3(7.31, 1.07, 0.52),
-	glm::vec3(6.68, 1.08, -0.65),
-	glm::vec3(5.29, 1.04, -1.04),
-	glm::vec3(4.20, 0.90, -2.90),
-	glm::vec3(4.44, 0.85, -3.17),
-	//teapot
-	glm::vec3(4.20, 0.90, -2.90),
-	glm::vec3(4.44, 0.85, -3.17),
-	glm::vec3(3.42, 0.92, -3.44),
-	glm::vec3(2.16, 0.97, -4.87),
-	glm::vec3(2.16, 0.97, -4.87),
-	glm::vec3(2.16, 0.97, -4.87),
-	glm::vec3(0.42, 0.98, -4.60),
-	glm::vec3(-1.80, 1.18, -7.18),
-	glm::vec3(-0.91, 1.15, -8.70),
-	glm::vec3(-1.62, 1.08, -7.39),
-	glm::vec3(-1.62, 1.08, -7.39),
-	glm::vec3(-1.62, 1.08, -7.39),
-	glm::vec3(-2.24, 1.04, -6.22),
-	glm::vec3(-2.24, 1.04, -6.22),
+	//forest path
+glm::vec3(19.50, -0.60, 17.00),
+glm::vec3(19.50, -0.60, 17.00),
+glm::vec3(16.03, -0.55, 19.66),
+glm::vec3(16.03, -0.55, 19.66),
+glm::vec3(15.62, -0.19, 15.26),
+glm::vec3(15.84, -0.06, 9.98),
+glm::vec3(14.71, -0.02, 7.99),
+glm::vec3(9.73, 0.41, 6.60),
+glm::vec3(5.44, 0.79, 6.14),
 
-	//dragon
-	glm::vec3(-3.10, 1.10, -4.90),
-	glm::vec3(-3.47, 0.96, -3.05),
-	glm::vec3(-3.56, 0.95, -2.15),
-	glm::vec3(-3.56, 0.95, -2.15),
-	glm::vec3(-4.63, 0.99, -0.83),
-	glm::vec3(-4.63, 0.99, -0.83),
-	glm::vec3(-4.63, 0.99, -0.83),
-	glm::vec3(-6.30, 1.05, -1.12),
-	glm::vec3(-6.30, 1.05, -1.12),
-	glm::vec3(-6.30, 1.05, -1.12),
-	glm::vec3(-6.81, 0.98, -2.85),
-	glm::vec3(-6.78, 0.90, -0.70),
+//bunny
+glm::vec3(4.72, 1.24, 5.25),
+glm::vec3(4.37, 1.26, 3.97),
+glm::vec3(5.85, 1.29, 3.49),
+glm::vec3(7.06, 1.30, 2.31),
+glm::vec3(7.06, 1.30, 2.31),
+glm::vec3(7.17, 1.38, 0.38),
+glm::vec3(5.59, 1.32, -0.84),
+glm::vec3(3.98, 1.35, -2.88),
 
-	//endpath
-	glm::vec3(-6.78, 0.90, -0.70),
-	glm::vec3(-6.62, 0.92, 0.47),
-	glm::vec3(-4.35, 1.07, 2.12),
-	glm::vec3(-3.83, 1.15, 3.82),
-	glm::vec3(-1.12, 1.19, 4.27),
-	glm::vec3(2.07, 1.03, 2.97),
-	glm::vec3(4.70, 1.12, 4.66),
-	glm::vec3(7.36, 0.0, 6.52),
-	glm::vec3(11.74, 0.0, 7.66),
-	glm::vec3(11.0, 0.0, 7.35)
+//teapot
+glm::vec3(2.77, 1.29, -4.22),
+glm::vec3(2.80, 1.51, -6.13),
+glm::vec3(1.98, 1.33, -7.89),
+glm::vec3(1.98, 1.33, -7.89),
+glm::vec3(-1.32, 1.45, -8.16),
+glm::vec3(-1.32, 1.45, -8.16),
+glm::vec3(-2.01, 1.40, -6.65),
+
+//dragon
+glm::vec3(-2.97, 1.34, -5.63),
+glm::vec3(-2.93, 1.32, -3.27),
+glm::vec3(-2.93, 1.32, -3.27),
+glm::vec3(-5.33, 1.56, -5.14),
+glm::vec3(-7.19, 1.45, -3.83),
+glm::vec3(-6.68, 1.38, -1.68),
+
+//end
+glm::vec3(-5.07, 1.32, 0.64),
+glm::vec3(-3.81, 1.29, 3.15),
+glm::vec3(-1.51, 1.34, 4.21),
+glm::vec3(2.05, 1.33, 4.22),
+glm::vec3(4.92, 1.34, 5.24),
+glm::vec3(8.66, 0.84, 7.09),
+glm::vec3(12.37, 0.40, 7.79),
+glm::vec3(15.00, 0.39, 9.00),
+glm::vec3(14.20, 0.51, 8.65)
 };
 
-std::vector<glm::vec3> debugPoints = {
-	glm::vec3(0.0f, 0.0, 5.0f),
-	glm::vec3(-5.0f, 5.0, 0.0f),
-	glm::vec3(0.0f, 0.0, -5.0f),
-	glm::vec3(5.0f, 0.0, 0.0f),
-	glm::vec3(-5.0f, 0.0, 5.0f),
-	glm::vec3(-2.0f, 0.0, 5.0f),
+std::vector<glm::vec3> targetPoints = {
+	//museum
+glm::vec3(0.0f, 0.0, 3.0f),
+glm::vec3(3.0f, 0.0, -3.0f),
+//bunny
+glm::vec3(5.08, 1.30, 1.20),
+glm::vec3(5.08, 1.30, 1.20),
+glm::vec3(5.08, 1.30, 1.20),
+//teapot
+glm::vec3(5.18, 1.54, -1.12),
+glm::vec3(2.92, 1.35, -4.29),
+glm::vec3(0.26, 1.33, -7.20),
+glm::vec3(0.26, 1.33, -7.20),
+glm::vec3(0.26, 1.33, -7.20),
+//dragon
+glm::vec3(2.92, 1.35, -4.29),
+glm::vec3(-4.89, 1.30, -2.62),
+glm::vec3(-5.45, 1.25, -2.94),
+glm::vec3(-5.45, 1.25, -2.94),
+glm::vec3(-5.45, 1.25, -2.94),
+glm::vec3(-4.89, 1.30, -2.62),
+glm::vec3(-4.89, 1.30, -2.62),
+//outwards
+glm::vec3(-3.33, 1.40, 3.31),
+glm::vec3(4.42, 1.38, 4.39),
+glm::vec3(13.71, 0.94, 8.88),
+glm::vec3(3.48, 1.37, 2.68)
 };
 
-std::vector<glm::vec3> debugTargetPoints = {
-	glm::vec3(0.0f, 0.0, 3.0f),
-	glm::vec3(3.0f, 0.0, -3.0f),
-	glm::vec3(-3.0f, 0.0, -3.0f),
-	glm::vec3(-3.0f, 0.0, 3.0f),
-	glm::vec3(-5.0f, 0.0, 5.0f),
-	glm::vec3(-2.0f, 0.0, 4.0f),
-};
+//std::vector<glm::vec3> debugTargetPoints = { glm::vec3(0.0f, 0.0, 3.0f),
+//glm::vec3(3.0f, 0.0, -3.0f),
+//glm::vec3(-3.0f, 0.0, -3.0f),
+//glm::vec3(-3.0f, 0.0, 3.0f),
+//glm::vec3(-5.0f, 0.0, 5.0f),
+//glm::vec3(-2.0f, 0.0, 4.0f) };
 
-quadratic_uniform_b_spline debugSpline;
-quadratic_uniform_b_spline debugTargetSpline;
+quadratic_uniform_b_spline cameraPath;
+quadratic_uniform_b_spline targetPath;
 
 Material shinyMaterial;
 Material dullMaterial;
 
-Model debugPlane;
-Model debugCube;
+//Model debugPlane;
+//Model debugCube;
 Model scene;
 
 Texture dirtTexture;
-
-//BezierCurve cameraPath;
-//BezierCurve cameraPath1;
-//BezierCurve cameraPath2;
-//BezierCurve cameraPath3;
-//
-//std::vector<glm::vec3> controlPoints1 = { //forest path
-//	glm::vec3(19.50, -0.60, 17.00),
-//	glm::vec3(19.50, -0.60, 17.00),
-//	glm::vec3(19.50, -0.60, 17.00),
-//	glm::vec3(16.03, -0.55, 19.66),
-//	glm::vec3(15.62, -0.19, 15.26),
-//	glm::vec3(15.84, -0.06, 9.98),
-//	glm::vec3(15.84, -0.06, 9.98),
-//	glm::vec3(14.71, -0.02, 7.99),
-//	glm::vec3(9.73, 0.41, 6.60),
-//	glm::vec3(5.44, 0.79, 6.14),
-//	//bunny
-//	glm::vec3(5.44, 0.79, 6.14),
-//	glm::vec3(3.20, 0.80, 3.99),
-//	glm::vec3(3.29, 0.96, 2.51),
-//	glm::vec3(5.72, 1.10, 2.75),
-//	glm::vec3(5.53, 1.06, 2.90),
-//	glm::vec3(6.29, 1.07, 2.52),
-//	glm::vec3(6.29, 1.07, 2.52),
-//	glm::vec3(6.95, 1.07, 2.03),
-//	glm::vec3(6.95, 1.07, 2.03),
-//	glm::vec3(6.95, 1.07, 2.03),
-//	glm::vec3(7.31, 1.07, 0.52),
-//	glm::vec3(7.31, 1.07, 0.52),
-//	glm::vec3(7.31, 1.07, 0.52),
-//	glm::vec3(6.68, 1.08, -0.65),
-//	glm::vec3(5.29, 1.04, -1.04),
-//	glm::vec3(4.20, 0.90, -2.90),
-//	glm::vec3(4.44, 0.85, -3.17),
-//};
-//
-//std::vector<glm::vec3> controlPoints2 = { //teapot
-//glm::vec3(4.20, 0.90, -2.90),
-//glm::vec3(4.44, 0.85, -3.17),
-//glm::vec3(3.42, 0.92, -3.44),
-//glm::vec3(2.16, 0.97, -4.87),
-//glm::vec3(2.16, 0.97, -4.87),
-//glm::vec3(2.16, 0.97, -4.87),
-//glm::vec3(0.42, 0.98, -4.60),
-//glm::vec3(-1.80, 1.18, -7.18),
-//glm::vec3(-0.91, 1.15, -8.70),
-//glm::vec3(-1.62, 1.08, -7.39),
-//glm::vec3(-1.62, 1.08, -7.39),
-//glm::vec3(-1.62, 1.08, -7.39),
-//glm::vec3(-2.24, 1.04, -6.22),
-//glm::vec3(-2.24, 1.04, -6.22),
-//
-//
-////dragon
-//glm::vec3(-3.10, 1.10, -4.90),
-//glm::vec3(-3.47, 0.96, -3.05),
-//glm::vec3(-3.56, 0.95, -2.15),
-//glm::vec3(-3.56, 0.95, -2.15),
-//glm::vec3(-4.63, 0.99, -0.83),
-//glm::vec3(-4.63, 0.99, -0.83),
-//glm::vec3(-4.63, 0.99, -0.83),
-//glm::vec3(-6.30, 1.05, -1.12),
-//glm::vec3(-6.30, 1.05, -1.12),
-//glm::vec3(-6.30, 1.05, -1.12),
-//glm::vec3(-6.81, 0.98, -2.85),
-//glm::vec3(-6.78, 0.90, -0.70)
-//};
-//
-//
-//std::vector<glm::vec3> controlPoints3 = { //endpath
-//glm::vec3(-6.78, 0.90, -0.70),
-//glm::vec3(-6.62, 0.92, 0.47),
-//glm::vec3(-4.35, 1.07, 2.12),
-//glm::vec3(-3.83, 1.15, 3.82),
-//glm::vec3(-1.12, 1.19, 4.27),
-//glm::vec3(2.07, 1.03, 2.97),
-//glm::vec3(4.70, 1.12, 4.66),
-//glm::vec3(7.36, 0.0, 6.52),
-//glm::vec3(11.74, 0.0, 7.66),
-//glm::vec3(11.0, 0.0, 7.35)
-//};
 
 
 
@@ -264,8 +177,8 @@ int main()
 	//camera = Camera(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), -60.0f, 0.0f, 5.0f, 0.05f);
 
 
-	debugSpline = quadratic_uniform_b_spline(controlPointsComplete);
-	debugTargetSpline = quadratic_uniform_b_spline(debugTargetPoints);
+	cameraPath = quadratic_uniform_b_spline(controlPointsComplete);
+	targetPath = quadratic_uniform_b_spline(targetPoints);
 
 	shinyMaterial = Material(4.0f, 256);
 	dullMaterial = Material(0.3f, 4);
@@ -275,11 +188,11 @@ int main()
 
 	printf("loading models...\n");
 
-	debugPlane = Model();
+	/*debugPlane = Model();
 	debugPlane.LoadModel("Models/plane.obj");
 
 	debugCube = Model();
-	debugCube.LoadModel("Models/cube.obj");
+	debugCube.LoadModel("Models/cube.obj");*/
 
 	scene = Model();
 	scene.LoadModel("Models/scene.obj");
@@ -381,9 +294,9 @@ int main()
 		//setting up camera animation
 
 		if (camera.animationOn) {
-			camera.setCameraPosition(debugSpline.value_at(glm::clamp(now * 0.01, 0.0, 1.0)));
+			camera.setCameraPosition(cameraPath.value_at(glm::clamp(now * 0.01, 0.0, 1.0)));
 
-			glm::vec3 target = debugTargetSpline.value_at(glm::clamp(now * 0.01 + 0.1, 0.0, 1.0));
+			glm::vec3 target = targetPath.value_at(glm::clamp(now * 0.01 + 0.1, 0.0, 1.0));
 
 			glm::mat4 viewMatrix = glm::lookAt(camera.getCameraPosition(), target, glm::vec3(0.0f, 1.0f, 0.0f));
 
@@ -416,7 +329,7 @@ int main()
 		lowerLight.y -= 0.3f + glm::sin(glfwGetTime()*2.0f) * 0.1f;
 	
 		// SetFlash() sets the direction of the light to always face the same direction as the camera
-		//spotLights[0].SetFlash(lowerLight, camera.getCameraDirection());
+		spotLights[0].SetFlash(lowerLight, camera.getCameraDirection());
 
 		//target = debugTargetCurve.value_at(glm::clamp(now * 0.1, 0.0, 1.0));
 
