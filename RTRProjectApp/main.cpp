@@ -64,7 +64,7 @@ glm::vec3(2.77, 1.29, -4.22),
 glm::vec3(2.80, 1.51, -6.13),
 glm::vec3(1.98, 1.33, -7.89),
 glm::vec3(1.98, 1.33, -7.89),
-glm::vec3(-1.32, 1.45, -8.16),
+glm::vec3(0.27, 1.43, -8.98),
 glm::vec3(-1.32, 1.45, -8.16),
 glm::vec3(-2.01, 1.40, -6.65),
 
@@ -99,11 +99,15 @@ glm::vec3(5.08, 1.30, 1.20),
 //teapot
 glm::vec3(5.18, 1.54, -1.12),
 glm::vec3(2.92, 1.35, -4.29),
-glm::vec3(0.26, 1.33, -7.20),
-glm::vec3(0.26, 1.33, -7.20),
-glm::vec3(0.26, 1.33, -7.20),
-//dragon
 glm::vec3(2.92, 1.35, -4.29),
+glm::vec3(0.26, 1.33, -7.20),
+glm::vec3(0.26, 1.33, -7.20),
+glm::vec3(0.26, 1.33, -7.20),
+glm::vec3(0.26, 1.33, -7.20),
+glm::vec3(1.0, 1.35, -5.29),
+
+//dragon
+//glm::vec3(2.92, 1.35, -4.29),
 glm::vec3(-4.89, 1.30, -2.62),
 glm::vec3(-5.45, 1.25, -2.94),
 glm::vec3(-5.45, 1.25, -2.94),
@@ -113,6 +117,8 @@ glm::vec3(-4.89, 1.30, -2.62),
 //outwards
 glm::vec3(-3.33, 1.40, 3.31),
 glm::vec3(4.42, 1.38, 4.39),
+glm::vec3(13.71, 0.94, 8.88),
+glm::vec3(13.71, 0.94, 8.88),
 glm::vec3(13.71, 0.94, 8.88),
 glm::vec3(3.48, 1.37, 2.68)
 };
@@ -144,7 +150,7 @@ SpotLight spotLights[MAX_SPOT_LIGHTS];
 
 GLfloat deltaTime = 0.0f;
 GLfloat elapsedTime = 0.0f;
-GLfloat animationDuration = 180.0f;
+GLfloat animationDuration = 120.0f;
 GLfloat lastTime = 0.0f;
 GLfloat t = 0.0f; //Bezier parameter t
 
@@ -252,7 +258,7 @@ int main()
 	int frameCount = 0;
 	int fps = 0;
 	std::vector<int> fpsList;
-	glfwSetTime(0.0f);
+	//glfwSetTime(0.0f);
 
 	// Loop until window closed
 	while (!mainWindow.getShouldClose())
@@ -260,6 +266,7 @@ int main()
 		static double startTime = glfwGetTime();
 		double now = glfwGetTime();
 		//printf("\rCurrent FPS: %d", fps);
+		elapsedTime = now - startTime;
 		deltaTime = now - lastTime;
 		lastTime = now;
 
@@ -294,9 +301,13 @@ int main()
 		//setting up camera animation
 
 		if (camera.animationOn) {
-			camera.setCameraPosition(cameraPath.value_at(glm::clamp(now * 0.01, 0.0, 1.0)));
+			//set t to control duration of animation
+			t = elapsedTime / animationDuration;
+			t = glm::clamp(t, 0.0f, 1.0f);
 
-			glm::vec3 target = targetPath.value_at(glm::clamp(now * 0.01 + 0.1, 0.0, 1.0));
+			camera.setCameraPosition(cameraPath.value_at(t));
+
+			glm::vec3 target = targetPath.value_at(t);
 
 			glm::mat4 viewMatrix = glm::lookAt(camera.getCameraPosition(), target, glm::vec3(0.0f, 1.0f, 0.0f));
 
