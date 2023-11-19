@@ -66,6 +66,9 @@
     <ClCompile Include="quadratic_uniform_b_spline.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="cubic_uniform_b_spline.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Mesh.h">
@@ -114,6 +117,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="quadratic_uniform_b_spline.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cubic_uniform_b_spline.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
