@@ -61,7 +61,7 @@ int Window::Initialise()
 
 	// Handle Key + Mouse Input 
 	createCallbacks();
-	glfwSetInputMode(mainWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+	glfwSetInputMode(mainWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
 	// Allow modern extensions 
 	glewExperimental = GL_TRUE;
@@ -89,7 +89,6 @@ void Window::createCallbacks()
 	// Sets handleKeys as callback function for keys and mouse
 	glfwSetKeyCallback(mainWindow, handleKeys);
 	glfwSetCursorPosCallback(mainWindow, handleMouse);
-	glfwSetMouseButtonCallback(mainWindow, handleMouseButton);
 }
 
 GLfloat Window::getXChange()
@@ -116,6 +115,11 @@ void Window::handleKeys(GLFWwindow* window, int key, int code, int action, int m
 		glfwSetWindowShouldClose(window, GL_TRUE);
 	}
 
+	if (key == GLFW_KEY_F1 && action == GLFW_PRESS)
+	{
+		theWindow->animation = !theWindow->animation;
+	}
+
 	// sets key to true if pressed and false if released
 	if (key >= 0 && key < 1024)
 	{
@@ -130,28 +134,12 @@ void Window::handleKeys(GLFWwindow* window, int key, int code, int action, int m
 	}
 }
 
-void Window::handleMouseButton(GLFWwindow* window, int button, int action, int mods)
-{
-	Window* theWindow = static_cast<Window*>(glfwGetWindowUserPointer(window));
-
-	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
-	{
-		double xpos, ypos;
-		theWindow->leftButtonPressed = false;
-		glfwGetCursorPos(window, &xpos, &ypos);
-	}
-	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE) {
-		theWindow->leftButtonPressed = true;
-	}
-
-}
-
 // function has to be the exact signature as below for it to work (see -> GLFWcursorposfun)
 void Window::handleMouse(GLFWwindow* window, double xPos, double yPos)
 {
 	Window* theWindow = static_cast<Window*>(glfwGetWindowUserPointer(window));
 
-	if (theWindow->leftButtonPressed)
+	if (theWindow->mouseFirstMoved)
 	{
 		theWindow->lastX = xPos;
 		theWindow->lastY = yPos;

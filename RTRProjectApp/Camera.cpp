@@ -54,16 +54,6 @@ void Camera::keyControl(bool* keys, GLfloat deltaTime)
 	{
 		position -= up * velocity;
 	}
-
-	if (keys[GLFW_KEY_F1])
-	{
-		animationOn = !animationOn;
-	}
-
-	if (keys[GLFW_KEY_P])
-	{
-		printposition = !printposition;
-	}
 }
 
 void Camera::mouseControl(GLfloat xChange, GLfloat yChange)
@@ -124,34 +114,6 @@ void Camera::update()
 	right = glm::normalize(glm::cross(front, worldUp));
 	up = glm::normalize(glm::cross(right, front));
 }
-
-void Camera::updatePosition(glm::vec3 nextPosition)
-{
-	position = nextPosition;
-
-}
-
-void Camera::updateOrientation(glm::vec3 tangent, glm::vec3 nextPoint)
-{
-	//// Calculate yaw angle based on the tangent vector
-	//yaw = atan2(tangent.x, tangent.z);
-
-	//// Calculate pitch angle based on the tangent vector
-	//pitch = atan2(-tangent.y, glm::length(glm::vec2(tangent.x, tangent.z)));
-
-	//look at the next bezier curve
-
-	front = glm::normalize(tangent);
-	right = glm::normalize(glm::cross(up, front));
-	up = glm::cross(front, right);
-
-	pitch = glm::degrees(asin(-front.y));
-	yaw = glm::degrees(atan2(front.x, front.z));
-
-	update();
-	calculateViewMatrix();
-}
-
 
 Camera::~Camera()
 {
