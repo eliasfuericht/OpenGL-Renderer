@@ -11,6 +11,9 @@ public:
 	Camera();
 	Camera(glm::vec3 startPosition, glm::vec3 startUp, GLfloat startYaw, GLfloat startPitch, GLfloat startMoveSpeed, GLfloat startTurnSpeed);
 
+	bool animationOn;
+	bool printposition;
+
 	void keyControl(bool* keys, GLfloat deltaTime);
 	void mouseControl(GLfloat xChange, GLfloat yChange);
 
@@ -21,6 +24,8 @@ public:
 	void setCameraDirection(glm::vec3 newDirection);
 
 	glm::mat4 calculateViewMatrix();
+
+	void updateOrientation(glm::vec3 tangent, glm::vec3 nextPoint);
 
 	~Camera();
 

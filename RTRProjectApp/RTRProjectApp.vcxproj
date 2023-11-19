@@ -160,7 +160,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="bezier_curve.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="cp_interpolation.cpp" />
     <ClCompile Include="cubic_uniform_b_spline.cpp" />
@@ -179,7 +178,6 @@
     <ClCompile Include="Window.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="bezier_curve.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="CommonValues.h" />
     <ClInclude Include="cp_interpolation.h" />

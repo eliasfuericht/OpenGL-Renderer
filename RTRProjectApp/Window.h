@@ -22,6 +22,7 @@ public:
 	bool* getKeys() { return keys; }
 	GLfloat getXChange();
 	GLfloat getYChange();
+	bool getAnimationBool() { return animation; }
 
 	void swapBuffers() { glfwSwapBuffers(mainWindow); }
 
@@ -40,6 +41,7 @@ private:
 	GLfloat xChange;
 	GLfloat yChange;
 	bool mouseFirstMoved;
+	bool animation;
 
 	void createCallbacks();
 	static void handleKeys(GLFWwindow* window, int key, int code, int action, int mode);

@@ -13,6 +13,9 @@ Camera::Camera(glm::vec3 startPosition, glm::vec3 startUp, GLfloat startYaw, GLf
 	moveSpeed = startMoveSpeed;
 	turnSpeed = startTurnSpeed;
 
+	animationOn = true;
+	printposition = false;
+
 	update();
 }
 
@@ -111,7 +114,6 @@ void Camera::update()
 	right = glm::normalize(glm::cross(front, worldUp));
 	up = glm::normalize(glm::cross(right, front));
 }
-
 
 Camera::~Camera()
 {
