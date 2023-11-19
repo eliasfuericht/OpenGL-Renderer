@@ -24,7 +24,6 @@
 #include "SpotLight.h"
 #include "Material.h"
 #include "Model.h"
-#include "cubic_uniform_b_spline.h"
 #include "quadratic_uniform_b_spline.h"
 
 #include <assimp/Importer.hpp>
@@ -38,7 +37,7 @@ std::vector<Shader> shaderList;
 
 Camera camera;
 
-std::vector<glm::vec3> controlPointsComplete = { 
+std::vector<glm::vec3> controlPointsComplete = {
 	//forest path
 	glm::vec3(19.50, -0.60, 17.00),
 	glm::vec3(19.50, -0.60, 17.00),
@@ -49,7 +48,7 @@ std::vector<glm::vec3> controlPointsComplete = {
 	glm::vec3(14.71, -0.02, 7.99),
 	glm::vec3(9.73, 0.41, 6.60),
 	glm::vec3(5.44, 0.79, 6.14),
-	
+
 	//bunny
 	glm::vec3(4.72, 1.24, 5.25),
 	glm::vec3(4.37, 1.26, 3.97),
@@ -59,7 +58,7 @@ std::vector<glm::vec3> controlPointsComplete = {
 	glm::vec3(7.17, 1.38, 0.38),
 	glm::vec3(5.59, 1.32, -0.84),
 	glm::vec3(3.98, 1.35, -2.88),
-	
+
 	//teapot
 	glm::vec3(2.77, 1.29, -4.22),
 	glm::vec3(2.80, 1.51, -6.13),
@@ -68,7 +67,7 @@ std::vector<glm::vec3> controlPointsComplete = {
 	glm::vec3(0.27, 1.43, -8.98),
 	glm::vec3(-1.32, 1.45, -8.16),
 	glm::vec3(-2.01, 1.40, -6.65),
-	
+
 	//dragon
 	glm::vec3(-2.97, 1.34, -5.63),
 	glm::vec3(-2.93, 1.32, -3.27),
@@ -76,7 +75,7 @@ std::vector<glm::vec3> controlPointsComplete = {
 	glm::vec3(-5.33, 1.56, -5.14),
 	glm::vec3(-7.19, 1.45, -3.83),
 	glm::vec3(-6.68, 1.38, -1.68),
-	
+
 	//end
 	glm::vec3(-5.07, 1.32, 0.64),
 	glm::vec3(-3.81, 1.29, 3.15),
@@ -106,6 +105,7 @@ std::vector<glm::vec3> targetPoints = {
 	glm::vec3(0.26, 1.33, -7.20),
 	glm::vec3(0.26, 1.33, -7.20),
 	glm::vec3(1.0, 1.35, -5.29),
+
 	//dragon
 	glm::vec3(-4.89, 1.30, -2.62),
 	glm::vec3(-5.45, 1.25, -2.94),
@@ -152,14 +152,14 @@ static const char* fShader = "Shaders/fragment.glsl";
 
 void CreateShaders()
 {
-	Shader *shader1 = new Shader();
+	Shader* shader1 = new Shader();
 	// reads, compiles and sets shader as shaderprogram to use!
 	shader1->CreateFromFiles(vShader, fShader);
 	//pushes into shaderList vector (for later use of multiple shaders)
 	shaderList.push_back(*shader1);
 }
 
-int main() 
+int main()
 {
 	mainWindow = Window(1920, 1080);
 	mainWindow.Initialise();
@@ -196,33 +196,33 @@ int main()
 	// setting up lights (position, color, ambientIntensity, diffuseIntensity, direction, edge)
 	// and incrementing the corresponding lightCount
 	mainDirectionalLight = DirectionalLight(1.0f, 1.0f, 1.0f,
-								0.25f, 0.1f,
-								0.0f, 0.0f, -1.0f);
+		0.25f, 0.1f,
+		0.0f, 0.0f, -1.0f);
 
 	unsigned int pointLightCount = 0;
 	pointLights[0] = PointLight(0.0f, 0.0f, 1.0f,
-								1.0f, 0.1f,
-								0.0f, 0.0f, 0.0f,
-								0.3f, 0.2f, 0.1f);
+		1.0f, 0.1f,
+		0.0f, 0.0f, 0.0f,
+		0.3f, 0.2f, 0.1f);
 	pointLightCount++;
 
 	//flashlight
 	unsigned int spotLightCount = 0;
 	spotLights[0] = SpotLight(1.0f, 1.0f, 1.0f,
-						0.1f, 0.5f,
-						0.0f, 0.0f, 0.0f,
-						0.0f, -1.0f, 0.0f,
-						0.8f, 0.0f, 0.0f,
-						10.0f);
+		0.1f, 0.5f,
+		0.0f, 0.0f, 0.0f,
+		0.0f, -1.0f, 0.0f,
+		0.8f, 0.0f, 0.0f,
+		10.0f);
 
 	spotLightCount++;
 
 	// setting up GLuints for uniform locations for later use
 	GLuint uniformProjection = 0, uniformModel = 0, uniformView = 0, uniformEyePosition = 0, uniformSpecularIntensity = 0, uniformShininess = 0;
-	
+
 	// calculating projection matrix
 	glm::mat4 projection = glm::perspective(glm::radians(45.0f), (GLfloat)mainWindow.getBufferWidth() / mainWindow.getBufferHeight(), 0.1f, 100.0f);
-	
+
 	//print OpenGL Version
 	const GLubyte* version = glGetString(GL_VERSION);
 	std::cout << "OpenGL version: " << version << std::endl;
@@ -235,14 +235,14 @@ int main()
 
 	// Loop until window closed
 	while (!mainWindow.getShouldClose())
-	{   
+	{
 		double now = glfwGetTime();
 		deltaTime = now - lastTime;
 		lastTime = now;
 
 		// Get + Handle User Input
-		glfwPollEvents();	
-		
+		glfwPollEvents();
+
 		//setting up camera animation
 		if (mainWindow.getAnimationBool()) {
 			//set t to control duration of animation
@@ -257,7 +257,7 @@ int main()
 
 			// Extract the direction vector from the view matrix
 			glm::vec3 cameraDirection = glm::normalize(glm::vec3(viewMatrix[0][2], viewMatrix[1][2], viewMatrix[2][2]));
-      
+
 			camera.setCameraDirection(-cameraDirection);
 		}
 		// if animation is toggled off -> use WASD and mouse to navigate
@@ -318,12 +318,10 @@ int main()
 
 		debugPlane.RenderModel();
 
-			glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-
-			debugCube.RenderModel();
-		}
 
 		model = glm::mat4(1.0f);
+
+		model = glm::translate(model, glm::vec3(0.0f, -1.25f, 0.0f));
 
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 
