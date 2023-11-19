@@ -187,7 +187,7 @@ int main()
 	debugCube.LoadModel("Models/cube.obj");
 
 	scene = Model();
-	//scene.LoadModel("Models/scene.obj");
+	scene.LoadModel("Models/scene.obj");
 
 
 	printf("Initial loading took: %f seconds\n", glfwGetTime());
@@ -315,7 +315,7 @@ int main()
 
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 
-		debugPlane.RenderModel();
+		//debugPlane.RenderModel();
 
 
 		model = glm::mat4(1.0f);
@@ -324,8 +324,8 @@ int main()
 
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 
-		debugCube.RenderModel();
-		//scene.RenderModel();
+		//debugCube.RenderModel();
+		scene.RenderModel();
 
 		glUseProgram(0);
 
