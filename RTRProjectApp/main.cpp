@@ -105,7 +105,6 @@ std::vector<glm::vec3> targetPoints = {
 	glm::vec3(0.26, 1.33, -7.20),
 	glm::vec3(0.26, 1.33, -7.20),
 	glm::vec3(1.0, 1.35, -5.29),
-
 	//dragon
 	glm::vec3(-4.89, 1.30, -2.62),
 	glm::vec3(-5.45, 1.25, -2.94),
@@ -303,7 +302,7 @@ int main()
 		// = uniform vec3 eyePosition;
 		glUniform3f(uniformEyePosition, camera.getCameraPosition().x, camera.getCameraPosition().y, camera.getCameraPosition().z);
 
-		glm::mat4 model(1.0f);
+		glm::mat4 model(1.0f);	
 
 		//comparable to UseLight() in DirectionalLight.cpp but for Material
 		dullMaterial.UseMaterial(uniformSpecularIntensity, uniformShininess);
