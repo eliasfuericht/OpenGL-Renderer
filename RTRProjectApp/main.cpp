@@ -24,7 +24,6 @@
 #include "SpotLight.h"
 #include "Material.h"
 #include "Model.h"
-#include "cubic_uniform_b_spline.h"
 #include "quadratic_uniform_b_spline.h"
 
 #include <assimp/Importer.hpp>
@@ -106,6 +105,7 @@ std::vector<glm::vec3> targetPoints = {
 	glm::vec3(0.26, 1.33, -7.20),
 	glm::vec3(0.26, 1.33, -7.20),
 	glm::vec3(1.0, 1.35, -5.29),
+	
 	//dragon
 	glm::vec3(-4.89, 1.30, -2.62),
 	glm::vec3(-5.45, 1.25, -2.94),
@@ -257,7 +257,7 @@ int main()
 
 			// Extract the direction vector from the view matrix
 			glm::vec3 cameraDirection = glm::normalize(glm::vec3(viewMatrix[0][2], viewMatrix[1][2], viewMatrix[2][2]));
-      
+
 			camera.setCameraDirection(-cameraDirection);
 		}
 		// if animation is toggled off -> use WASD and mouse to navigate
@@ -303,7 +303,7 @@ int main()
 		// = uniform vec3 eyePosition;
 		glUniform3f(uniformEyePosition, camera.getCameraPosition().x, camera.getCameraPosition().y, camera.getCameraPosition().z);
 
-		glm::mat4 model(1.0f);
+		glm::mat4 model(1.0f);	
 
 		//comparable to UseLight() in DirectionalLight.cpp but for Material
 		dullMaterial.UseMaterial(uniformSpecularIntensity, uniformShininess);
@@ -318,12 +318,10 @@ int main()
 
 		debugPlane.RenderModel();
 
-			glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-
-			debugCube.RenderModel();
-		}
 
 		model = glm::mat4(1.0f);
+
+		model = glm::translate(model, glm::vec3(0.0f, -1.25f, 0.0f));
 
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 
