@@ -208,7 +208,7 @@ int main()
 	//flashlight
 	unsigned int spotLightCount = 0;
 	spotLights[0] = SpotLight(1.0f, 1.0f, 1.0f,
-		0.1f, 0.5f,
+		0.1f, 0.35f,
 		0.0f, 0.0f, 0.0f,
 		0.0f, -1.0f, 0.0f,
 		0.8f, 0.0f, 0.0f,
@@ -231,6 +231,7 @@ int main()
 	int fps = 0;
 	std::vector<int> fpsList;
 	glfwSetTime(0.0f);
+	double animationTime = 0.0f;
 
 	// Loop until window closed
 	while (!mainWindow.getShouldClose())
@@ -245,7 +246,8 @@ int main()
 		//setting up camera animation
 		if (mainWindow.getAnimationBool()) {
 			//set t to control duration of animation
-			t = now / animationDuration;
+			animationTime += deltaTime;
+			t = animationTime / animationDuration;
 			t = glm::clamp(t, 0.0, 1.0);
 
 			camera.setCameraPosition(cameraPath.value_at(t));
