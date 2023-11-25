@@ -92,6 +92,10 @@ glm::vec3 Camera::getCameraDirection()
 	return glm::normalize(front);
 }
 
+glm::vec3 Camera::getCameraUp()
+{
+	return up;
+}
 void Camera::setCameraPosition(glm::vec3 newPosition)
 {
 	position = newPosition;
@@ -100,6 +104,11 @@ void Camera::setCameraPosition(glm::vec3 newPosition)
 void Camera::setCameraDirection(glm::vec3 newDirection)
 {
 	front = newDirection;
+}
+
+void Camera::setCameraUp(glm::vec3 newUp)
+{
+	up = newUp;
 }
 
 void Camera::update()

@@ -178,7 +178,8 @@ int main()
 	dirtTexture = Texture("Textures/dirt.png");
 	dirtTexture.LoadTextureA();
 
-	printf("loading models...\n");
+	printf("Press 'F1' to toggle animation\n");
+	printf("loading models(can take up to 30sec)...\n");
 
 	debugPlane = Model();
 	debugPlane.LoadModel("Models/plane.obj");
@@ -254,7 +255,9 @@ int main()
 
 			glm::vec3 target = targetPath.value_at(t);
 
-			glm::mat4 viewMatrix = glm::lookAt(camera.getCameraPosition(), target, glm::vec3(0.0f, 1.0f, 0.0f));
+			camera.setCameraUp(glm::vec3(0.0f, 1.0f, 0.0f));
+
+			glm::mat4 viewMatrix = glm::lookAt(camera.getCameraPosition(), target, camera.getCameraUp());
 
 			// Extract the direction vector from the view matrix
 			glm::vec3 cameraDirection = glm::normalize(glm::vec3(viewMatrix[0][2], viewMatrix[1][2], viewMatrix[2][2]));
