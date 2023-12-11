@@ -10,7 +10,7 @@ class Window
 public:
 	Window();
 
-	Window(GLint windowWidth, GLint windowHeight);
+	Window(GLint windowWidth, GLint windowHeight, bool fs);
 
 	int Initialise();
 
@@ -34,6 +34,7 @@ private:
 	GLint width, height;
 	GLint bufferWidth, bufferHeight;
 
+	bool fullscreen;
 	bool keys[1024];
 
 	GLfloat lastX;

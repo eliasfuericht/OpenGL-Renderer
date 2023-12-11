@@ -160,7 +160,7 @@ void CreateShaders()
 
 int main()
 {
-	mainWindow = Window(1920, 1080);
+	mainWindow = Window(1920, 1080, false);
 	mainWindow.Initialise();
 
 	CreateShaders();
@@ -187,8 +187,8 @@ int main()
 	debugCube = Model();
 	debugCube.LoadModel("Models/cube.obj");
 
-	scene = Model();
-	scene.LoadModel("Models/scene.obj");
+	//scene = Model();
+	//scene.LoadModel("Models/scene.obj");
 
 
 	printf("Initial loading took: %f seconds\n", glfwGetTime());
@@ -201,8 +201,8 @@ int main()
 
 	unsigned int pointLightCount = 0;
 	pointLights[0] = PointLight(0.0f, 0.0f, 1.0f,
-		1.0f, 0.1f,
-		0.0f, 0.0f, 0.0f,
+		0.75f, 0.1f,
+		0.0f, 2.5f, 0.0f,
 		0.3f, 0.2f, 0.1f);
 	pointLightCount++;
 
@@ -314,13 +314,22 @@ int main()
 
 		model = glm::mat4(1.0f);
 
-		model = glm::translate(model, glm::vec3(0.0f, -0.5f, 0.0f));
+		model = glm::translate(model, glm::vec3(0.0f, -1.0f, 0.0f));
 
 		model = glm::scale(model, glm::vec3(10.0f, 10.0f, 10.0f));
 
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 
-		//debugPlane.RenderModel();
+		debugPlane.RenderModel();
+
+
+		model = glm::mat4(1.0f);
+
+		model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
+
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+
+		debugCube.RenderModel();
 
 
 		model = glm::mat4(1.0f);
@@ -329,8 +338,7 @@ int main()
 
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 
-		//debugCube.RenderModel();
-		scene.RenderModel();
+		//scene.RenderModel();
 
 		glUseProgram(0);
 

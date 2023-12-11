@@ -4,6 +4,7 @@ Window::Window()
 {
 	width = 800;
 	height = 600;
+	fullscreen = false;
 
 	for(size_t i = 0; i < 1024; i++)
 	{
@@ -14,10 +15,11 @@ Window::Window()
 	yChange = 0.0f;
 }
 
-Window::Window(GLint windowWidth, GLint windowHeight)
+Window::Window(GLint windowWidth, GLint windowHeight, bool fs)
 {
 	width = windowWidth;
 	height = windowHeight;
+	fullscreen = fs;
 
 	for (size_t i = 0; i < 1024; i++)
 	{
@@ -45,7 +47,13 @@ int Window::Initialise()
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 
 	// Create window
-	mainWindow = glfwCreateWindow(width, height, "Night at the museum", NULL, NULL);
+	if (fullscreen) {
+		mainWindow = glfwCreateWindow(width, height, "Night at the museum", glfwGetPrimaryMonitor(), NULL);
+	}
+	else {
+		mainWindow = glfwCreateWindow(width, height, "Night at the museum", NULL, NULL);
+	}
+	
 	if (!mainWindow)
 	{
 		printf("Error creating GLFW window!");
