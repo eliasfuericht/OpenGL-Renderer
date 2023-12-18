@@ -69,7 +69,7 @@ int Window::Initialise()
 
 	// Handle Key + Mouse Input 
 	createCallbacks();
-	glfwSetInputMode(mainWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	glfwSetInputMode(mainWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 
 	// Allow modern extensions 
 	glewExperimental = GL_TRUE;

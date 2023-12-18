@@ -167,10 +167,25 @@ int main()
 	ImGui::CreateContext();
 	ImGuiIO& io = ImGui::GetIO();
 	(void)io;
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;         // Enable Docking
+	io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;       // Enable Multi-Viewport / Platform Windows
+	io.FontGlobalScale = 1.5f;
+
 	ImGui::StyleColorsDark();
+	//increase fontsize here
+
+	ImGuiStyle& style = ImGui::GetStyle();
+	if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+	{
+		style.WindowRounding = 0.0f;
+		style.Colors[ImGuiCol_WindowBg].w = 1.0f;
+	}
+
 	ImGui_ImplGlfw_InitForOpenGL(mainWindow.getGLFWWindow(), true);
 	ImGui_ImplOpenGL3_Init("#version 460");
-	 
+
 	CreateShaders();
 
 	// setting up basic camera
@@ -236,9 +251,6 @@ int main()
 	// calculating prespective projection matrix
 	glm::mat4 projection = glm::perspective(fov, aspectRatio, nearPlane, farPlane);
 
-	// calculating ortho projection matrix
-	glm::mat4 ortho = glm::ortho(-farPlane, farPlane, -farPlane, farPlane, nearPlane, farPlane);
-
 	//print OpenGL Version
 	const GLubyte* version = glGetString(GL_VERSION);
 	std::cout << "OpenGL version: " << version << std::endl;
@@ -250,6 +262,12 @@ int main()
 	glfwSetTime(0.0f);
 	double animationTime = 0.0f;
 
+	float orthoLeft = -1.0f;
+	float orthoRight = 1.0f;
+	float orthoBottom = -1.0f;
+	float orthoTop = -1.0f;
+	float orthoNear = 0.1f;
+	float orthoFar = 100.0f;
 	// Loop until window closed
 	while (!mainWindow.getShouldClose())
 	{
@@ -259,6 +277,9 @@ int main()
 
 		// Get + Handle User Input
 		glfwPollEvents();
+
+		// calculating ortho projection matrix
+		glm::mat4 ortho = glm::ortho(orthoLeft, orthoRight, orthoBottom, orthoTop, orthoNear, orthoFar);
 
 		//setting up camera animation
 		if (mainWindow.getAnimationBool()) {
@@ -295,7 +316,12 @@ int main()
 		ImGui::NewFrame();
 
 		ImGui::Begin("finally working");
-		ImGui::Text("wuhu");
+		ImGui::SliderFloat("left", &orthoLeft,-100.0f,100.0f);
+		ImGui::SliderFloat("right", &orthoRight,-100.0f,100.0f);
+		ImGui::SliderFloat("top", &orthoTop,-100.0f,100.0f);
+		ImGui::SliderFloat("bottom", &orthoBottom,-100.0f,100.0f);
+		ImGui::SliderFloat("near", &orthoNear,-10.0f,10.0f);
+		ImGui::SliderFloat("far", &orthoFar,-100.0f,500.0f);
 		ImGui::End();
 
 		ImGui::Render();
@@ -401,6 +427,14 @@ int main()
 		
 		glUseProgram(0);
 
+		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+		{
+			GLFWwindow* backup_current_context = glfwGetCurrentContext();
+			ImGui::UpdatePlatformWindows();
+			ImGui::RenderPlatformWindowsDefault();
+			glfwMakeContextCurrent(backup_current_context);
+		}
+
 		mainWindow.swapBuffers();
 
 		frameCount++;
@@ -414,8 +448,8 @@ int main()
 		printf("\rCurrent FPS: %d", fps);
 	}
 
-	int averageFPS = std::accumulate(fpsList.begin(), fpsList.end(), 0) / fpsList.size();
-	printf("\nAverage FPS: %d\n", averageFPS);
+	//int averageFPS = std::accumulate(fpsList.begin(), fpsList.end(), 0) / fpsList.size();
+	//printf("\nAverage FPS: %d\n", averageFPS);
 
 	ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplGlfw_Shutdown();
