@@ -10,9 +10,9 @@
 #include <GL\glew.h>
 #include <GLFW\glfw3.h>
 
-#include <glm\glm.hpp>
-#include <glm\gtc\matrix_transform.hpp>
-#include <glm\gtc\type_ptr.hpp>
+#include <imgui.h>
+#include <imgui_impl_glfw.h>
+#include <imgui_impl_opengl3.h>
 
 #include "Window.h"
 #include "Mesh.h"
@@ -163,6 +163,14 @@ int main()
 	mainWindow = Window(1920, 1080, false);
 	mainWindow.Initialise();
 
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGuiIO& io = ImGui::GetIO();
+	(void)io;
+	ImGui::StyleColorsDark();
+	ImGui_ImplGlfw_InitForOpenGL(mainWindow.getGLFWWindow(), true);
+	ImGui_ImplOpenGL3_Init("#version 460");
+	 
 	CreateShaders();
 
 	// setting up basic camera
@@ -196,21 +204,21 @@ int main()
 	// setting up lights (position, color, ambientIntensity, diffuseIntensity, direction, edge)
 	// and incrementing the corresponding lightCount
 	mainDirectionalLight = DirectionalLight(1.0f, 1.0f, 1.0f,
-		0.25f, 0.1f,
-		0.0f, 0.0f, -1.0f);
+		0.5f, 0.1f,
+		1.0f, 1.0f, 1.0f);
 
 	unsigned int pointLightCount = 0;
 	pointLights[0] = PointLight(0.0f, 0.0f, 1.0f,
 		0.75f, 0.1f,
 		0.0f, 2.5f, 0.0f,
 		0.3f, 0.2f, 0.1f);
-	pointLightCount++;
+	//pointLightCount++;
 
 	//flashlight
 	unsigned int spotLightCount = 0;
 	spotLights[0] = SpotLight(1.0f, 1.0f, 1.0f,
 		0.1f, 0.35f,
-		0.0f, 0.0f, 0.0f,
+		2.0f, 2.0f, 2.0f,
 		0.0f, -1.0f, 0.0f,
 		0.8f, 0.0f, 0.0f,
 		10.0f);
@@ -220,8 +228,16 @@ int main()
 	// setting up GLuints for uniform locations for later use
 	GLuint uniformProjection = 0, uniformModel = 0, uniformView = 0, uniformEyePosition = 0, uniformSpecularIntensity = 0, uniformShininess = 0;
 
-	// calculating projection matrix
-	glm::mat4 projection = glm::perspective(glm::radians(45.0f), (GLfloat)mainWindow.getBufferWidth() / mainWindow.getBufferHeight(), 0.1f, 100.0f);
+	float fov = glm::radians(45.0f);
+	float nearPlane = 0.1f;
+	float farPlane = 100.0f;
+	float aspectRatio = (GLfloat)mainWindow.getBufferWidth() / mainWindow.getBufferHeight();
+
+	// calculating prespective projection matrix
+	glm::mat4 projection = glm::perspective(fov, aspectRatio, nearPlane, farPlane);
+
+	// calculating ortho projection matrix
+	glm::mat4 ortho = glm::ortho(-farPlane, farPlane, -farPlane, farPlane, nearPlane, farPlane);
 
 	//print OpenGL Version
 	const GLubyte* version = glGetString(GL_VERSION);
@@ -274,6 +290,17 @@ int main()
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+		ImGui_ImplOpenGL3_NewFrame();
+		ImGui_ImplGlfw_NewFrame();
+		ImGui::NewFrame();
+
+		ImGui::Begin("finally working");
+		ImGui::Text("wuhu");
+		ImGui::End();
+
+		ImGui::Render();
+		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
 		// sets shaderprogram at shaderList[0] as shaderprogram to use
 		shaderList[0].UseShader();
 
@@ -289,8 +316,13 @@ int main()
 		//Flashlight
 		// copies camera position and lowers y value by 0.3f (so flashlight feels like it's in hand)
 		// SetFlash() sets the direction of the light to always face the same direction as the camera
-		glm::vec3 flashLightPosition = camera.getCameraPosition();
-		spotLights[0].SetFlash(flashLightPosition, camera.getCameraDirection());
+		//glm::vec3 flashLightPosition = camera.getCameraPosition();
+		//spotLights[0].SetFlash(flashLightPosition, camera.getCameraDirection());
+
+		//rotates spotlight around origin
+		float angle = now;
+		spotLights[0].SetLightPosition(glm::vec3(5.0f * cos(angle), 5.0f, 5.0f * sin(angle)));
+		spotLights[0].SetLightDirection(glm::vec3(0.0,0.0,0.0));
 
 		// sends data about the lights from CPU to the (fragement)shader at corresponding locations
 		shaderList[0].SetDirectionalLight(&mainDirectionalLight);
@@ -299,7 +331,14 @@ int main()
 
 		// sends transformationmatrix to (vertex)shader to corresponding locations
 		// = uniform mat4 projection;
-		glUniformMatrix4fv(uniformProjection, 1, GL_FALSE, glm::value_ptr(projection));
+		if (mainWindow.getAnimationBool()) {
+			glUniformMatrix4fv(uniformProjection, 1, GL_FALSE, glm::value_ptr(projection));
+		}
+		else {
+			camera.setCameraPosition(glm::vec3(5.0f, 5.0f, 5.0f));
+			glUniformMatrix4fv(uniformProjection, 1, GL_FALSE, glm::value_ptr(ortho));
+		}
+
 		// = uniform mat4 view;
 		glUniformMatrix4fv(uniformView, 1, GL_FALSE, glm::value_ptr(camera.calculateViewMatrix()));
 
@@ -334,12 +373,32 @@ int main()
 
 		model = glm::mat4(1.0f);
 
+		model = glm::translate(model, glm::vec3(0.0f, 0.0f, 5.0f));
+
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+
+		debugCube.RenderModel();
+
+		/*
+		model = glm::mat4(1.0f);
+
+		model = glm::translate(model, spotLights[0].GetLightPosition());
+
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+
+		debugCube.RenderModel();
+
+
+		model = glm::mat4(1.0f);
+
 		model = glm::translate(model, glm::vec3(0.0f, -1.25f, 0.0f));
 
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 
-		//scene.RenderModel();
+		scene.RenderModel();
+		*/
 
+		
 		glUseProgram(0);
 
 		mainWindow.swapBuffers();
@@ -357,6 +416,13 @@ int main()
 
 	int averageFPS = std::accumulate(fpsList.begin(), fpsList.end(), 0) / fpsList.size();
 	printf("\nAverage FPS: %d\n", averageFPS);
+
+	ImGui_ImplOpenGL3_Shutdown();
+	ImGui_ImplGlfw_Shutdown();
+	ImGui::DestroyContext();
+
+	glfwDestroyWindow(mainWindow.getGLFWWindow());
+	glfwTerminate();
 
 	return 0;
 }
