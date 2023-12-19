@@ -13,7 +13,7 @@ Camera::Camera(glm::vec3 startPosition, glm::vec3 startUp, GLfloat startYaw, GLf
 	moveSpeed = startMoveSpeed;
 	turnSpeed = startTurnSpeed;
 
-	animationOn = true;
+	animationOn = false;
 	printposition = false;
 
 	update();
