@@ -298,6 +298,11 @@ GLuint Shader::GetEyePositionLocation()
 	return uniformEyePosition;
 }
 
+GLuint Shader::GetLightSpaceMatrixLocation()
+{
+	return uniformLightSpaceMatrix;
+}
+
 // cleanup function
 void Shader::ClearShader()
 {

@@ -144,6 +144,12 @@ double lastTime = 0.0f;
 double t = 0.0f; //Bezier parameter t
 
 // Vertex Shader
+static const char* dShadowVertShader = "Shaders/dShadowMapVertex.glsl";
+
+// Fragment Shader
+static const char* dShadowFragShader = "Shaders/dShadowMapFragment.glsl";
+
+// Vertex Shader
 static const char* vShader = "Shaders/vertex.glsl";
 
 // Fragment Shader
@@ -151,10 +157,13 @@ static const char* fShader = "Shaders/fragment.glsl";
 
 void CreateShaders()
 {
+	Shader* shader0 = new Shader();
 	Shader* shader1 = new Shader();
 	// reads, compiles and sets shader as shaderprogram to use!
+	shader0->CreateFromFiles(dShadowVertShader, dShadowFragShader);
 	shader1->CreateFromFiles(vShader, fShader);
 	//pushes into shaderList vector (for later use of multiple shaders)
+	shaderList.push_back(*shader0);
 	shaderList.push_back(*shader1);
 }
 
@@ -167,14 +176,13 @@ int main()
 	ImGui::CreateContext();
 	ImGuiIO& io = ImGui::GetIO();
 	(void)io;
-	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-	io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
-	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;         // Enable Docking
-	io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;       // Enable Multi-Viewport / Platform Windows
-	io.FontGlobalScale = 1.5f;
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; 
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;  
+	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;     
+	io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;   
+	io.FontGlobalScale = 1.25f;
 
 	ImGui::StyleColorsDark();
-	//increase fontsize here
 
 	ImGuiStyle& style = ImGui::GetStyle();
 	if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
@@ -201,9 +209,6 @@ int main()
 	dirtTexture = Texture("Textures/dirt.png");
 	dirtTexture.LoadTextureA();
 
-	printf("Press 'F1' to toggle animation\n");
-	printf("loading models(can take up to 30sec)...\n");
-
 	debugPlane = Model();
 	debugPlane.LoadModel("Models/plane.obj");
 
@@ -212,7 +217,6 @@ int main()
 
 	//scene = Model();
 	//scene.LoadModel("Models/scene.obj");
-
 
 	printf("Initial loading took: %f seconds\n", glfwGetTime());
 
@@ -227,7 +231,7 @@ int main()
 		0.75f, 0.1f,
 		0.0f, 2.5f, 0.0f,
 		0.3f, 0.2f, 0.1f);
-	//pointLightCount++;
+	pointLightCount++;
 
 	//flashlight
 	unsigned int spotLightCount = 0;
@@ -237,11 +241,34 @@ int main()
 		0.0f, -1.0f, 0.0f,
 		0.8f, 0.0f, 0.0f,
 		10.0f);
-
 	spotLightCount++;
 
+	//setting up directionalshadowmap
+
+	GLuint depthMapFBO;
+	glGenFramebuffers(1, &depthMapFBO);
+
+	GLuint shadowWidth = 1024, shadowHeight = 1024;
+
+	GLuint depthMap;
+
+	glGenTextures(1, &depthMap);
+	glBindTexture(GL_TEXTURE_2D, depthMap);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT,
+		shadowWidth, shadowHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+	glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap, 0);
+	glDrawBuffer(GL_NONE);
+	glReadBuffer(GL_NONE);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
 	// setting up GLuints for uniform locations for later use
-	GLuint uniformProjection = 0, uniformModel = 0, uniformView = 0, uniformEyePosition = 0, uniformSpecularIntensity = 0, uniformShininess = 0;
+	GLuint uniformProjection = 0, uniformModel = 0, uniformView = 0, uniformEyePosition = 0, uniformSpecularIntensity = 0, uniformShininess = 0, uniformLightSpace = 0; 
 
 	float fov = glm::radians(45.0f);
 	float nearPlane = 0.1f;
@@ -262,12 +289,13 @@ int main()
 	glfwSetTime(0.0f);
 	double animationTime = 0.0f;
 
-	float orthoLeft = -1.0f;
-	float orthoRight = 1.0f;
-	float orthoBottom = -1.0f;
-	float orthoTop = -1.0f;
+	float orthoLeft = -10.0f;
+	float orthoRight = 10.0f;
+	float orthoBottom = -10.0f;
+	float orthoTop = 10.0f;
 	float orthoNear = 0.1f;
 	float orthoFar = 100.0f;
+
 	// Loop until window closed
 	while (!mainWindow.getShouldClose())
 	{
@@ -279,7 +307,9 @@ int main()
 		glfwPollEvents();
 
 		// calculating ortho projection matrix
-		glm::mat4 ortho = glm::ortho(orthoLeft, orthoRight, orthoBottom, orthoTop, orthoNear, orthoFar);
+		glm::mat4 lightProjection = glm::ortho(orthoLeft, orthoRight, orthoBottom, orthoTop, orthoNear, orthoFar);
+		glm::mat4 lightView = glm::lookAt(glm::vec3(-1.0, -1.0, -1.0), glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0));
+		glm::mat4 lightSpaceMatrix = lightProjection * lightView;
 
 		//setting up camera animation
 		if (mainWindow.getAnimationBool()) {
@@ -328,16 +358,54 @@ int main()
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
 		// sets shaderprogram at shaderList[0] as shaderprogram to use
+		// = shadowpass
 		shaderList[0].UseShader();
+
+		uniformLightSpace = shaderList[0].GetLightSpaceMatrixLocation();
+		uniformModel = shaderList[0].GetModelLocation();
+
+		glm::mat4 model(1.0f);
+
+		model = glm::mat4(1.0f);
+
+		glUniformMatrix4fv(uniformProjection, 1, GL_FALSE, glm::value_ptr(lightSpaceMatrix));
+
+		glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+		glClear(GL_DEPTH_BUFFER_BIT);
+
+		model = glm::mat4(1.0f);
+
+		model = glm::translate(model, glm::vec3(0.0f, -1.0f, 0.0f));
+
+		model = glm::scale(model, glm::vec3(10.0f, 10.0f, 10.0f));
+
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+
+		debugPlane.RenderModel();
+
+
+		model = glm::mat4(1.0f);
+
+		model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
+
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+
+		debugCube.RenderModel();
+
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+		// sets shaderprogram at shaderList[1] as shaderprogram to use
+		// = renderpass
+		shaderList[1].UseShader();
 
 		// retreive uniform locations (ID) from shader membervariables
 		// and stores them in local varibale for passing projection, model and view matrices to shader
-		uniformModel = shaderList[0].GetModelLocation();
-		uniformProjection = shaderList[0].GetProjectionLocation();
-		uniformView = shaderList[0].GetViewLocation();
-		uniformEyePosition = shaderList[0].GetEyePositionLocation();
-		uniformSpecularIntensity = shaderList[0].GetSpecularIntensityLocation();
-		uniformShininess = shaderList[0].GetShininessLocation();
+		uniformModel = shaderList[1].GetModelLocation();
+		uniformProjection = shaderList[1].GetProjectionLocation();
+		uniformView = shaderList[1].GetViewLocation();
+		uniformEyePosition = shaderList[1].GetEyePositionLocation();
+		uniformSpecularIntensity = shaderList[1].GetSpecularIntensityLocation();
+		uniformShininess = shaderList[1].GetShininessLocation();
 
 		//Flashlight
 		// copies camera position and lowers y value by 0.3f (so flashlight feels like it's in hand)
@@ -351,18 +419,19 @@ int main()
 		spotLights[0].SetLightDirection(glm::vec3(0.0,0.0,0.0));
 
 		// sends data about the lights from CPU to the (fragement)shader at corresponding locations
-		shaderList[0].SetDirectionalLight(&mainDirectionalLight);
-		shaderList[0].SetPointLights(pointLights, pointLightCount);
-		shaderList[0].SetSpotLights(spotLights, spotLightCount);
+		shaderList[1].SetDirectionalLight(&mainDirectionalLight);
+		shaderList[1].SetPointLights(pointLights, pointLightCount);
+		shaderList[1].SetSpotLights(spotLights, spotLightCount);
 
 		// sends transformationmatrix to (vertex)shader to corresponding locations
-		// = uniform mat4 projection;
+		
 		if (mainWindow.getAnimationBool()) {
+			// = uniform mat4 projection;
 			glUniformMatrix4fv(uniformProjection, 1, GL_FALSE, glm::value_ptr(projection));
 		}
 		else {
-			camera.setCameraPosition(glm::vec3(5.0f, 5.0f, 5.0f));
-			glUniformMatrix4fv(uniformProjection, 1, GL_FALSE, glm::value_ptr(ortho));
+			//camera.setCameraPosition(glm::vec3(5.0f, 5.0f, 5.0f));
+			//glUniformMatrix4fv(uniformProjection, 1, GL_FALSE, glm::value_ptr(ortho));
 		}
 
 		// = uniform mat4 view;
@@ -371,8 +440,6 @@ int main()
 		// sends camera position to (fragment)shader to corresponding locations
 		// = uniform vec3 eyePosition;
 		glUniform3f(uniformEyePosition, camera.getCameraPosition().x, camera.getCameraPosition().y, camera.getCameraPosition().z);
-
-		glm::mat4 model(1.0f);	
 
 		//comparable to UseLight() in DirectionalLight.cpp but for Material
 		dullMaterial.UseMaterial(uniformSpecularIntensity, uniformShininess);
