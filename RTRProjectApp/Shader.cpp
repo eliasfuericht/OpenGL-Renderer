@@ -93,6 +93,7 @@ void Shader::CompileShader(const char* vertexCode, const char* fragmentCode)
 	uniformModel = glGetUniformLocation(shaderID, "model");
 	uniformProjection = glGetUniformLocation(shaderID, "projection");
 	uniformView = glGetUniformLocation(shaderID, "view");
+	uniformLightSpaceMatrix = glGetUniformLocation(shaderID, "lightSpaceMatrix");
 
 	//fragment shader
 	uniformDirectionalLight.uniformcolor = glGetUniformLocation(shaderID, "directionalLight.base.color");
@@ -167,6 +168,9 @@ void Shader::CompileShader(const char* vertexCode, const char* fragmentCode)
 		snprintf(locBuff, sizeof(locBuff), "spotLights[%d].edge", i);
 		uniformSpotLight[i].uniformEdge = glGetUniformLocation(shaderID, locBuff);
 	}
+
+	uniformTexture = glGetUniformLocation(shaderID, "theTexture");
+	uniformDepthMap = glGetUniformLocation(shaderID, "depthMap");
 }
 
 // function to compile shaderCode and attach to shaderprogram
@@ -250,6 +254,16 @@ void Shader::SetSpotLights(SpotLight * sLight, unsigned int lightCount)
 	}
 }
 
+void Shader::SetTexture(GLuint textureUnit)
+{
+	glUniform1i(uniformTexture, textureUnit);
+}
+
+void Shader::SetShadowMap(GLuint textureUnit)
+{
+	glUniform1i(uniformDepthMap, textureUnit);
+}
+
 void Shader::UseShader()
 {
 	// sets executables of shaderprogram (at location ShaderID) to be used for rendering
@@ -296,6 +310,16 @@ GLuint Shader::GetShininessLocation()
 GLuint Shader::GetEyePositionLocation()
 {
 	return uniformEyePosition;
+}
+
+GLuint Shader::GetTextureLocation()
+{
+	return uniformTexture;
+}
+
+GLuint Shader::GetDepthMapLocation()
+{
+	return uniformDepthMap;
 }
 
 GLuint Shader::GetLightSpaceMatrixLocation()

@@ -16,7 +16,7 @@ Material::Material(GLfloat sIntensity, GLfloat shine)
 // called from main.cpp to send the values of the material you want to use to the shader
 void Material::UseMaterial(GLuint specularIntensityLocation, GLuint shininessLocation)
 {
-	// sets Uniforms of Material in shader (GPU) to the values of the Material on CPU+
+	// sets Uniforms of Material in shader (GPU) to the values of the Material on CPU
 
 	// = struct Material.specularIntensity (float)
 	glUniform1f(specularIntensityLocation, specularIntensity);

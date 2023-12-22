@@ -5,7 +5,7 @@ in vec2 TexCoord;
 in vec3 Normal;
 in vec3 FragPos;
 
-out vec4 color;
+out vec4 FragColor;
 
 const int MAX_POINT_LIGHTS = 3;
 const int MAX_SPOT_LIGHTS = 3;
@@ -53,6 +53,7 @@ uniform PointLight pointLights[MAX_POINT_LIGHTS];
 uniform SpotLight spotLights[MAX_SPOT_LIGHTS];
 
 uniform sampler2D theTexture;
+uniform sampler2D depthMap;
 uniform Material material;
 
 uniform vec3 eyePosition;
@@ -145,5 +146,5 @@ void main()
 	finalcolor += CalcPointLights();
 	finalcolor += CalcSpotLights();
 	
-	color = texture(theTexture, TexCoord) * finalcolor;
+	FragColor = texture(depthMap, TexCoord) * finalcolor;
 }

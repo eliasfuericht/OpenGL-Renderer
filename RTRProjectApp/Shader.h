@@ -23,6 +23,8 @@ public:
 
 	std::string ReadFile(const char* fileLocation);
 
+	GLuint GetShaderID() { return shaderID; };
+
 	GLuint GetProjectionLocation();
 	GLuint GetModelLocation();
 	GLuint GetViewLocation();
@@ -33,11 +35,16 @@ public:
 	GLuint GetSpecularIntensityLocation();
 	GLuint GetShininessLocation();
 	GLuint GetEyePositionLocation();
+	GLuint GetTextureLocation();
+	GLuint GetDepthMapLocation();
 	GLuint GetLightSpaceMatrixLocation();
+
 
 	void SetDirectionalLight(DirectionalLight * dLight);
 	void SetPointLights(PointLight * pLight, unsigned int lightCount);
 	void SetSpotLights(SpotLight * sLight, unsigned int lightCount);
+	void SetTexture(GLuint textureUnit);
+	void SetShadowMap(GLuint textureUnit);
 
 	void UseShader();
 	void ClearShader();
@@ -49,7 +56,7 @@ private:
 	int spotLightCount;
 
 	GLuint shaderID, uniformProjection, uniformModel, uniformView, uniformEyePosition,
-		uniformSpecularIntensity, uniformShininess, uniformLightSpaceMatrix;
+		uniformSpecularIntensity, uniformShininess, uniformTexture, uniformDepthMap, uniformLightSpaceMatrix;
 
 	struct {
 		GLuint uniformcolor;
