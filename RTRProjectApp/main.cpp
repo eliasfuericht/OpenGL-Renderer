@@ -564,7 +564,7 @@ int main()
 
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 
-		//bin depthmap as texture0
+		//bind depthmap as texture0 
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, depthMap);
 
