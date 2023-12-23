@@ -4,6 +4,7 @@ in vec4 vCol;
 in vec2 TexCoord;
 in vec3 Normal;
 in vec3 FragPos;
+in vec4 FragPosLightSpace;
 
 out vec4 FragColor;
 
@@ -140,12 +141,20 @@ vec4 CalcSpotLights()
 	return totalcolor;
 }
 
-float linearizeDepth(float depthValue)
+float ShadowCalculation(vec4 fragPosLightSpace)
 {
-    float near = 0.1; // Your near clipping plane value
-    float far = 100.0; // Your far clipping plane value
-    float z = depthValue * 2.0 - 1.0; // Transform depth to [-1, 1] range
-    return (2.0 * near * far) / (far + near - z * (far - near));
+	// perform perspective divide
+	vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
+	// transform to [0,1] range
+	projCoords = projCoords * 0.5 + 0.5;
+	// get closest depth value from light's perspective (using [0,1] range fragPosLight as coords)
+	float closestDepth = texture(depthMap, projCoords.xy).r;
+	// get depth of current fragment from light's perspective
+	float currentDepth = projCoords.z;
+	// check whether current frag pos is in shadow
+	float shadow = currentDepth > closestDepth ? 1.0 : 0.0;
+
+	return shadow;
 }
 
 void main()
@@ -153,15 +162,12 @@ void main()
 	vec4 finalcolor = CalcDirectionalLight();
 	finalcolor += CalcPointLights();
 	finalcolor += CalcSpotLights();
+
+	float shadow = ShadowCalculation(FragPosLightSpace);
 	
-	//FragColor = texture(depthMap, TexCoord); //* finalcolor;
-	// Sample depth map texture
-	float depthValue = texture(depthMap, TexCoord).r;
+	FragColor = texture(theTexture, TexCoord) * finalcolor + (1.0 - shadow);
 
-	// Linearize depth value
-	depthValue = linearizeDepth(depthValue);
+	//float depthValue = texture(depthMap, TexCoord).r;
 
-	// Visualize linearized depth value
-	vec3 color = vec3(depthValue);
-	FragColor = vec4(color, 1.0);
+	//FragColor = vec4(vec3(depthValue), 1.0);
 }

@@ -172,6 +172,7 @@ void CreateShaders()
 	shader1->CreateFromFiles(vShader, fShader);
 
 	//pushes into shaderList vector (for later use of multiple shaders)
+	//ganz böse
 	shaderList.emplace_back(*shader0);
 	shaderList.emplace_back(*shader1);
 }
@@ -309,7 +310,7 @@ int main()
 	spotLightCount++;
 
 	// setting up shadowmap Texture
-	const unsigned int shadowWidth = 1024, shadowHeight = 1024;
+	const unsigned int shadowWidth = 2048, shadowHeight = 2048;
 	unsigned int depthMap;
 
 	glGenTextures(1, &depthMap);
@@ -362,12 +363,12 @@ int main()
 	glfwSetTime(0.0f);
 	double animationTime = 0.0f;
 
-	float orthoLeft = -20.0f;
-	float orthoRight = 20.0f;
-	float orthoBottom = -20.0f;
-	float orthoTop = 20.0f;
-	float orthoNear = 0.1f;
-	float orthoFar = 100.0f;
+	float orthoLeft = -30.0f;
+	float orthoRight = 30.0f;
+	float orthoBottom = -30.0f;
+	float orthoTop = 30.0f;
+	float orthoNear = -6.0f;
+	float orthoFar = 50.0f;
 
 	// Loop until window closed
 	while (!mainWindow.getShouldClose())
@@ -427,7 +428,7 @@ int main()
 
 		// calculating ortho projection matrix
 		glm::mat4 lightProjection = glm::ortho(orthoLeft, orthoRight, orthoBottom, orthoTop, orthoNear, orthoFar);
-		glm::mat4 lightView = glm::lookAt(glm::vec3(-10.0, -10.0, -10.0), glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0));
+		glm::mat4 lightView = glm::lookAt(glm::vec3(10.0, 10.0, 10.0), glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0));
 		glm::mat4 lightSpaceMatrix = lightProjection * lightView;
 
 		// sets shaderprogram at shader0 as shaderprogram to use
@@ -510,13 +511,13 @@ int main()
 
 		uniformDepthMap = shader1->GetDepthMapLocation();
 
+		uniformLightSpace = shader1->GetLightSpaceMatrixLocation();
+
 		glViewport(0, 0, 1920, 1080);
 
 		// Clear the window
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-		checkError();
 
 		//Flashlight
 		// copies camera position and lowers y value by 0.3f (so flashlight feels like it's in hand)
@@ -533,32 +534,24 @@ int main()
 		shader1->SetDirectionalLight(&mainDirectionalLight);
 		shader1->SetPointLights(pointLights, pointLightCount);
 		shader1->SetSpotLights(spotLights, spotLightCount);
-		
-		checkError();
 
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, depthMap);
 
-		checkError();
-
 		shader1->SetTexture(0);
 		shader1->SetShadowMap(1);
-
-		checkError();
 		
+		//can be used to switch values with F1
 		if (mainWindow.getAnimationBool()) {
-			// = uniform mat4 projection;
-			glUniformMatrix4fv(uniformProjection, 1, GL_FALSE, glm::value_ptr(projection));
-			checkError();
-			glUniformMatrix4fv(uniformView, 1, GL_FALSE, glm::value_ptr(camera.calculateViewMatrix()));
-
+			//bind other uniform here
 		}
 		else {
-			glUniformMatrix4fv(uniformProjection, 1, GL_FALSE, glm::value_ptr(projection));
-			glUniformMatrix4fv(uniformView, 1, GL_FALSE, glm::value_ptr(camera.calculateViewMatrix()));
+			//bind other uniform here
 		}
 
-		// = uniform mat4 view;
+		glUniformMatrix4fv(uniformProjection, 1, GL_FALSE, glm::value_ptr(projection));
+		glUniformMatrix4fv(uniformView, 1, GL_FALSE, glm::value_ptr(camera.calculateViewMatrix()));
+		glUniformMatrix4fv(uniformLightSpace, 1, GL_FALSE, glm::value_ptr(lightSpaceMatrix));
 
 		// sends camera position to (fragment)shader to corresponding locations
 		// = uniform vec3 eyePosition;
@@ -571,9 +564,21 @@ int main()
 
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 
+		//bin depthmap as texture0
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, depthMap);
+
+		model = glm::mat4(1.0f);
+
+		model = glm::translate(model, glm::vec3(0.0f, 10.0f, 0.0f));
+
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+
+
 		renderQuad();
 		
 		dirtTexture.UseTexture();
+
 
 		model = glm::mat4(1.0f);
 
@@ -610,7 +615,7 @@ int main()
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 
 		debugCube.RenderModel();
-
+		
 
 		/*model = glm::mat4(1.0f);
 
