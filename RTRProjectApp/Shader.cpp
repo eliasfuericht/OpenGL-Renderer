@@ -330,6 +330,7 @@ GLuint Shader::GetLightSpaceMatrixLocation()
 // cleanup function
 void Shader::ClearShader()
 {
+	std::cout << "deleted shader" << std::endl;
 	if (shaderID != 0)
 	{
 		glDeleteProgram(shaderID);

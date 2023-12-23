@@ -172,8 +172,8 @@ void CreateShaders()
 	shader1->CreateFromFiles(vShader, fShader);
 
 	//pushes into shaderList vector (for later use of multiple shaders)
-	shaderList.push_back(*shader0);
-	shaderList.push_back(*shader1);
+	shaderList.emplace_back(*shader0);
+	shaderList.emplace_back(*shader1);
 }
 
 unsigned int quadVAO = 0;
@@ -252,7 +252,14 @@ int main()
 	ImGui_ImplGlfw_InitForOpenGL(mainWindow.getGLFWWindow(), true);
 	ImGui_ImplOpenGL3_Init("#version 460");
 
-	CreateShaders();
+	//CreateShaders();
+
+	Shader* shader0 = new Shader();
+	Shader* shader1 = new Shader();
+
+	// reads, compiles and sets shader as shaderprogram to use!
+	shader0->CreateFromFiles(dShadowVertShader, dShadowFragShader);
+	shader1->CreateFromFiles(vShader, fShader);
 
 	// setting up basic camera
 	// camera with correct startposition for final scene
@@ -355,10 +362,10 @@ int main()
 	glfwSetTime(0.0f);
 	double animationTime = 0.0f;
 
-	float orthoLeft = -50.0f;
-	float orthoRight = 50.0f;
-	float orthoBottom = -50.0f;
-	float orthoTop = 50.0f;
+	float orthoLeft = -20.0f;
+	float orthoRight = 20.0f;
+	float orthoBottom = -20.0f;
+	float orthoTop = 20.0f;
 	float orthoNear = 0.1f;
 	float orthoFar = 100.0f;
 
@@ -406,7 +413,12 @@ int main()
 			ImGui::NewFrame();
 
 			ImGui::Begin("finally working");
-			ImGui::SliderFloat("proj farplane", &farPlane,-100.0f,100.0f);
+			ImGui::SliderFloat("left", &orthoLeft, -100.0f, 100.0f);
+			ImGui::SliderFloat("right", &orthoRight, -100.0f, 100.0f);
+			ImGui::SliderFloat("top", &orthoTop, -100.0f, 100.0f);
+			ImGui::SliderFloat("bottom", &orthoBottom, -100.0f, 100.0f);
+			ImGui::SliderFloat("near", &orthoNear, -10.0f, 10.0f);
+			ImGui::SliderFloat("far", &orthoFar, -100.0f, 500.0f);
 			ImGui::End();
 
 			ImGui::Render();
@@ -418,28 +430,26 @@ int main()
 		glm::mat4 lightView = glm::lookAt(glm::vec3(-10.0, -10.0, -10.0), glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0));
 		glm::mat4 lightSpaceMatrix = lightProjection * lightView;
 
-		// sets shaderprogram at shaderList[0] as shaderprogram to use
-		// shaderList[0] = shadowpass
-		// ERROR HERE dont know why something wrong when glUseProgram is called with this shaderID
-		shaderList[0].UseShader();
+		// sets shaderprogram at shader0 as shaderprogram to use
+		// shader0 = shadowpass
+		shader0->UseShader();
 
 		// set viewport to same dimensions as our viewport
-		glViewport(0, 0, shadowWidth, shadowHeight);
-
 		glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+
+		glViewport(0, 0, shadowWidth, shadowHeight);
 
 		glClear(GL_DEPTH_BUFFER_BIT);
 
-		//for some reason the location isnt retrieved 
-		uniformLightSpace = shaderList[0].GetLightSpaceMatrixLocation();
-		std::cout << uniformLightSpace << std::endl;
-		uniformModel = shaderList[0].GetModelLocation();
-		std::cout << uniformModel << std::endl;
+		uniformLightSpace = shader0->GetLightSpaceMatrixLocation();
+		uniformModel = shader0->GetModelLocation();
+		uniformProjection = shader0->GetProjectionLocation();
+		uniformView = shader0->GetViewLocation();
 
-		//these are not passed correctly
-		//glUniformMatrix4fv(uniformProjection, 1, GL_FALSE, glm::value_ptr(projection));
 		glUniformMatrix4fv(uniformLightSpace, 1, GL_FALSE, glm::value_ptr(lightSpaceMatrix));
-		glUniformMatrix4fv(uniformView, 1, GL_FALSE, glm::value_ptr(lightView));
+		glUniformMatrix4fv(uniformProjection, 1, GL_FALSE, glm::value_ptr(projection));
+		glUniformMatrix4fv(uniformView, 1, GL_FALSE, glm::value_ptr(camera.calculateViewMatrix()));
+
 		glm::mat4 model(1.0f);
 
 		model = glm::mat4(1.0f);
@@ -452,27 +462,53 @@ int main()
 
 		debugPlane.RenderModel();
 
+
+		model = glm::mat4(1.0f);
+
+		model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
+
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+
+		debugCube.RenderModel();
+
+
+		model = glm::mat4(1.0f);
+
+		model = glm::translate(model, glm::vec3(0.0f, 0.0f, 5.0f));
+
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+
+		debugCube.RenderModel();
+
+		model = glm::mat4(1.0f);
+
+		model = glm::translate(model, spotLights[0].GetLightPosition());
+
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+
+		debugCube.RenderModel();
+
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-		// sets shaderprogram at shaderList[1] as shaderprogram to use
+		// sets shaderprogram at shader1 as shaderprogram to use
 		// = renderpass
-		shaderList[1].UseShader();
+		shader1->UseShader();
 
 		// retreive uniform locations (ID) from shader membervariables
 		// and stores them in local varibale for passing projection, model and view matrices to shader
-		uniformModel = shaderList[1].GetModelLocation();
+		uniformModel = shader1->GetModelLocation();
 
-		uniformProjection = shaderList[1].GetProjectionLocation();
+		uniformProjection = shader1->GetProjectionLocation();
 
-		uniformView = shaderList[1].GetViewLocation();
+		uniformView = shader1->GetViewLocation();
 
-		uniformEyePosition = shaderList[1].GetEyePositionLocation();
+		uniformEyePosition = shader1->GetEyePositionLocation();
 
-		uniformSpecularIntensity = shaderList[1].GetSpecularIntensityLocation();
+		uniformSpecularIntensity = shader1->GetSpecularIntensityLocation();
 
-		uniformShininess = shaderList[1].GetShininessLocation();
+		uniformShininess = shader1->GetShininessLocation();
 
-		uniformDepthMap = shaderList[1].GetDepthMapLocation();
+		uniformDepthMap = shader1->GetDepthMapLocation();
 
 		glViewport(0, 0, 1920, 1080);
 
@@ -494,9 +530,9 @@ int main()
 		spotLights[0].SetLightDirection(glm::vec3(0.0,0.0,0.0));
 
 		// sends data about the lights from CPU to the (fragement)shader at corresponding locations
-		shaderList[1].SetDirectionalLight(&mainDirectionalLight);
-		shaderList[1].SetPointLights(pointLights, pointLightCount);
-		shaderList[1].SetSpotLights(spotLights, spotLightCount);
+		shader1->SetDirectionalLight(&mainDirectionalLight);
+		shader1->SetPointLights(pointLights, pointLightCount);
+		shader1->SetSpotLights(spotLights, spotLightCount);
 		
 		checkError();
 
@@ -505,8 +541,8 @@ int main()
 
 		checkError();
 
-		shaderList[1].SetTexture(0);
-		shaderList[1].SetShadowMap(1);
+		shader1->SetTexture(0);
+		shader1->SetShadowMap(1);
 
 		checkError();
 		
@@ -518,8 +554,8 @@ int main()
 
 		}
 		else {
-			glUniformMatrix4fv(uniformView, 1, GL_FALSE, glm::value_ptr(lightView));
-			glUniformMatrix4fv(uniformProjection, 1, GL_FALSE, glm::value_ptr(lightProjection));
+			glUniformMatrix4fv(uniformProjection, 1, GL_FALSE, glm::value_ptr(projection));
+			glUniformMatrix4fv(uniformView, 1, GL_FALSE, glm::value_ptr(camera.calculateViewMatrix()));
 		}
 
 		// = uniform mat4 view;

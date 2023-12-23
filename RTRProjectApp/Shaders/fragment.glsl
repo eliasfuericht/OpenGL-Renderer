@@ -140,11 +140,28 @@ vec4 CalcSpotLights()
 	return totalcolor;
 }
 
+float linearizeDepth(float depthValue)
+{
+    float near = 0.1; // Your near clipping plane value
+    float far = 100.0; // Your far clipping plane value
+    float z = depthValue * 2.0 - 1.0; // Transform depth to [-1, 1] range
+    return (2.0 * near * far) / (far + near - z * (far - near));
+}
+
 void main()
 {
 	vec4 finalcolor = CalcDirectionalLight();
 	finalcolor += CalcPointLights();
 	finalcolor += CalcSpotLights();
 	
-	FragColor = texture(depthMap, TexCoord) * finalcolor;
+	//FragColor = texture(depthMap, TexCoord); //* finalcolor;
+	// Sample depth map texture
+	float depthValue = texture(depthMap, TexCoord).r;
+
+	// Linearize depth value
+	depthValue = linearizeDepth(depthValue);
+
+	// Visualize linearized depth value
+	vec3 color = vec3(depthValue);
+	FragColor = vec4(color, 1.0);
 }
