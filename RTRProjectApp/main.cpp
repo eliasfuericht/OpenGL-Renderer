@@ -378,6 +378,17 @@ int main()
 		deltaTime = now - lastTime;
 		lastTime = now;
 
+		frameCount++;
+		if (now - lastFrame >= 1.0)
+		{
+			fps = frameCount;
+			frameCount = 0;
+			lastFrame = now;
+			std::string FPS = std::to_string(fps);
+			std::string newTitle = "Night at the museum - " + FPS + "FPS";
+			glfwSetWindowTitle(mainWindow.getGLFWWindow(), newTitle.c_str());
+		}
+
 		// Get + Handle User Input
 		glfwPollEvents();
 
@@ -431,6 +442,7 @@ int main()
 		glm::mat4 lightView = glm::lookAt(glm::vec3(10.0, 10.0, 10.0), glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0));
 		glm::mat4 lightSpaceMatrix = lightProjection * lightView;
 
+
 		// sets shaderprogram at shader0 as shaderprogram to use
 		// shader0 = shadowpass
 		shader0->UseShader();
@@ -441,6 +453,8 @@ int main()
 		glViewport(0, 0, shadowWidth, shadowHeight);
 
 		glClear(GL_DEPTH_BUFFER_BIT);
+
+		glCullFace(GL_FRONT);
 
 		uniformLightSpace = shader0->GetLightSpaceMatrixLocation();
 		uniformModel = shader0->GetModelLocation();
@@ -518,6 +532,8 @@ int main()
 		// Clear the window
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		glCullFace(GL_BACK);
 
 		//Flashlight
 		// copies camera position and lowers y value by 0.3f (so flashlight feels like it's in hand)
@@ -637,16 +653,6 @@ int main()
 		}
 
 		mainWindow.swapBuffers();
-
-		frameCount++;
-		if (now - lastFrame >= 1.0)
-		{
-			fps = frameCount;
-			fpsList.push_back(fps);
-			frameCount = 0;
-			lastFrame = now;
-		}
-		//printf("\rCurrent FPS: %d", fps);
 	}
 
 	ImGui_ImplOpenGL3_Shutdown();
