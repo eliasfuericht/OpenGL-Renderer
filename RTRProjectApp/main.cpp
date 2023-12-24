@@ -155,6 +155,10 @@ static const char* vShader = "Shaders/vertex.glsl";
 // Fragment Shader
 static const char* fShader = "Shaders/fragment.glsl";
 
+// setting up GLuints for uniform locations for later use
+GLuint uniformProjection = 0, uniformModel = 0, uniformView = 0, uniformEyePosition = 0, uniformSpecularIntensity = 0, uniformShininess = 0, uniformLightSpace = 0, uniformDepthMap = 0;
+
+
 void checkError() {
 	GLenum error = glGetError();
 	if (error != GL_NO_ERROR) {
@@ -220,6 +224,59 @@ MessageCallback(GLenum source,
 		type, severity, message);
 }
 
+void renderDebugScene() {
+	glm::mat4 model(1.0f);
+
+	model = glm::mat4(1.0f);
+
+	model = glm::translate(model, glm::vec3(0.0f, -1.0f, 0.0f));
+
+	model = glm::scale(model, glm::vec3(10.0f, 10.0f, 10.0f));
+
+	glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+
+	debugPlane.RenderModel();
+
+
+	model = glm::mat4(1.0f);
+
+	model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
+
+	glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+
+	debugCube.RenderModel();
+
+
+	model = glm::mat4(1.0f);
+
+	model = glm::translate(model, glm::vec3(0.0f, 0.0f, 5.0f));
+
+	glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+
+	debugCube.RenderModel();
+
+
+	model = glm::mat4(1.0f);
+
+	model = glm::translate(model, spotLights[0].GetLightPosition());
+
+	glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+
+	debugCube.RenderModel();
+}
+
+void renderRealScene() {
+	glm::mat4 model(1.0f);
+
+	model = glm::mat4(1.0f);
+
+	model = glm::translate(model, glm::vec3(0.0f, -1.25f, 0.0f));
+
+	glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+
+	scene.RenderModel();
+}
+
 int main()
 {
 	mainWindow = Window(1920, 1080, false);
@@ -281,15 +338,15 @@ int main()
 	debugCube = Model();
 	debugCube.LoadModel("Models/cube.obj");
 
-	//scene = Model();
-	//scene.LoadModel("Models/scene.obj");
+	scene = Model();
+	scene.LoadModel("Models/scene.obj");
 
 	printf("Initial loading took: %f seconds\n", glfwGetTime());
 
 	// setting up lights (position, color, ambientIntensity, diffuseIntensity, direction, edge)
 	// and incrementing the corresponding lightCount
 	mainDirectionalLight = DirectionalLight(1.0f, 1.0f, 1.0f,
-											0.5f, 0.1f,
+											0.5f, 0.5f,
 											1.0f, 1.0f, 1.0f);
 
 	unsigned int pointLightCount = 0;
@@ -310,7 +367,7 @@ int main()
 	spotLightCount++;
 
 	// setting up shadowmap Texture
-	const unsigned int shadowWidth = 2048, shadowHeight = 2048;
+	const unsigned int shadowWidth = 1024, shadowHeight = 1024;
 	unsigned int depthMap;
 
 	glGenTextures(1, &depthMap);
@@ -341,9 +398,6 @@ int main()
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-	// setting up GLuints for uniform locations for later use
-	GLuint uniformProjection = 0, uniformModel = 0, uniformView = 0, uniformEyePosition = 0, uniformSpecularIntensity = 0, uniformShininess = 0, uniformLightSpace = 0, uniformDepthMap = 0;
-
 	float fov = glm::radians(45.0f);
 	float nearPlane = 0.1f;
 	float farPlane = 100.0f;
@@ -369,6 +423,8 @@ int main()
 	float orthoTop = 30.0f;
 	float orthoNear = -6.0f;
 	float orthoFar = 50.0f;
+
+	//glEnable(GL_CULL_FACE);
 
 	// Loop until window closed
 	while (!mainWindow.getShouldClose())
@@ -454,7 +510,7 @@ int main()
 
 		glClear(GL_DEPTH_BUFFER_BIT);
 
-		glCullFace(GL_FRONT);
+		//glCullFace(GL_FRONT);
 
 		uniformLightSpace = shader0->GetLightSpaceMatrixLocation();
 		uniformModel = shader0->GetModelLocation();
@@ -465,43 +521,9 @@ int main()
 		glUniformMatrix4fv(uniformProjection, 1, GL_FALSE, glm::value_ptr(projection));
 		glUniformMatrix4fv(uniformView, 1, GL_FALSE, glm::value_ptr(camera.calculateViewMatrix()));
 
-		glm::mat4 model(1.0f);
+		//renderDebugScene();
 
-		model = glm::mat4(1.0f);
-
-		model = glm::translate(model, glm::vec3(0.0f, -1.0f, 0.0f));
-
-		model = glm::scale(model, glm::vec3(10.0f, 10.0f, 10.0f));
-
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-
-		debugPlane.RenderModel();
-
-
-		model = glm::mat4(1.0f);
-
-		model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
-
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-
-		debugCube.RenderModel();
-
-
-		model = glm::mat4(1.0f);
-
-		model = glm::translate(model, glm::vec3(0.0f, 0.0f, 5.0f));
-
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-
-		debugCube.RenderModel();
-
-		model = glm::mat4(1.0f);
-
-		model = glm::translate(model, spotLights[0].GetLightPosition());
-
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-
-		debugCube.RenderModel();
+		renderRealScene();
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -533,7 +555,7 @@ int main()
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		glCullFace(GL_BACK);
+		//glCullFace(GL_BACK);
 
 		//Flashlight
 		// copies camera position and lowers y value by 0.3f (so flashlight feels like it's in hand)
@@ -576,71 +598,13 @@ int main()
 		//comparable to UseLight() in DirectionalLight.cpp but for Material
 		dullMaterial.UseMaterial(uniformSpecularIntensity, uniformShininess);
 
-		model = glm::mat4(1.0f);
-
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-
 		//bind depthmap as texture0 
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, depthMap);
 
-		model = glm::mat4(1.0f);
+		//renderDebugScene();
 
-		model = glm::translate(model, glm::vec3(0.0f, 10.0f, 0.0f));
-
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-
-
-		renderQuad();
-		
-		dirtTexture.UseTexture();
-
-
-		model = glm::mat4(1.0f);
-
-		model = glm::translate(model, glm::vec3(0.0f, -1.0f, 0.0f));
-
-		model = glm::scale(model, glm::vec3(10.0f, 10.0f, 10.0f));
-
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-
-		debugPlane.RenderModel();
-
-		
-		model = glm::mat4(1.0f);
-
-		model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
-
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-
-		debugCube.RenderModel();
-
-
-		model = glm::mat4(1.0f);
-
-		model = glm::translate(model, glm::vec3(0.0f, 0.0f, 5.0f));
-
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-
-		debugCube.RenderModel();
-		
-		model = glm::mat4(1.0f);
-
-		model = glm::translate(model, spotLights[0].GetLightPosition());
-
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-
-		debugCube.RenderModel();
-		
-
-		/*model = glm::mat4(1.0f);
-
-		model = glm::translate(model, glm::vec3(0.0f, -1.25f, 0.0f));
-
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-
-		scene.RenderModel();
-		*/
+		renderRealScene();
 		
 		glUseProgram(0);
 
