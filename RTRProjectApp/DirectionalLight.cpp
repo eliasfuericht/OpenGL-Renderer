@@ -31,6 +31,10 @@ void DirectionalLight::UseLight(GLuint ambientIntensityLocation, GLuint ambientc
 	glUniform3f(directionLocation, direction.x, direction.y, direction.z);
 }
 
+void DirectionalLight::SetDirection(glm::vec3 newDir) {
+	direction = newDir;
+}
+
 DirectionalLight::~DirectionalLight()
 {
 }

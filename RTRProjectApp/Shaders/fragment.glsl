@@ -59,6 +59,43 @@ uniform Material material;
 
 uniform vec3 eyePosition;
 
+float ShadowCalculation()
+{
+	vec3 projCoords = FragPosLightSpace.xyz / FragPosLightSpace.w;
+
+	projCoords = projCoords * 0.5 + 0.5;
+
+	//float closestDepth = texture(depthMap, projCoords.xy).r;
+
+	float currentDepth = projCoords.z;
+	
+	vec3 normal = normalize(Normal);
+	vec3 lightDir = normalize(directionalLight.direction);
+
+	float bias = max(0.005 * (1.0 - dot(normal, lightDir)), 0.0005);
+
+	float shadow = 0.0;
+
+	vec2 texelSize = 1.0 / textureSize(depthMap, 0);
+
+	for (int x = -1; x <= 1; ++x) {
+		for (int y = -1; y <= 1; ++y) {
+			float pcfDepth = texture(depthMap, projCoords.xy + vec2(x, y) * texelSize).r;
+			shadow += currentDepth - bias > pcfDepth ? 1.0 : 0.0;;
+		}
+	}
+
+	shadow /= 9.0;
+
+	//float shadow = currentDepth - bias > closestDepth ? 1.0 : 0.0;
+
+	if (projCoords.z > 1.0) {
+		shadow = 0.0;
+	}
+
+	return shadow;
+}
+
 vec4 CalcLightByDirection(Light light, vec3 direction)
 {
 	vec4 ambientcolor = vec4(light.color, 1.0f) * light.ambientIntensity;
@@ -80,8 +117,8 @@ vec4 CalcLightByDirection(Light light, vec3 direction)
 			specularcolor = vec4(light.color * material.specularIntensity * specularFactor, 1.0f);
 		}
 	}
-
-	return (ambientcolor + diffusecolor + specularcolor);
+	float shadow = ShadowCalculation();
+	return (ambientcolor + (1.0 - shadow) * (diffusecolor + specularcolor));
 }
 
 vec4 CalcDirectionalLight()
@@ -141,30 +178,13 @@ vec4 CalcSpotLights()
 	return totalcolor;
 }
 
-float ShadowCalculation(vec4 fragPosLightSpace)
-{
-	// perform perspective divide
-	vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
-	// transform to [0,1] range
-	projCoords = projCoords * 0.5 + 0.5;
-	// get closest depth value from light's perspective (using [0,1] range fragPosLight as coords)
-	float closestDepth = texture(depthMap, projCoords.xy).r;
-	// get depth of current fragment from light's perspective
-	float currentDepth = projCoords.z;
-	// check whether current frag pos is in shadow
-	//float bias = max(0.05 * (1.0 - dot(Normal, directionalLight.direction)), 0.005);
-	float shadow = currentDepth - 0.005 > closestDepth ? 1.0 : 0.0;
-
-	return shadow;
-}
-
 void main()
 {
 	vec4 finalcolor = CalcDirectionalLight();
 	finalcolor += CalcPointLights();
 	finalcolor += CalcSpotLights();
 
-	float shadow = ShadowCalculation(FragPosLightSpace);
+	float shadow = ShadowCalculation();
 	
 	FragColor = texture(theTexture, TexCoord) * finalcolor * (1.0 - shadow);
 

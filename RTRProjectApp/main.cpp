@@ -345,9 +345,9 @@ int main()
 
 	// setting up lights (position, color, ambientIntensity, diffuseIntensity, direction, edge)
 	// and incrementing the corresponding lightCount
-	mainDirectionalLight = DirectionalLight(1.0f, 1.0f, 1.0f,
-											0.5f, 0.5f,
-											1.0f, 1.0f, 1.0f);
+	mainDirectionalLight = DirectionalLight(80.0f/255.0f, 104.0f /255.0f, 134.0f /255.0f,
+											1.0f, 0.5f,
+											-0.8f, 1.0f, -0.1f);
 
 	unsigned int pointLightCount = 0;
 	pointLights[0] = PointLight(0.0f, 0.0f, 1.0f,
@@ -374,8 +374,8 @@ int main()
 	glBindTexture(GL_TEXTURE_2D, depthMap);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT,
 		shadowWidth, shadowHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
@@ -421,10 +421,10 @@ int main()
 	float orthoRight = 30.0f;
 	float orthoBottom = -30.0f;
 	float orthoTop = 30.0f;
-	float orthoNear = -6.0f;
+	float orthoNear = -30.0f;
 	float orthoFar = 50.0f;
 
-	//glEnable(GL_CULL_FACE);
+	glm::vec3 directdir = glm::vec3(1.0f, 1.0f, 1.0f);
 
 	// Loop until window closed
 	while (!mainWindow.getShouldClose())
@@ -481,11 +481,12 @@ int main()
 			ImGui::NewFrame();
 
 			ImGui::Begin("finally working");
+			ImGui::DragFloat3("directionalLight direction", glm::value_ptr(directdir), 0.1f, -50.0f, 50.0f, "%.1f");
 			ImGui::SliderFloat("left", &orthoLeft, -100.0f, 100.0f);
 			ImGui::SliderFloat("right", &orthoRight, -100.0f, 100.0f);
 			ImGui::SliderFloat("top", &orthoTop, -100.0f, 100.0f);
 			ImGui::SliderFloat("bottom", &orthoBottom, -100.0f, 100.0f);
-			ImGui::SliderFloat("near", &orthoNear, -10.0f, 10.0f);
+			ImGui::SliderFloat("near", &orthoNear, -100.0f, 100.0f);
 			ImGui::SliderFloat("far", &orthoFar, -100.0f, 500.0f);
 			ImGui::End();
 
@@ -493,9 +494,10 @@ int main()
 			ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 		}
 
+		mainDirectionalLight.SetDirection(directdir);
 		// calculating ortho projection matrix
 		glm::mat4 lightProjection = glm::ortho(orthoLeft, orthoRight, orthoBottom, orthoTop, orthoNear, orthoFar);
-		glm::mat4 lightView = glm::lookAt(glm::vec3(10.0, 10.0, 10.0), glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0));
+		glm::mat4 lightView = glm::lookAt(mainDirectionalLight.GetDirection(), glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0));
 		glm::mat4 lightSpaceMatrix = lightProjection * lightView;
 
 
@@ -510,7 +512,8 @@ int main()
 
 		glClear(GL_DEPTH_BUFFER_BIT);
 
-		//glCullFace(GL_FRONT);
+		//glEnable(GL_CULL_FACE);
+		glCullFace(GL_FRONT);
 
 		uniformLightSpace = shader0->GetLightSpaceMatrixLocation();
 		uniformModel = shader0->GetModelLocation();
@@ -518,14 +521,14 @@ int main()
 		uniformView = shader0->GetViewLocation();
 
 		glUniformMatrix4fv(uniformLightSpace, 1, GL_FALSE, glm::value_ptr(lightSpaceMatrix));
-		glUniformMatrix4fv(uniformProjection, 1, GL_FALSE, glm::value_ptr(projection));
-		glUniformMatrix4fv(uniformView, 1, GL_FALSE, glm::value_ptr(camera.calculateViewMatrix()));
 
 		//renderDebugScene();
 
 		renderRealScene();
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+		glDisable(GL_CULL_FACE);
 
 		// sets shaderprogram at shader1 as shaderprogram to use
 		// = renderpass
