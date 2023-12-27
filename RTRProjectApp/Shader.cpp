@@ -259,7 +259,7 @@ void Shader::SetTexture(GLuint textureUnit)
 	glUniform1i(uniformTexture, textureUnit);
 }
 
-void Shader::SetShadowMap(GLuint textureUnit)
+void Shader::SetDirectionalShadowMap(GLuint textureUnit)
 {
 	glUniform1i(uniformDShadowMap, textureUnit);
 }

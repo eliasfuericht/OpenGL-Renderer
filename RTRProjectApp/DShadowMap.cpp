@@ -1,11 +1,17 @@
 #include "DShadowMap.h"
 
-DShadowMap::DShadowMap() : width(1024), height(1024)
+DShadowMap::DShadowMap()
 {
+	shadowMap = 0;
+	shadowMapFBO = 0;
+	width = 1024;
+	height = 1024;
 }
 
 DShadowMap::DShadowMap(GLuint w, GLuint h)
 {
+	shadowMap = 0;
+	shadowMapFBO = 0;
 	width = w;
 	height = h;
 }
@@ -47,11 +53,9 @@ void DShadowMap::Write()
 	glClear(GL_DEPTH_BUFFER_BIT);
 }
 
-void DShadowMap::Read()
+void DShadowMap::Read(GLenum textureUnit)
 {
-	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, shadowMap);
-	glActiveTexture(GL_TEXTURE0);
+	glActiveTexture(textureUnit);
 	glBindTexture(GL_TEXTURE_2D, shadowMap);
 }
 

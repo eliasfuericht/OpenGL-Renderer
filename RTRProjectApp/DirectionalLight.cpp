@@ -51,7 +51,7 @@ void DirectionalLight::UnbindShadowMap()
 
 void DirectionalLight::ReadShadowMap()
 {
-	shadowMap.Read();
+	shadowMap.Read(GL_TEXTURE1);
 }
 
 void DirectionalLight::SetDirection(glm::vec3 newDir) {

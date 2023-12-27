@@ -13,14 +13,14 @@ public:
 
 	void Init();
 	void Write();
-	void Read();
+	void Read(GLenum textureUnit);
 	void Unbind();
 
 	int GetShadowMap() { return shadowMap; };
 
 private:
-	unsigned int shadowMapFBO;
-	unsigned int shadowMap;
+	GLuint shadowMapFBO;
+	GLuint shadowMap;
 	GLuint width, height;
 };
 

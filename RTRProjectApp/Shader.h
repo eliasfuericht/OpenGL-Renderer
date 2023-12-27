@@ -44,7 +44,7 @@ public:
 	void SetPointLights(PointLight * pLight, unsigned int lightCount);
 	void SetSpotLights(SpotLight * sLight, unsigned int lightCount);
 	void SetTexture(GLuint textureUnit);
-	void SetShadowMap(GLuint textureUnit);
+	void SetDirectionalShadowMap(GLuint textureUnit);
 
 	void UseShader();
 	void ClearShader();

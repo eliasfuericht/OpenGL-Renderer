@@ -303,7 +303,7 @@ int main()
 											2048, 2048);
 
 	unsigned int pointLightCount = 0;
-	pointLights[0] = PointLight(0.0f, 0.0f, 1.0f,
+	pointLights[0] = PointLight(1.0f, 0.0f, 0.0f,
 								0.75f, 0.1f,
 								0.0f, 2.5f, 0.0f,
 								0.3f, 0.2f, 0.1f);
@@ -441,7 +441,7 @@ int main()
 		mainDirectionalLight.ReadShadowMap();
 
 		shader1->SetTexture(0);
-		shader1->SetShadowMap(1);
+		shader1->SetDirectionalShadowMap(1);
 
 		glUniformMatrix4fv(uniformProjection, 1, GL_FALSE, glm::value_ptr(projection));
 		glUniformMatrix4fv(uniformView, 1, GL_FALSE, glm::value_ptr(camera.calculateViewMatrix()));
