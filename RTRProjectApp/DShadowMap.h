@@ -10,11 +10,13 @@ class DShadowMap
 public:
 	DShadowMap();
 	DShadowMap(GLuint w, GLuint h);
+
 	void Init();
 	void Write();
 	void Read();
-	int GetShadowMap() { return shadowMap; };
 	void Unbind();
+
+	int GetShadowMap() { return shadowMap; };
 
 private:
 	unsigned int shadowMapFBO;

@@ -167,50 +167,6 @@ extern "C"
 	__declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1;
 }
 #endif
-//currently not in use
-void CreateShaders()
-{
-	Shader* shader0 = new Shader();
-	Shader* shader1 = new Shader();
-
-	// reads, compiles and sets shader as shaderprogram to use!
-	shader0->CreateFromFiles(dShadowVertShader, dShadowFragShader);
-	shader1->CreateFromFiles(vShader, fShader);
-
-	//pushes into shaderList vector (for later use of multiple shaders)
-	//ganz böse
-	shaderList.emplace_back(*shader0);
-	shaderList.emplace_back(*shader1);
-}
-
-unsigned int quadVAO = 0;
-unsigned int quadVBO;
-void renderQuad()
-{
-	if (quadVAO == 0)
-	{
-		float quadVertices[] = {
-			// positions        // texture Coords
-			-5.0f,  5.0f, 0.0f, 0.0f, 1.0f,
-			-5.0f, -5.0f, 0.0f, 0.0f, 0.0f,
-			 5.0f,  5.0f, 0.0f, 1.0f, 1.0f,
-			 5.0f, -5.0f, 0.0f, 1.0f, 0.0f,
-		};
-		// setup plane VAO
-		glGenVertexArrays(1, &quadVAO);
-		glGenBuffers(1, &quadVBO);
-		glBindVertexArray(quadVAO);
-		glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
-		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-		glEnableVertexAttribArray(1);
-		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-	}
-	glBindVertexArray(quadVAO);
-	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-	glBindVertexArray(0);
-}
 
 void GLAPIENTRY
 MessageCallback(GLenum source,
@@ -290,7 +246,6 @@ int main()
 	glDebugMessageCallback(MessageCallback, 0);
 
 	//imgui setup
-	
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 	ImGuiIO& io = ImGui::GetIO();
@@ -313,16 +268,12 @@ int main()
 	ImGui_ImplGlfw_InitForOpenGL(mainWindow.getGLFWWindow(), true);
 	ImGui_ImplOpenGL3_Init("#version 460");
 
-	//CreateShaders();
-
 	Shader* shader0 = new Shader();
 	Shader* shader1 = new Shader();
 
-	// reads, compiles and sets shader as shaderprogram to use!
 	shader0->CreateFromFiles(dShadowVertShader, dShadowFragShader);
 	shader1->CreateFromFiles(vShader, fShader);
 
-	// setting up basic camera
 	// camera with correct startposition for final scene
 	camera = Camera(glm::vec3(19.5f, -0.60f, 17.0f), glm::vec3(0.0f, 1.0f, 0.0f), -60.0f, 0.0f, 5.0f, 0.05f);
 
@@ -346,8 +297,6 @@ int main()
 
 	printf("Initial loading took: %f seconds\n", glfwGetTime());
 
-	// setting up lights (position, color, ambientIntensity, diffuseIntensity, direction, edge)
-	// and incrementing the corresponding lightCount
 	mainDirectionalLight = DirectionalLight(80.0f/255.0f, 104.0f /255.0f, 134.0f /255.0f,
 											1.0f, 0.5f,
 											-0.8f, 1.0f, -0.1f, 
@@ -479,12 +428,6 @@ int main()
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		//Flashlight
-		// copies camera position and lowers y value by 0.3f (so flashlight feels like it's in hand)
-		// SetFlash() sets the direction of the light to always face the same direction as the camera
-		//glm::vec3 flashLightPosition = camera.getCameraPosition();
-		//spotLights[0].SetFlash(flashLightPosition, camera.getCameraDirection());
-
 		//rotates spotlight around origin
 		float angle = now;
 		spotLights[0].SetLightPosition(glm::vec3(5.0f * cos(angle), 5.0f, 5.0f * sin(angle)));
@@ -503,9 +446,6 @@ int main()
 		glUniformMatrix4fv(uniformProjection, 1, GL_FALSE, glm::value_ptr(projection));
 		glUniformMatrix4fv(uniformView, 1, GL_FALSE, glm::value_ptr(camera.calculateViewMatrix()));
 		glUniformMatrix4fv(uniformLightSpace, 1, GL_FALSE, glm::value_ptr(mainDirectionalLight.GetLightSpaceMatrix()));
-
-		// sends camera position to (fragment)shader to corresponding locations
-		// = uniform vec3 eyePosition;
 		glUniform3f(uniformEyePosition, camera.getCameraPosition().x, camera.getCameraPosition().y, camera.getCameraPosition().z);
 
 		//comparable to UseLight() in DirectionalLight.cpp but for Material

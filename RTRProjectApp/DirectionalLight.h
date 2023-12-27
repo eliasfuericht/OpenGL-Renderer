@@ -12,8 +12,8 @@ public:
 					GLfloat xDir, GLfloat yDir, GLfloat zDir,
 					GLuint sw, GLuint sh);
 
-	void UseLight(GLuint ambientIntensityLocation, GLuint ambientcolorLocation,
-		GLuint diffuseIntensityLocation, GLuint directionLocation);
+	void UseLight(	GLuint ambientIntensityLocation, GLuint ambientcolorLocation,
+					GLuint diffuseIntensityLocation, GLuint directionLocation);
 
 	void WriteShadowMap(GLuint uniformLightSpaceMatrixLocation);
 	void UnbindShadowMap();
