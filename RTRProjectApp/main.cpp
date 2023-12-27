@@ -6,6 +6,7 @@
 #include <vector>
 #include <numeric>
 #include <cstdlib>
+#include <Windows.h>
 
 #include <GL\glew.h>
 #include <GLFW\glfw3.h>
@@ -158,13 +159,14 @@ static const char* fShader = "Shaders/fragment.glsl";
 // setting up GLuints for uniform locations for later use
 GLuint uniformProjection = 0, uniformModel = 0, uniformView = 0, uniformEyePosition = 0, uniformSpecularIntensity = 0, uniformShininess = 0, uniformLightSpace = 0, uniformDepthMap = 0;
 
-
-void checkError() {
-	GLenum error = glGetError();
-	if (error != GL_NO_ERROR) {
-		printf("Error: %i\n", error);
-	}
+#ifdef _WIN32
+// Use discrete GPU by default.
+extern "C"
+{
+	__declspec(dllexport) DWORD NvOptimusEnablement = 0x00000001;
+	__declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1;
 }
+#endif
 
 void CreateShaders()
 {
@@ -279,6 +281,7 @@ void renderRealScene() {
 
 int main()
 {
+
 	mainWindow = Window(1920, 1080, false);
 	mainWindow.Initialise();
 
@@ -367,7 +370,7 @@ int main()
 	spotLightCount++;
 
 	// setting up shadowmap Texture
-	const unsigned int shadowWidth = 1024, shadowHeight = 1024;
+	const unsigned int shadowWidth = 2048, shadowHeight = 2048;
 	unsigned int depthMap;
 
 	glGenTextures(1, &depthMap);
@@ -424,8 +427,6 @@ int main()
 	float orthoNear = -30.0f;
 	float orthoFar = 50.0f;
 
-	glm::vec3 directdir = glm::vec3(1.0f, 1.0f, 1.0f);
-
 	// Loop until window closed
 	while (!mainWindow.getShouldClose())
 	{
@@ -481,7 +482,6 @@ int main()
 			ImGui::NewFrame();
 
 			ImGui::Begin("finally working");
-			ImGui::DragFloat3("directionalLight direction", glm::value_ptr(directdir), 0.1f, -50.0f, 50.0f, "%.1f");
 			ImGui::SliderFloat("left", &orthoLeft, -100.0f, 100.0f);
 			ImGui::SliderFloat("right", &orthoRight, -100.0f, 100.0f);
 			ImGui::SliderFloat("top", &orthoTop, -100.0f, 100.0f);
@@ -494,7 +494,6 @@ int main()
 			ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 		}
 
-		mainDirectionalLight.SetDirection(directdir);
 		// calculating ortho projection matrix
 		glm::mat4 lightProjection = glm::ortho(orthoLeft, orthoRight, orthoBottom, orthoTop, orthoNear, orthoFar);
 		glm::mat4 lightView = glm::lookAt(mainDirectionalLight.GetDirection(), glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0));
@@ -512,9 +511,6 @@ int main()
 
 		glClear(GL_DEPTH_BUFFER_BIT);
 
-		//glEnable(GL_CULL_FACE);
-		glCullFace(GL_FRONT);
-
 		uniformLightSpace = shader0->GetLightSpaceMatrixLocation();
 		uniformModel = shader0->GetModelLocation();
 		uniformProjection = shader0->GetProjectionLocation();
@@ -527,8 +523,6 @@ int main()
 		renderRealScene();
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-		glDisable(GL_CULL_FACE);
 
 		// sets shaderprogram at shader1 as shaderprogram to use
 		// = renderpass
@@ -584,10 +578,10 @@ int main()
 		
 		//can be used to switch values with F1
 		if (mainWindow.getAnimationBool()) {
-			//bind other uniform here
+			//bind other uniforms here
 		}
 		else {
-			//bind other uniform here
+			//bind other uniforms here
 		}
 
 		glUniformMatrix4fv(uniformProjection, 1, GL_FALSE, glm::value_ptr(projection));
