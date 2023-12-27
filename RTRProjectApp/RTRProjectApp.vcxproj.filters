@@ -93,6 +93,9 @@
     <ClCompile Include="Vendor\imgui\imgui_impl_glfw.cpp">
       <Filter>Source Files\imgui</Filter>
     </ClCompile>
+    <ClCompile Include="DShadowMap.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Mesh.h">
@@ -170,6 +173,9 @@
     <ClInclude Include="Vendor\imgui\imgui_impl_opengl3_loader.h">
       <Filter>Header Files\imgui</Filter>
     </ClInclude>
+    <ClInclude Include="DShadowMap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\fragment.glsl">
@@ -182,6 +188,12 @@
       <Filter>Resource Files\Shaders</Filter>
     </None>
     <None Include="Shaders\dShadowMapVertex.glsl">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="Shaders\oShadowMapFragment.glsl">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="Shaders\oShadowMapVertex.glsl">
       <Filter>Resource Files\Shaders</Filter>
     </None>
   </ItemGroup>

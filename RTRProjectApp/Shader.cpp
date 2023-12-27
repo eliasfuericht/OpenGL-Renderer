@@ -170,7 +170,7 @@ void Shader::CompileShader(const char* vertexCode, const char* fragmentCode)
 	}
 
 	uniformTexture = glGetUniformLocation(shaderID, "theTexture");
-	uniformDepthMap = glGetUniformLocation(shaderID, "depthMap");
+	uniformDShadowMap = glGetUniformLocation(shaderID, "dShadowMap");
 }
 
 // function to compile shaderCode and attach to shaderprogram
@@ -261,7 +261,7 @@ void Shader::SetTexture(GLuint textureUnit)
 
 void Shader::SetShadowMap(GLuint textureUnit)
 {
-	glUniform1i(uniformDepthMap, textureUnit);
+	glUniform1i(uniformDShadowMap, textureUnit);
 }
 
 void Shader::UseShader()
@@ -317,9 +317,9 @@ GLuint Shader::GetTextureLocation()
 	return uniformTexture;
 }
 
-GLuint Shader::GetDepthMapLocation()
+GLuint Shader::GetDShadowMapLocation()
 {
-	return uniformDepthMap;
+	return uniformDShadowMap;
 }
 
 GLuint Shader::GetLightSpaceMatrixLocation()

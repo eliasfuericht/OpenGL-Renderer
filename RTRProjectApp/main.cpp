@@ -157,7 +157,7 @@ static const char* vShader = "Shaders/vertex.glsl";
 static const char* fShader = "Shaders/fragment.glsl";
 
 // setting up GLuints for uniform locations for later use
-GLuint uniformProjection = 0, uniformModel = 0, uniformView = 0, uniformEyePosition = 0, uniformSpecularIntensity = 0, uniformShininess = 0, uniformLightSpace = 0, uniformDepthMap = 0;
+GLuint uniformProjection = 0, uniformModel = 0, uniformView = 0, uniformEyePosition = 0, uniformSpecularIntensity = 0, uniformShininess = 0, uniformLightSpace = 0, uniformDShadowMap = 0;
 
 #ifdef _WIN32
 // Use discrete GPU by default.
@@ -167,7 +167,7 @@ extern "C"
 	__declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1;
 }
 #endif
-
+//currently not in use
 void CreateShaders()
 {
 	Shader* shader0 = new Shader();
@@ -341,8 +341,8 @@ int main()
 	debugCube = Model();
 	debugCube.LoadModel("Models/cube.obj");
 
-	scene = Model();
-	scene.LoadModel("Models/scene.obj");
+	//scene = Model();
+	//scene.LoadModel("Models/scene.obj");
 
 	printf("Initial loading took: %f seconds\n", glfwGetTime());
 
@@ -350,7 +350,8 @@ int main()
 	// and incrementing the corresponding lightCount
 	mainDirectionalLight = DirectionalLight(80.0f/255.0f, 104.0f /255.0f, 134.0f /255.0f,
 											1.0f, 0.5f,
-											-0.8f, 1.0f, -0.1f);
+											-0.8f, 1.0f, -0.1f, 
+											2048, 2048);
 
 	unsigned int pointLightCount = 0;
 	pointLights[0] = PointLight(0.0f, 0.0f, 1.0f,
@@ -369,49 +370,8 @@ int main()
 								10.0f);
 	spotLightCount++;
 
-	// setting up shadowmap Texture
-	const unsigned int shadowWidth = 2048, shadowHeight = 2048;
-	unsigned int depthMap;
-
-	glGenTextures(1, &depthMap);
-	glBindTexture(GL_TEXTURE_2D, depthMap);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT,
-		shadowWidth, shadowHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-	// setting up depth Framebuffer
-	unsigned int depthMapFBO;
-	glGenFramebuffers(1, &depthMapFBO);
-	glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
-
-	// glFramebufferTexture2D sets framebuffer to write information to given texture(depthMap)
-	// GL_DEPTH_ATTACHMENT flag tells framebuffer to only write depth data
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap, 0);
-	glDrawBuffer(GL_NONE);
-	glReadBuffer(GL_NONE);
-
-	GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-
-	if (status != GL_FRAMEBUFFER_COMPLETE) {
-		printf("Framebuffer Error: %i\n", status);
-	}
-
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-	float fov = glm::radians(45.0f);
-	float nearPlane = 0.1f;
-	float farPlane = 100.0f;
-	float aspectRatio = (GLfloat)mainWindow.getBufferWidth() / mainWindow.getBufferHeight();
-
 	// calculating prespective projection matrix
-	glm::mat4 projection = glm::perspective(fov, aspectRatio, nearPlane, farPlane);
-	
-	//print OpenGL Version
-	const GLubyte* version = glGetString(GL_VERSION);
-	std::cout << "OpenGL version: " << version << std::endl;
+	glm::mat4 projection = glm::perspective(glm::radians(45.0f), (GLfloat)mainWindow.getBufferWidth() / mainWindow.getBufferHeight(), 0.1f, 100.0f);
 
 	double lastFrame = 0.0f;
 	int frameCount = 0;
@@ -419,13 +379,6 @@ int main()
 	std::vector<int> fpsList;
 	glfwSetTime(0.0f);
 	double animationTime = 0.0f;
-
-	float orthoLeft = -30.0f;
-	float orthoRight = 30.0f;
-	float orthoBottom = -30.0f;
-	float orthoTop = 30.0f;
-	float orthoNear = -30.0f;
-	float orthoFar = 50.0f;
 
 	// Loop until window closed
 	while (!mainWindow.getShouldClose())
@@ -482,47 +435,28 @@ int main()
 			ImGui::NewFrame();
 
 			ImGui::Begin("finally working");
-			ImGui::SliderFloat("left", &orthoLeft, -100.0f, 100.0f);
-			ImGui::SliderFloat("right", &orthoRight, -100.0f, 100.0f);
-			ImGui::SliderFloat("top", &orthoTop, -100.0f, 100.0f);
-			ImGui::SliderFloat("bottom", &orthoBottom, -100.0f, 100.0f);
-			ImGui::SliderFloat("near", &orthoNear, -100.0f, 100.0f);
-			ImGui::SliderFloat("far", &orthoFar, -100.0f, 500.0f);
+			//ImGui::DragFloat4("lightdir", glm::value_ptr(dir), 0.01f, -100.0f, 100.0f);
+			//ImGui::SliderFloat("left", &orthoLeft, -100.0f, 100.0f);
 			ImGui::End();
 
 			ImGui::Render();
 			ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 		}
 
-		// calculating ortho projection matrix
-		glm::mat4 lightProjection = glm::ortho(orthoLeft, orthoRight, orthoBottom, orthoTop, orthoNear, orthoFar);
-		glm::mat4 lightView = glm::lookAt(mainDirectionalLight.GetDirection(), glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0));
-		glm::mat4 lightSpaceMatrix = lightProjection * lightView;
-
-
 		// sets shaderprogram at shader0 as shaderprogram to use
 		// shader0 = shadowpass
 		shader0->UseShader();
 
-		// set viewport to same dimensions as our viewport
-		glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
-
-		glViewport(0, 0, shadowWidth, shadowHeight);
-
-		glClear(GL_DEPTH_BUFFER_BIT);
-
 		uniformLightSpace = shader0->GetLightSpaceMatrixLocation();
 		uniformModel = shader0->GetModelLocation();
-		uniformProjection = shader0->GetProjectionLocation();
-		uniformView = shader0->GetViewLocation();
 
-		glUniformMatrix4fv(uniformLightSpace, 1, GL_FALSE, glm::value_ptr(lightSpaceMatrix));
+		mainDirectionalLight.WriteShadowMap(uniformLightSpace);
 
-		//renderDebugScene();
+		renderDebugScene();
 
-		renderRealScene();
+		//renderRealScene();
 
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		mainDirectionalLight.UnbindShadowMap();
 
 		// sets shaderprogram at shader1 as shaderprogram to use
 		// = renderpass
@@ -531,19 +465,12 @@ int main()
 		// retreive uniform locations (ID) from shader membervariables
 		// and stores them in local varibale for passing projection, model and view matrices to shader
 		uniformModel = shader1->GetModelLocation();
-
 		uniformProjection = shader1->GetProjectionLocation();
-
 		uniformView = shader1->GetViewLocation();
-
 		uniformEyePosition = shader1->GetEyePositionLocation();
-
 		uniformSpecularIntensity = shader1->GetSpecularIntensityLocation();
-
 		uniformShininess = shader1->GetShininessLocation();
-
-		uniformDepthMap = shader1->GetDepthMapLocation();
-
+		uniformDShadowMap = shader1->GetDShadowMapLocation();
 		uniformLightSpace = shader1->GetLightSpaceMatrixLocation();
 
 		glViewport(0, 0, 1920, 1080);
@@ -551,8 +478,6 @@ int main()
 		// Clear the window
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-		//glCullFace(GL_BACK);
 
 		//Flashlight
 		// copies camera position and lowers y value by 0.3f (so flashlight feels like it's in hand)
@@ -570,23 +495,14 @@ int main()
 		shader1->SetPointLights(pointLights, pointLightCount);
 		shader1->SetSpotLights(spotLights, spotLightCount);
 
-		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, depthMap);
+		mainDirectionalLight.ReadShadowMap();
 
 		shader1->SetTexture(0);
 		shader1->SetShadowMap(1);
-		
-		//can be used to switch values with F1
-		if (mainWindow.getAnimationBool()) {
-			//bind other uniforms here
-		}
-		else {
-			//bind other uniforms here
-		}
 
 		glUniformMatrix4fv(uniformProjection, 1, GL_FALSE, glm::value_ptr(projection));
 		glUniformMatrix4fv(uniformView, 1, GL_FALSE, glm::value_ptr(camera.calculateViewMatrix()));
-		glUniformMatrix4fv(uniformLightSpace, 1, GL_FALSE, glm::value_ptr(lightSpaceMatrix));
+		glUniformMatrix4fv(uniformLightSpace, 1, GL_FALSE, glm::value_ptr(mainDirectionalLight.GetLightSpaceMatrix()));
 
 		// sends camera position to (fragment)shader to corresponding locations
 		// = uniform vec3 eyePosition;
@@ -595,13 +511,9 @@ int main()
 		//comparable to UseLight() in DirectionalLight.cpp but for Material
 		dullMaterial.UseMaterial(uniformSpecularIntensity, uniformShininess);
 
-		//bind depthmap as texture0 
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, depthMap);
+		renderDebugScene();
 
-		//renderDebugScene();
-
-		renderRealScene();
+		//renderRealScene();
 		
 		glUseProgram(0);
 

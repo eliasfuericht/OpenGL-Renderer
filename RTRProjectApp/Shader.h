@@ -36,7 +36,7 @@ public:
 	GLuint GetShininessLocation();
 	GLuint GetEyePositionLocation();
 	GLuint GetTextureLocation();
-	GLuint GetDepthMapLocation();
+	GLuint GetDShadowMapLocation();
 	GLuint GetLightSpaceMatrixLocation();
 
 
@@ -56,7 +56,7 @@ private:
 	int spotLightCount;
 
 	GLuint shaderID, uniformProjection, uniformModel, uniformView, uniformEyePosition,
-		uniformSpecularIntensity, uniformShininess, uniformTexture, uniformDepthMap, uniformLightSpaceMatrix;
+		uniformSpecularIntensity, uniformShininess, uniformTexture, uniformDShadowMap, uniformLightSpaceMatrix;
 
 	struct {
 		GLuint uniformcolor;

@@ -54,7 +54,7 @@ uniform PointLight pointLights[MAX_POINT_LIGHTS];
 uniform SpotLight spotLights[MAX_SPOT_LIGHTS];
 
 uniform sampler2D theTexture;
-uniform sampler2D depthMap;
+uniform sampler2D dShadowMap;
 uniform Material material;
 
 uniform vec3 eyePosition;
@@ -65,7 +65,7 @@ float ShadowCalculation()
 
 	projCoords = projCoords * 0.5 + 0.5;
 
-	//float closestDepth = texture(depthMap, projCoords.xy).r;
+	//float closestDepth = texture(dShadowMap, projCoords.xy).r;
 
 	float currentDepth = projCoords.z;
 	
@@ -76,11 +76,11 @@ float ShadowCalculation()
 
 	float shadow = 0.0;
 
-	vec2 texelSize = 1.0 / textureSize(depthMap, 0);
+	vec2 texelSize = 1.0 / textureSize(dShadowMap, 0);
 
 	for (int x = -2; x <= 2; ++x) {
 		for (int y = -2; y <= 2; ++y) {
-			float pcfDepth = texture(depthMap, projCoords.xy + vec2(x, y) * texelSize).r;
+			float pcfDepth = texture(dShadowMap, projCoords.xy + vec2(x, y) * texelSize).r;
 			shadow += currentDepth - bias > pcfDepth ? 1.0 : 0.0;;
 		}
 	}
@@ -188,7 +188,7 @@ void main()
 	
 	FragColor = texture(theTexture, TexCoord) * finalcolor * (1.0 - shadow);
 
-	//float depthValue = texture(depthMap, TexCoord).r;
+	//float depthValue = texture(dShadowMap, TexCoord).r;
 
 	//FragColor = vec4(vec3(depthValue), 1.0);
 }
