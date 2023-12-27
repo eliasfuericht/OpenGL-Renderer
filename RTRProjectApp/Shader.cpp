@@ -93,6 +93,7 @@ void Shader::CompileShader(const char* vertexCode, const char* fragmentCode)
 	uniformModel = glGetUniformLocation(shaderID, "model");
 	uniformProjection = glGetUniformLocation(shaderID, "projection");
 	uniformView = glGetUniformLocation(shaderID, "view");
+	uniformLightSpaceMatrix = glGetUniformLocation(shaderID, "lightSpaceMatrix");
 
 	//fragment shader
 	uniformDirectionalLight.uniformcolor = glGetUniformLocation(shaderID, "directionalLight.base.color");
@@ -167,6 +168,9 @@ void Shader::CompileShader(const char* vertexCode, const char* fragmentCode)
 		snprintf(locBuff, sizeof(locBuff), "spotLights[%d].edge", i);
 		uniformSpotLight[i].uniformEdge = glGetUniformLocation(shaderID, locBuff);
 	}
+
+	uniformTexture = glGetUniformLocation(shaderID, "theTexture");
+	uniformDShadowMap = glGetUniformLocation(shaderID, "dShadowMap");
 }
 
 // function to compile shaderCode and attach to shaderprogram
@@ -250,6 +254,16 @@ void Shader::SetSpotLights(SpotLight * sLight, unsigned int lightCount)
 	}
 }
 
+void Shader::SetTexture(GLuint textureUnit)
+{
+	glUniform1i(uniformTexture, textureUnit);
+}
+
+void Shader::SetDirectionalShadowMap(GLuint textureUnit)
+{
+	glUniform1i(uniformDShadowMap, textureUnit);
+}
+
 void Shader::UseShader()
 {
 	// sets executables of shaderprogram (at location ShaderID) to be used for rendering
@@ -298,9 +312,25 @@ GLuint Shader::GetEyePositionLocation()
 	return uniformEyePosition;
 }
 
+GLuint Shader::GetTextureLocation()
+{
+	return uniformTexture;
+}
+
+GLuint Shader::GetDShadowMapLocation()
+{
+	return uniformDShadowMap;
+}
+
+GLuint Shader::GetLightSpaceMatrixLocation()
+{
+	return uniformLightSpaceMatrix;
+}
+
 // cleanup function
 void Shader::ClearShader()
 {
+	std::cout << "deleted shader" << std::endl;
 	if (shaderID != 0)
 	{
 		glDeleteProgram(shaderID);

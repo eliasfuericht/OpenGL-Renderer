@@ -17,6 +17,8 @@ public:
 	GLint getBufferWidth() { return bufferWidth; }
 	GLint getBufferHeight() { return bufferHeight; }
 
+	GLFWwindow* getGLFWWindow() { return mainWindow; };
+
 	bool getShouldClose() { return glfwWindowShouldClose(mainWindow); }
 
 	bool* getKeys() { return keys; }
