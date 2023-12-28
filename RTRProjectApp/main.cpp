@@ -6,6 +6,7 @@
 #include <vector>
 #include <numeric>
 #include <cstdlib>
+#include <Windows.h>
 
 #include <GL\glew.h>
 #include <GLFW\glfw3.h>
@@ -144,37 +145,118 @@ double lastTime = 0.0f;
 double t = 0.0f; //Bezier parameter t
 
 // Vertex Shader
+static const char* dShadowVertShader = "Shaders/dShadowMapVertex.glsl";
+
+// Fragment Shader
+static const char* dShadowFragShader = "Shaders/dShadowMapFragment.glsl";
+
+// Vertex Shader
 static const char* vShader = "Shaders/vertex.glsl";
 
 // Fragment Shader
 static const char* fShader = "Shaders/fragment.glsl";
 
-void CreateShaders()
+// setting up GLuints for uniform locations for later use
+GLuint uniformProjection = 0, uniformModel = 0, uniformView = 0, uniformEyePosition = 0, uniformSpecularIntensity = 0, uniformShininess = 0, uniformLightSpace = 0, uniformDShadowMap = 0;
+
+#ifdef _WIN32
+// Use discrete GPU by default.
+extern "C"
 {
-	Shader* shader1 = new Shader();
-	// reads, compiles and sets shader as shaderprogram to use!
-	shader1->CreateFromFiles(vShader, fShader);
-	//pushes into shaderList vector (for later use of multiple shaders)
-	shaderList.push_back(*shader1);
+	__declspec(dllexport) DWORD NvOptimusEnablement = 0x00000001;
+	__declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1;
+}
+#endif
+
+void GLAPIENTRY
+MessageCallback(GLenum source,
+	GLenum type,
+	GLuint id,
+	GLenum severity,
+	GLsizei length,
+	const GLchar* message,
+	const void* userParam)
+{
+	fprintf(stderr, "GL CALLBACK: %s type = 0x%x, severity = 0x%x, message = %s\n",
+		(type == GL_DEBUG_TYPE_ERROR ? "** GL ERROR **" : ""),
+		type, severity, message);
+}
+
+void renderDebugScene() {
+	glm::mat4 model(1.0f);
+
+	model = glm::mat4(1.0f);
+
+	model = glm::translate(model, glm::vec3(0.0f, -1.0f, 0.0f));
+
+	model = glm::scale(model, glm::vec3(10.0f, 10.0f, 10.0f));
+
+	glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+
+	debugPlane.RenderModel();
+
+
+	model = glm::mat4(1.0f);
+
+	model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
+
+	glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+
+	debugCube.RenderModel();
+
+
+	model = glm::mat4(1.0f);
+
+	model = glm::translate(model, glm::vec3(0.0f, 0.0f, 5.0f));
+
+	glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+
+	debugCube.RenderModel();
+
+
+	model = glm::mat4(1.0f);
+
+	model = glm::translate(model, spotLights[0].GetLightPosition());
+
+	glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+
+	debugCube.RenderModel();
+}
+
+void renderRealScene() {
+	glm::mat4 model(1.0f);
+
+	model = glm::mat4(1.0f);
+
+	model = glm::translate(model, glm::vec3(0.0f, -1.25f, 0.0f));
+
+	glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+
+	scene.RenderModel();
 }
 
 int main()
 {
+
 	mainWindow = Window(1920, 1080, false);
 	mainWindow.Initialise();
 
+	// During init, enable debug output
+	glEnable(GL_DEBUG_OUTPUT);
+	glDebugMessageCallback(MessageCallback, 0);
+
+	//imgui setup
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 	ImGuiIO& io = ImGui::GetIO();
 	(void)io;
-	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-	io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
-	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;         // Enable Docking
-	io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;       // Enable Multi-Viewport / Platform Windows
-	io.FontGlobalScale = 1.5f;
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
+	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+	io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+	io.FontGlobalScale = 1.25f;
 
 	ImGui::StyleColorsDark();
-	//increase fontsize here
 
 	ImGuiStyle& style = ImGui::GetStyle();
 	if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
@@ -186,9 +268,12 @@ int main()
 	ImGui_ImplGlfw_InitForOpenGL(mainWindow.getGLFWWindow(), true);
 	ImGui_ImplOpenGL3_Init("#version 460");
 
-	CreateShaders();
+	Shader* shader0 = new Shader();
+	Shader* shader1 = new Shader();
 
-	// setting up basic camera
+	shader0->CreateFromFiles(dShadowVertShader, dShadowFragShader);
+	shader1->CreateFromFiles(vShader, fShader);
+
 	// camera with correct startposition for final scene
 	camera = Camera(glm::vec3(19.5f, -0.60f, 17.0f), glm::vec3(0.0f, 1.0f, 0.0f), -60.0f, 0.0f, 5.0f, 0.05f);
 
@@ -201,9 +286,6 @@ int main()
 	dirtTexture = Texture("Textures/dirt.png");
 	dirtTexture.LoadTextureA();
 
-	printf("Press 'F1' to toggle animation\n");
-	printf("loading models(can take up to 30sec)...\n");
-
 	debugPlane = Model();
 	debugPlane.LoadModel("Models/plane.obj");
 
@@ -213,47 +295,32 @@ int main()
 	//scene = Model();
 	//scene.LoadModel("Models/scene.obj");
 
-
 	printf("Initial loading took: %f seconds\n", glfwGetTime());
 
-	// setting up lights (position, color, ambientIntensity, diffuseIntensity, direction, edge)
-	// and incrementing the corresponding lightCount
-	mainDirectionalLight = DirectionalLight(1.0f, 1.0f, 1.0f,
-		0.5f, 0.1f,
-		1.0f, 1.0f, 1.0f);
+	mainDirectionalLight = DirectionalLight(80.0f/255.0f, 104.0f /255.0f, 134.0f /255.0f,
+											1.0f, 0.5f,
+											-0.8f, 1.0f, -0.1f, 
+											2048, 2048);
 
 	unsigned int pointLightCount = 0;
-	pointLights[0] = PointLight(0.0f, 0.0f, 1.0f,
-		0.75f, 0.1f,
-		0.0f, 2.5f, 0.0f,
-		0.3f, 0.2f, 0.1f);
-	//pointLightCount++;
+	pointLights[0] = PointLight(1.0f, 0.0f, 0.0f,
+								0.75f, 0.1f,
+								0.0f, 2.5f, 0.0f,
+								0.3f, 0.2f, 0.1f);
+	pointLightCount++;
 
 	//flashlight
 	unsigned int spotLightCount = 0;
-	spotLights[0] = SpotLight(1.0f, 1.0f, 1.0f,
-		0.1f, 0.35f,
-		2.0f, 2.0f, 2.0f,
-		0.0f, -1.0f, 0.0f,
-		0.8f, 0.0f, 0.0f,
-		10.0f);
-
+	spotLights[0] = SpotLight(	1.0f, 1.0f, 1.0f,
+								0.1f, 0.35f,
+								2.0f, 2.0f, 2.0f,
+								0.0f, -1.0f, 0.0f,
+								0.8f, 0.0f, 0.0f,
+								10.0f);
 	spotLightCount++;
 
-	// setting up GLuints for uniform locations for later use
-	GLuint uniformProjection = 0, uniformModel = 0, uniformView = 0, uniformEyePosition = 0, uniformSpecularIntensity = 0, uniformShininess = 0;
-
-	float fov = glm::radians(45.0f);
-	float nearPlane = 0.1f;
-	float farPlane = 100.0f;
-	float aspectRatio = (GLfloat)mainWindow.getBufferWidth() / mainWindow.getBufferHeight();
-
 	// calculating prespective projection matrix
-	glm::mat4 projection = glm::perspective(fov, aspectRatio, nearPlane, farPlane);
-
-	//print OpenGL Version
-	const GLubyte* version = glGetString(GL_VERSION);
-	std::cout << "OpenGL version: " << version << std::endl;
+	glm::mat4 projection = glm::perspective(glm::radians(45.0f), (GLfloat)mainWindow.getBufferWidth() / mainWindow.getBufferHeight(), 0.1f, 100.0f);
 
 	double lastFrame = 0.0f;
 	int frameCount = 0;
@@ -262,26 +329,29 @@ int main()
 	glfwSetTime(0.0f);
 	double animationTime = 0.0f;
 
-	float orthoLeft = -1.0f;
-	float orthoRight = 1.0f;
-	float orthoBottom = -1.0f;
-	float orthoTop = -1.0f;
-	float orthoNear = 0.1f;
-	float orthoFar = 100.0f;
 	// Loop until window closed
 	while (!mainWindow.getShouldClose())
 	{
+
 		double now = glfwGetTime();
 		deltaTime = now - lastTime;
 		lastTime = now;
 
+		frameCount++;
+		if (now - lastFrame >= 1.0)
+		{
+			fps = frameCount;
+			frameCount = 0;
+			lastFrame = now;
+			std::string FPS = std::to_string(fps);
+			std::string newTitle = "Night at the museum - " + FPS + "FPS";
+			glfwSetWindowTitle(mainWindow.getGLFWWindow(), newTitle.c_str());
+		}
+
 		// Get + Handle User Input
 		glfwPollEvents();
 
-		// calculating ortho projection matrix
-		glm::mat4 ortho = glm::ortho(orthoLeft, orthoRight, orthoBottom, orthoTop, orthoNear, orthoFar);
-
-		//setting up camera animation
+		// camera animation
 		if (mainWindow.getAnimationBool()) {
 			//set t to control duration of animation
 			animationTime += deltaTime;
@@ -307,43 +377,56 @@ int main()
 			camera.keyControl(mainWindow.getKeys(), deltaTime);
 		}
 
-		// Clear the window
-		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		//imgui window
+		{
+			ImGui_ImplOpenGL3_NewFrame();
+			ImGui_ImplGlfw_NewFrame();
+			ImGui::NewFrame();
 
-		ImGui_ImplOpenGL3_NewFrame();
-		ImGui_ImplGlfw_NewFrame();
-		ImGui::NewFrame();
+			ImGui::Begin("finally working");
+			//ImGui::DragFloat4("lightdir", glm::value_ptr(dir), 0.01f, -100.0f, 100.0f);
+			//ImGui::SliderFloat("left", &orthoLeft, -100.0f, 100.0f);
+			ImGui::End();
 
-		ImGui::Begin("finally working");
-		ImGui::SliderFloat("left", &orthoLeft,-100.0f,100.0f);
-		ImGui::SliderFloat("right", &orthoRight,-100.0f,100.0f);
-		ImGui::SliderFloat("top", &orthoTop,-100.0f,100.0f);
-		ImGui::SliderFloat("bottom", &orthoBottom,-100.0f,100.0f);
-		ImGui::SliderFloat("near", &orthoNear,-10.0f,10.0f);
-		ImGui::SliderFloat("far", &orthoFar,-100.0f,500.0f);
-		ImGui::End();
+			ImGui::Render();
+			ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+		}
 
-		ImGui::Render();
-		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+		// sets shaderprogram at shader0 as shaderprogram to use
+		// shader0 = shadowpass
+		shader0->UseShader();
 
-		// sets shaderprogram at shaderList[0] as shaderprogram to use
-		shaderList[0].UseShader();
+		uniformLightSpace = shader0->GetLightSpaceMatrixLocation();
+		uniformModel = shader0->GetModelLocation();
+
+		mainDirectionalLight.WriteShadowMap(uniformLightSpace);
+
+		renderDebugScene();
+
+		//renderRealScene();
+
+		mainDirectionalLight.UnbindShadowMap();
+
+		// sets shaderprogram at shader1 as shaderprogram to use
+		// = renderpass
+		shader1->UseShader();
 
 		// retreive uniform locations (ID) from shader membervariables
 		// and stores them in local varibale for passing projection, model and view matrices to shader
-		uniformModel = shaderList[0].GetModelLocation();
-		uniformProjection = shaderList[0].GetProjectionLocation();
-		uniformView = shaderList[0].GetViewLocation();
-		uniformEyePosition = shaderList[0].GetEyePositionLocation();
-		uniformSpecularIntensity = shaderList[0].GetSpecularIntensityLocation();
-		uniformShininess = shaderList[0].GetShininessLocation();
+		uniformModel = shader1->GetModelLocation();
+		uniformProjection = shader1->GetProjectionLocation();
+		uniformView = shader1->GetViewLocation();
+		uniformEyePosition = shader1->GetEyePositionLocation();
+		uniformSpecularIntensity = shader1->GetSpecularIntensityLocation();
+		uniformShininess = shader1->GetShininessLocation();
+		uniformDShadowMap = shader1->GetDShadowMapLocation();
+		uniformLightSpace = shader1->GetLightSpaceMatrixLocation();
 
-		//Flashlight
-		// copies camera position and lowers y value by 0.3f (so flashlight feels like it's in hand)
-		// SetFlash() sets the direction of the light to always face the same direction as the camera
-		//glm::vec3 flashLightPosition = camera.getCameraPosition();
-		//spotLights[0].SetFlash(flashLightPosition, camera.getCameraDirection());
+		glViewport(0, 0, 1920, 1080);
+
+		// Clear the window
+		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		//rotates spotlight around origin
 		float angle = now;
@@ -351,79 +434,26 @@ int main()
 		spotLights[0].SetLightDirection(glm::vec3(0.0,0.0,0.0));
 
 		// sends data about the lights from CPU to the (fragement)shader at corresponding locations
-		shaderList[0].SetDirectionalLight(&mainDirectionalLight);
-		shaderList[0].SetPointLights(pointLights, pointLightCount);
-		shaderList[0].SetSpotLights(spotLights, spotLightCount);
+		shader1->SetDirectionalLight(&mainDirectionalLight);
+		shader1->SetPointLights(pointLights, pointLightCount);
+		shader1->SetSpotLights(spotLights, spotLightCount);
 
-		// sends transformationmatrix to (vertex)shader to corresponding locations
-		// = uniform mat4 projection;
-		if (mainWindow.getAnimationBool()) {
-			glUniformMatrix4fv(uniformProjection, 1, GL_FALSE, glm::value_ptr(projection));
-		}
-		else {
-			camera.setCameraPosition(glm::vec3(5.0f, 5.0f, 5.0f));
-			glUniformMatrix4fv(uniformProjection, 1, GL_FALSE, glm::value_ptr(ortho));
-		}
+		mainDirectionalLight.ReadShadowMap();
 
-		// = uniform mat4 view;
+		shader1->SetTexture(0);
+		shader1->SetDirectionalShadowMap(1);
+
+		glUniformMatrix4fv(uniformProjection, 1, GL_FALSE, glm::value_ptr(projection));
 		glUniformMatrix4fv(uniformView, 1, GL_FALSE, glm::value_ptr(camera.calculateViewMatrix()));
-
-		// sends camera position to (fragment)shader to corresponding locations
-		// = uniform vec3 eyePosition;
+		glUniformMatrix4fv(uniformLightSpace, 1, GL_FALSE, glm::value_ptr(mainDirectionalLight.GetLightSpaceMatrix()));
 		glUniform3f(uniformEyePosition, camera.getCameraPosition().x, camera.getCameraPosition().y, camera.getCameraPosition().z);
-
-		glm::mat4 model(1.0f);	
 
 		//comparable to UseLight() in DirectionalLight.cpp but for Material
 		dullMaterial.UseMaterial(uniformSpecularIntensity, uniformShininess);
 
-		model = glm::mat4(1.0f);
+		renderDebugScene();
 
-		model = glm::translate(model, glm::vec3(0.0f, -1.0f, 0.0f));
-
-		model = glm::scale(model, glm::vec3(10.0f, 10.0f, 10.0f));
-
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-
-		debugPlane.RenderModel();
-
-
-		model = glm::mat4(1.0f);
-
-		model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
-
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-
-		debugCube.RenderModel();
-
-
-		model = glm::mat4(1.0f);
-
-		model = glm::translate(model, glm::vec3(0.0f, 0.0f, 5.0f));
-
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-
-		debugCube.RenderModel();
-
-		/*
-		model = glm::mat4(1.0f);
-
-		model = glm::translate(model, spotLights[0].GetLightPosition());
-
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-
-		debugCube.RenderModel();
-
-
-		model = glm::mat4(1.0f);
-
-		model = glm::translate(model, glm::vec3(0.0f, -1.25f, 0.0f));
-
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-
-		scene.RenderModel();
-		*/
-
+		//renderRealScene();
 		
 		glUseProgram(0);
 
@@ -436,20 +466,7 @@ int main()
 		}
 
 		mainWindow.swapBuffers();
-
-		frameCount++;
-		if (now - lastFrame >= 1.0)
-		{
-			fps = frameCount;
-			fpsList.push_back(fps);
-			frameCount = 0;
-			lastFrame = now;
-		}
-		printf("\rCurrent FPS: %d", fps);
 	}
-
-	//int averageFPS = std::accumulate(fpsList.begin(), fpsList.end(), 0) / fpsList.size();
-	//printf("\nAverage FPS: %d\n", averageFPS);
 
 	ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplGlfw_Shutdown();

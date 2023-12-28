@@ -4,8 +4,9 @@ in vec4 vCol;
 in vec2 TexCoord;
 in vec3 Normal;
 in vec3 FragPos;
+in vec4 FragPosLightSpace;
 
-out vec4 color;
+out vec4 FragColor;
 
 const int MAX_POINT_LIGHTS = 3;
 const int MAX_SPOT_LIGHTS = 3;
@@ -53,9 +54,47 @@ uniform PointLight pointLights[MAX_POINT_LIGHTS];
 uniform SpotLight spotLights[MAX_SPOT_LIGHTS];
 
 uniform sampler2D theTexture;
+uniform sampler2D dShadowMap;
 uniform Material material;
 
 uniform vec3 eyePosition;
+
+float ShadowCalculation()
+{
+	vec3 projCoords = FragPosLightSpace.xyz / FragPosLightSpace.w;
+
+	projCoords = projCoords * 0.5 + 0.5;
+
+	//float closestDepth = texture(dShadowMap, projCoords.xy).r;
+
+	float currentDepth = projCoords.z;
+	
+	vec3 normal = normalize(Normal);
+	vec3 lightDir = normalize(directionalLight.direction);
+
+	float bias = max(0.005 * (1.0 - dot(normal, lightDir)), 0.0005);
+
+	float shadow = 0.0;
+
+	vec2 texelSize = 1.0 / textureSize(dShadowMap, 0);
+
+	for (int x = -2; x <= 2; ++x) {
+		for (int y = -2; y <= 2; ++y) {
+			float pcfDepth = texture(dShadowMap, projCoords.xy + vec2(x, y) * texelSize).r;
+			shadow += currentDepth - bias > pcfDepth ? 1.0 : 0.0;;
+		}
+	}
+
+	shadow /= 25.0;
+
+	//float shadow = currentDepth - bias > closestDepth ? 1.0 : 0.0;
+
+	if (projCoords.z > 1.0) {
+		shadow = 0.0;
+	}
+
+	return shadow;
+}
 
 vec4 CalcLightByDirection(Light light, vec3 direction)
 {
@@ -78,8 +117,8 @@ vec4 CalcLightByDirection(Light light, vec3 direction)
 			specularcolor = vec4(light.color * material.specularIntensity * specularFactor, 1.0f);
 		}
 	}
-
-	return (ambientcolor + diffusecolor + specularcolor);
+	float shadow = ShadowCalculation();
+	return (ambientcolor + (1.0 - shadow) * (diffusecolor + specularcolor));
 }
 
 vec4 CalcDirectionalLight()
@@ -144,6 +183,12 @@ void main()
 	vec4 finalcolor = CalcDirectionalLight();
 	finalcolor += CalcPointLights();
 	finalcolor += CalcSpotLights();
+
+	float shadow = ShadowCalculation();
 	
-	color = texture(theTexture, TexCoord) * finalcolor;
+	FragColor = texture(theTexture, TexCoord) * finalcolor * (1.0 - shadow);
+
+	//float depthValue = texture(dShadowMap, TexCoord).r;
+
+	//FragColor = vec4(vec3(depthValue), 1.0);
 }
