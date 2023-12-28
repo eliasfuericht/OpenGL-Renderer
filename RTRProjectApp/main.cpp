@@ -26,6 +26,7 @@
 #include "Material.h"
 #include "Model.h"
 #include "quadratic_uniform_b_spline.h"
+#include "Skybox.h"
 
 #include <assimp/Importer.hpp>
 
@@ -138,6 +139,8 @@ DirectionalLight mainDirectionalLight;
 PointLight pointLights[MAX_POINT_LIGHTS];
 SpotLight spotLights[MAX_SPOT_LIGHTS];
 
+Skybox skybox;
+
 double deltaTime = 0.0f;
 double elapsedTime = 0.0f;
 double animationDuration = 120.0f;
@@ -168,14 +171,7 @@ extern "C"
 }
 #endif
 
-void GLAPIENTRY
-MessageCallback(GLenum source,
-	GLenum type,
-	GLuint id,
-	GLenum severity,
-	GLsizei length,
-	const GLchar* message,
-	const void* userParam)
+void GLAPIENTRY MessageCallback(GLenum source,GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam)
 {
 	fprintf(stderr, "GL CALLBACK: %s type = 0x%x, severity = 0x%x, message = %s\n",
 		(type == GL_DEBUG_TYPE_ERROR ? "** GL ERROR **" : ""),
@@ -233,48 +229,6 @@ void renderRealScene() {
 	glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 
 	scene.RenderModel();
-}
-
-std::vector<std::string> faces
-{
-		"Textures/skybox/posx.jpg",
-		"Textures/skybox/negx.jpg",
-		"Textures/skybox/posy.jpg",
-		"Textures/skybox/negy.jpg",
-		"Textures/skybox/posz.jpg",
-		"Textures/skybox/negz.jpg"
-};
-
-unsigned int loadCubemap(std::vector<std::string> faces)
-{
-	unsigned int textureID;
-	glGenTextures(1, &textureID);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
-
-	int width, height, nrChannels;
-	for (unsigned int i = 0; i < faces.size(); i++)
-	{
-		unsigned char* data = stbi_load(faces[i].c_str(), &width, &height, &nrChannels, 0);
-		if (data)
-		{
-			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
-				0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data
-			);
-			stbi_image_free(data);
-		}
-		else
-		{
-			std::cout << "Cubemap tex failed to load at path: " << faces[i] << std::endl;
-			stbi_image_free(data);
-		}
-	}
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-
-	return textureID;
 }
 
 int main()
@@ -343,7 +297,7 @@ int main()
 
 	mainDirectionalLight = DirectionalLight(80.0f/255.0f, 104.0f /255.0f, 134.0f /255.0f,
 											1.0f, 0.5f,
-											-0.8f, 1.0f, -0.1f, 
+											0.82f, 0.96f, 1.61f, 
 											2048, 2048);
 
 	unsigned int pointLightCount = 0;
@@ -363,7 +317,7 @@ int main()
 								10.0f);
 	spotLightCount++;
 
-	unsigned int cubemapTexture = loadCubemap(faces);
+	skybox = Skybox("skybox3");
 
 	// calculating prespective projection matrix
 	glm::mat4 projection = glm::perspective(glm::radians(45.0f), (GLfloat)mainWindow.getBufferWidth() / mainWindow.getBufferHeight(), 0.1f, 100.0f);
@@ -503,29 +457,16 @@ int main()
 
 		//renderRealScene();
 
-		//glDepthMask(GL_FALSE);
-
 		sSkybox->UseShader();
 
 		uniformProjection = sSkybox->GetProjectionLocation();
 		uniformView = sSkybox->GetViewLocation();
 		uniformModel = sSkybox->GetModelLocation();
 
-		glm::mat4 view = glm::mat4(glm::mat3(camera.calculateViewMatrix()));
-
-		glUniformMatrix4fv(uniformProjection, 1, GL_FALSE, glm::value_ptr(projection));
-		glUniformMatrix4fv(uniformView, 1, GL_FALSE, glm::value_ptr(view));
-
-		glm::mat4 model(1.0f);
-
-		model = glm::mat4(1.0f);
-
-		model = glm::scale(model, glm::vec3(50.0f, 50.0f, 50.0f));
-
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-
-		debugCube.RenderModel();
+		skybox.RenderSkybox(uniformProjection, projection, uniformView, camera.calculateViewMatrix(), uniformModel);
 		
+		debugCube.RenderModel();
+
 		glUseProgram(0);
 
 		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)

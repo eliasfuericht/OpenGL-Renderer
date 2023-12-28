@@ -177,6 +177,7 @@
     <ClCompile Include="PointLight.cpp" />
     <ClCompile Include="quadratic_uniform_b_spline.cpp" />
     <ClCompile Include="Shader.cpp" />
+    <ClCompile Include="Skybox.cpp" />
     <ClCompile Include="SpotLight.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="Vendor\imgui\imgui.cpp" />
@@ -204,6 +205,7 @@
     <ClInclude Include="PointLight.h" />
     <ClInclude Include="quadratic_uniform_b_spline.h" />
     <ClInclude Include="Shader.h" />
+    <ClInclude Include="Skybox.h" />
     <ClInclude Include="SpotLight.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="Vendor\imgui\imconfig.h" />
