@@ -96,6 +96,9 @@
     <ClCompile Include="DShadowMap.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="OShadowMap.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Mesh.h">
@@ -176,6 +179,9 @@
     <ClInclude Include="DShadowMap.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="OShadowMap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\fragment.glsl">
@@ -194,6 +200,12 @@
       <Filter>Resource Files\Shaders</Filter>
     </None>
     <None Include="Shaders\oShadowMapVertex.glsl">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="Shaders\skyBoxVertex.glsl">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="Shaders\skyBoxFragment.glsl">
       <Filter>Resource Files\Shaders</Filter>
     </None>
   </ItemGroup>

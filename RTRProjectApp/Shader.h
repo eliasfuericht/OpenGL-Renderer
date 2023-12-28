@@ -38,6 +38,7 @@ public:
 	GLuint GetTextureLocation();
 	GLuint GetDShadowMapLocation();
 	GLuint GetLightSpaceMatrixLocation();
+	GLuint GetSkyBoxLocation();
 
 
 	void SetDirectionalLight(DirectionalLight * dLight);
@@ -56,7 +57,8 @@ private:
 	int spotLightCount;
 
 	GLuint shaderID, uniformProjection, uniformModel, uniformView, uniformEyePosition,
-		uniformSpecularIntensity, uniformShininess, uniformTexture, uniformDShadowMap, uniformLightSpaceMatrix;
+		uniformSpecularIntensity, uniformShininess, uniformTexture, uniformDShadowMap, uniformLightSpaceMatrix,
+		uniformSkyBox;
 
 	struct {
 		GLuint uniformcolor;

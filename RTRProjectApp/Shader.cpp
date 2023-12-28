@@ -171,6 +171,7 @@ void Shader::CompileShader(const char* vertexCode, const char* fragmentCode)
 
 	uniformTexture = glGetUniformLocation(shaderID, "theTexture");
 	uniformDShadowMap = glGetUniformLocation(shaderID, "dShadowMap");
+	uniformSkyBox = glGetUniformLocation(shaderID, "skybox");
 }
 
 // function to compile shaderCode and attach to shaderprogram
@@ -325,6 +326,11 @@ GLuint Shader::GetDShadowMapLocation()
 GLuint Shader::GetLightSpaceMatrixLocation()
 {
 	return uniformLightSpaceMatrix;
+}
+
+GLuint Shader::GetSkyBoxLocation() 
+{
+	return uniformSkyBox;
 }
 
 // cleanup function

@@ -144,17 +144,17 @@ double animationDuration = 120.0f;
 double lastTime = 0.0f;
 double t = 0.0f; //Bezier parameter t
 
-// Vertex Shader
-static const char* dShadowVertShader = "Shaders/dShadowMapVertex.glsl";
-
-// Fragment Shader
-static const char* dShadowFragShader = "Shaders/dShadowMapFragment.glsl";
-
-// Vertex Shader
 static const char* vShader = "Shaders/vertex.glsl";
 
-// Fragment Shader
 static const char* fShader = "Shaders/fragment.glsl";
+
+static const char* dShadowVertShader = "Shaders/dShadowMapVertex.glsl";
+
+static const char* dShadowFragShader = "Shaders/dShadowMapFragment.glsl";
+
+static const char* skyBoxVertShader = "Shaders/skyBoxVertex.glsl";
+
+static const char* skyBoxFragShader = "Shaders/skyBoxFragment.glsl";
 
 // setting up GLuints for uniform locations for later use
 GLuint uniformProjection = 0, uniformModel = 0, uniformView = 0, uniformEyePosition = 0, uniformSpecularIntensity = 0, uniformShininess = 0, uniformLightSpace = 0, uniformDShadowMap = 0;
@@ -235,6 +235,48 @@ void renderRealScene() {
 	scene.RenderModel();
 }
 
+std::vector<std::string> faces
+{
+		"Textures/skybox/posx.jpg",
+		"Textures/skybox/negx.jpg",
+		"Textures/skybox/posy.jpg",
+		"Textures/skybox/negy.jpg",
+		"Textures/skybox/posz.jpg",
+		"Textures/skybox/negz.jpg"
+};
+
+unsigned int loadCubemap(std::vector<std::string> faces)
+{
+	unsigned int textureID;
+	glGenTextures(1, &textureID);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
+
+	int width, height, nrChannels;
+	for (unsigned int i = 0; i < faces.size(); i++)
+	{
+		unsigned char* data = stbi_load(faces[i].c_str(), &width, &height, &nrChannels, 0);
+		if (data)
+		{
+			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
+				0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data
+			);
+			stbi_image_free(data);
+		}
+		else
+		{
+			std::cout << "Cubemap tex failed to load at path: " << faces[i] << std::endl;
+			stbi_image_free(data);
+		}
+	}
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+	return textureID;
+}
+
 int main()
 {
 
@@ -268,11 +310,13 @@ int main()
 	ImGui_ImplGlfw_InitForOpenGL(mainWindow.getGLFWWindow(), true);
 	ImGui_ImplOpenGL3_Init("#version 460");
 
-	Shader* shader0 = new Shader();
-	Shader* shader1 = new Shader();
+	Shader* sDShadowPass = new Shader();
+	Shader* sRenderPass = new Shader();
+	Shader* sSkybox = new Shader();
 
-	shader0->CreateFromFiles(dShadowVertShader, dShadowFragShader);
-	shader1->CreateFromFiles(vShader, fShader);
+	sDShadowPass->CreateFromFiles(dShadowVertShader, dShadowFragShader);
+	sRenderPass->CreateFromFiles(vShader, fShader);
+	sSkybox->CreateFromFiles(skyBoxVertShader, skyBoxFragShader);
 
 	// camera with correct startposition for final scene
 	camera = Camera(glm::vec3(19.5f, -0.60f, 17.0f), glm::vec3(0.0f, 1.0f, 0.0f), -60.0f, 0.0f, 5.0f, 0.05f);
@@ -319,6 +363,8 @@ int main()
 								10.0f);
 	spotLightCount++;
 
+	unsigned int cubemapTexture = loadCubemap(faces);
+
 	// calculating prespective projection matrix
 	glm::mat4 projection = glm::perspective(glm::radians(45.0f), (GLfloat)mainWindow.getBufferWidth() / mainWindow.getBufferHeight(), 0.1f, 100.0f);
 
@@ -328,7 +374,7 @@ int main()
 	std::vector<int> fpsList;
 	glfwSetTime(0.0f);
 	double animationTime = 0.0f;
-
+	glm::vec3 dir = mainDirectionalLight.GetDirection();
 	// Loop until window closed
 	while (!mainWindow.getShouldClose())
 	{
@@ -384,7 +430,7 @@ int main()
 			ImGui::NewFrame();
 
 			ImGui::Begin("finally working");
-			//ImGui::DragFloat4("lightdir", glm::value_ptr(dir), 0.01f, -100.0f, 100.0f);
+			ImGui::DragFloat4("lightdir", glm::value_ptr(dir), 0.01f, -100.0f, 100.0f);
 			//ImGui::SliderFloat("left", &orthoLeft, -100.0f, 100.0f);
 			ImGui::End();
 
@@ -392,12 +438,14 @@ int main()
 			ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 		}
 
-		// sets shaderprogram at shader0 as shaderprogram to use
-		// shader0 = shadowpass
-		shader0->UseShader();
+		mainDirectionalLight.SetDirection(dir);
 
-		uniformLightSpace = shader0->GetLightSpaceMatrixLocation();
-		uniformModel = shader0->GetModelLocation();
+		// sets shaderprogram at sDShadowPass as shaderprogram to use
+		// sDShadowPass = shadowpass
+		sDShadowPass->UseShader();
+
+		uniformLightSpace = sDShadowPass->GetLightSpaceMatrixLocation();
+		uniformModel = sDShadowPass->GetModelLocation();
 
 		mainDirectionalLight.WriteShadowMap(uniformLightSpace);
 
@@ -407,22 +455,22 @@ int main()
 
 		mainDirectionalLight.UnbindShadowMap();
 
-		// sets shaderprogram at shader1 as shaderprogram to use
+		// sets shaderprogram at sRenderPass as shaderprogram to use
 		// = renderpass
-		shader1->UseShader();
+		sRenderPass->UseShader();
 
 		// retreive uniform locations (ID) from shader membervariables
 		// and stores them in local varibale for passing projection, model and view matrices to shader
-		uniformModel = shader1->GetModelLocation();
-		uniformProjection = shader1->GetProjectionLocation();
-		uniformView = shader1->GetViewLocation();
-		uniformEyePosition = shader1->GetEyePositionLocation();
-		uniformSpecularIntensity = shader1->GetSpecularIntensityLocation();
-		uniformShininess = shader1->GetShininessLocation();
-		uniformDShadowMap = shader1->GetDShadowMapLocation();
-		uniformLightSpace = shader1->GetLightSpaceMatrixLocation();
+		uniformModel = sRenderPass->GetModelLocation();
+		uniformProjection = sRenderPass->GetProjectionLocation();
+		uniformView = sRenderPass->GetViewLocation();
+		uniformEyePosition = sRenderPass->GetEyePositionLocation();
+		uniformSpecularIntensity = sRenderPass->GetSpecularIntensityLocation();
+		uniformShininess = sRenderPass->GetShininessLocation();
+		uniformDShadowMap = sRenderPass->GetDShadowMapLocation();
+		uniformLightSpace = sRenderPass->GetLightSpaceMatrixLocation();
 
-		glViewport(0, 0, 1920, 1080);
+		glViewport(0, 0, mainWindow.getBufferWidth(), mainWindow.getBufferHeight());
 
 		// Clear the window
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
@@ -434,14 +482,14 @@ int main()
 		spotLights[0].SetLightDirection(glm::vec3(0.0,0.0,0.0));
 
 		// sends data about the lights from CPU to the (fragement)shader at corresponding locations
-		shader1->SetDirectionalLight(&mainDirectionalLight);
-		shader1->SetPointLights(pointLights, pointLightCount);
-		shader1->SetSpotLights(spotLights, spotLightCount);
+		sRenderPass->SetDirectionalLight(&mainDirectionalLight);
+		sRenderPass->SetPointLights(pointLights, pointLightCount);
+		sRenderPass->SetSpotLights(spotLights, spotLightCount);
 
 		mainDirectionalLight.ReadShadowMap();
 
-		shader1->SetTexture(0);
-		shader1->SetDirectionalShadowMap(1);
+		sRenderPass->SetTexture(0);
+		sRenderPass->SetDirectionalShadowMap(1);
 
 		glUniformMatrix4fv(uniformProjection, 1, GL_FALSE, glm::value_ptr(projection));
 		glUniformMatrix4fv(uniformView, 1, GL_FALSE, glm::value_ptr(camera.calculateViewMatrix()));
@@ -454,6 +502,29 @@ int main()
 		renderDebugScene();
 
 		//renderRealScene();
+
+		//glDepthMask(GL_FALSE);
+
+		sSkybox->UseShader();
+
+		uniformProjection = sSkybox->GetProjectionLocation();
+		uniformView = sSkybox->GetViewLocation();
+		uniformModel = sSkybox->GetModelLocation();
+
+		glm::mat4 view = glm::mat4(glm::mat3(camera.calculateViewMatrix()));
+
+		glUniformMatrix4fv(uniformProjection, 1, GL_FALSE, glm::value_ptr(projection));
+		glUniformMatrix4fv(uniformView, 1, GL_FALSE, glm::value_ptr(view));
+
+		glm::mat4 model(1.0f);
+
+		model = glm::mat4(1.0f);
+
+		model = glm::scale(model, glm::vec3(50.0f, 50.0f, 50.0f));
+
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+
+		debugCube.RenderModel();
 		
 		glUseProgram(0);
 
