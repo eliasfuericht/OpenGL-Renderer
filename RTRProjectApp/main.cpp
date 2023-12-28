@@ -317,7 +317,7 @@ int main()
 								10.0f);
 	spotLightCount++;
 
-	skybox = Skybox("skybox3");
+	skybox = Skybox("skybox1");
 
 	// calculating prespective projection matrix
 	glm::mat4 projection = glm::perspective(glm::radians(45.0f), (GLfloat)mainWindow.getBufferWidth() / mainWindow.getBufferHeight(), 0.1f, 100.0f);

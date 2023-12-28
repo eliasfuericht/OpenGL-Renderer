@@ -1,5 +1,7 @@
 #include "Skybox.h"
 
+Skybox::Skybox(){}
+
 Skybox::Skybox(std::string folder) {
 	faces = {
 			"Textures/replace/right.jpg",
