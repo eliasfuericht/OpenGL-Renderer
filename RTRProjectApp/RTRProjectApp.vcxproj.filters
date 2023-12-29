@@ -96,6 +96,9 @@
     <ClCompile Include="DShadowMap.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ssao.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Mesh.h">
@@ -176,6 +179,9 @@
     <ClInclude Include="DShadowMap.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ssao.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\fragment.glsl">
@@ -194,6 +200,27 @@
       <Filter>Resource Files\Shaders</Filter>
     </None>
     <None Include="Shaders\oShadowMapVertex.glsl">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="Shaders\blur.frag">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="Shaders\blur.vert">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="Shaders\ssao.frag">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="Shaders\ssao.vert">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="ssao_geometry.frag">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="ssao_geometry.vert">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="ssao_lightning.frag">
       <Filter>Resource Files\Shaders</Filter>
     </None>
   </ItemGroup>

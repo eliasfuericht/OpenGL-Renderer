@@ -177,6 +177,7 @@
     <ClCompile Include="quadratic_uniform_b_spline.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="SpotLight.cpp" />
+    <ClCompile Include="ssao.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="Vendor\imgui\imgui.cpp" />
     <ClCompile Include="Vendor\imgui\imgui_demo.cpp" />
@@ -203,6 +204,7 @@
     <ClInclude Include="quadratic_uniform_b_spline.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="SpotLight.h" />
+    <ClInclude Include="ssao.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="Vendor\imgui\imconfig.h" />
     <ClInclude Include="Vendor\imgui\imgui.h" />
@@ -216,12 +218,19 @@
     <ClInclude Include="Window.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Shaders\blur.frag" />
+    <None Include="Shaders\blur.vert" />
     <None Include="Shaders\dShadowMapFragment.glsl" />
     <None Include="Shaders\dShadowMapVertex.glsl" />
     <None Include="Shaders\fragment.glsl" />
     <None Include="Shaders\oShadowMapFragment.glsl" />
     <None Include="Shaders\oShadowMapVertex.glsl" />
+    <None Include="Shaders\ssao.frag" />
+    <None Include="Shaders\ssao.vert" />
     <None Include="Shaders\vertex.glsl" />
+    <None Include="ssao_geometry.frag" />
+    <None Include="ssao_geometry.vert" />
+    <None Include="ssao_lightning.frag" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -1,28 +1,21 @@
-#version 460
+#version 330 core
+out float FragColor;
 
-varying vec2 texCoord;
+in vec2 TexCoords;
 
-uniform sampler2D aoTex;
-uniform sampler2D colorTex;
-uniform vec2 invRes;
+uniform sampler2D ssaoInput;
 
-void main()
+void main() 
 {
-  float scaleFactor = 0.0;
-
-  for (int x = 0; x < 4; x++) {
-    for (int y = 0; y < 4; y++) {
-      vec2 offset = invRes * vec2(x, y);
-      vec2 realTexCoord = texCoord + offset;
-      scaleFactor += texture(aoTex, realTexCoord).r;
+    vec2 texelSize = 1.0 / vec2(textureSize(ssaoInput, 0));
+    float result = 0.0;
+    for (int x = -2; x < 2; ++x) 
+    {
+        for (int y = -2; y < 2; ++y) 
+        {
+            vec2 offset = vec2(float(x), float(y)) * texelSize;
+            result += texture(ssaoInput, TexCoords + offset).r;
+        }
     }
-  }
-
-  // Average out the accumulated scaleFactor
-  scaleFactor /= 16.0;
-
-  // Use the blurred occlusion value to scale the input color texture
-  vec3 pixValue = scaleFactor * texture(colorTex, texCoord).rgb;
-
-  gl_FragColor = vec4(pixValue, 1.0);
-}
+    FragColor = result / (4.0 * 4.0);
+}  

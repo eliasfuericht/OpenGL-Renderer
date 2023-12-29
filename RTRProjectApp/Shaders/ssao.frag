@@ -1,68 +1,55 @@
-varying vec2 texCoord;
+#version 330 core
+out float FragColor;
 
-uniform sampler2D depthTex;
-uniform sampler2D normTex;
-uniform sampler2D randomTex;
-uniform vec2 randomTexCoordScale;
+in vec2 TexCoords;
 
-uniform mat4 projMat;
-uniform mat4 invProjMat;
+uniform sampler2D gPosition;
+uniform sampler2D gNormal;
+uniform sampler2D texNoise;
 
-uniform vec3 sampleOffsets[16];
+uniform vec3 samples[64];
 
-uniform float sampleRadius;
+int kernelSize = 64;
+float radius = 0.5;
+float bias = 0.025;
+
+// tile noise texture over screen based on screen dimensions divided by noise size
+const vec2 noiseScale = vec2(800.0/4.0, 600.0/4.0); 
+
+uniform mat4 projection;
 
 void main()
 {
-  // Holds an occlusion factor for this fragment, to be output at the end
-  float occlusion = 0.0;
-
-  // Construct a position for the rendered fragment
-  float depth = texture(depthTex, texCoord).r;
-  vec3 screenPosition = vec3(texCoord, depth);
-  // Go from [0, 1] to [-1, 1]
-  vec3 clipPosition = (2.0 * screenPosition) - vec3(1.0);
-
-  // Undo the projection to get back to view coordinates
-  vec4 viewPosition = invProjMat * vec4(clipPosition, 1.0);
-  viewPosition /= viewPosition.w;
-
-  vec3 normal = texture(normTex, texCoord).xyz;
-  // Scale and bias
-  normal = (2.0 * normal) - vec3(1.0);
-  normal = normalize(normal);
-
-  // Construct our rotation matrix (used to transform sample offsets) based on a random vector lookup
-  vec3 randomVector = texture(randomTex, texCoord * randomTexCoordScale).xyz;
-  // Go from [0, 1] to [-1, 1], normalizing along the way
-  randomVector = normalize((2.0 * randomVector) - vec3(1.0));
-  #version 460
-
-  vec3 tangent = normalize(randomVector - normal * dot(normal, randomVector));
-  vec3 bitangent = cross(normal, tangent);
-
-  mat3 orientMat = mat3(tangent, bitangent, normal);
-
-  for (int i = 0; i < 16; i++) {
-    // Construct our view-space location to sample
-    vec3 testSample = (orientMat * sampleOffsets[i]) * sampleRadius + viewPosition.xyz;
-
-    // Transform the sample location into clip coords for depth comparison
-    vec4 clipSample = projMat * vec4(testSample, 1.0);
-    clipSample.xy /= clipSample.w;
-    // Scale and bias to screen coords, [-1, 1] -> [0, 1]
-    vec2 screenSample = (clipSample.xy + vec2(1.0)) * 0.5;
-
-    float lookupDepth = texture(depthTex, screenSample).x;
-    float rangeCheck = abs(lookupDepth - depth) > sampleRadius ? 0.0 : 1.0;
-    occlusion += (lookupDepth < depth ? 1.0 : 0.0) * rangeCheck;
-  }
-
-  // Normalize occlusion factor
-  occlusion /= 16;
-
-  // Subtract from 1 to give a direct scale factor for lighting
-  occlusion = 1.0 - occlusion;
-
-  gl_FragColor = vec4(occlusion, occlusion, occlusion, 1.0);
+    // get input for SSAO algorithm
+    vec3 fragPos = texture(gPosition, TexCoords).xyz;
+    vec3 normal = normalize(texture(gNormal, TexCoords).rgb);
+    vec3 randomVec = normalize(texture(texNoise, TexCoords * noiseScale).xyz);
+    // create TBN change-of-basis matrix: from tangent-space to view-space
+    vec3 tangent = normalize(randomVec - normal * dot(randomVec, normal));
+    vec3 bitangent = cross(normal, tangent);
+    mat3 TBN = mat3(tangent, bitangent, normal);
+    // iterate over the sample kernel and calculate occlusion factor
+    float occlusion = 0.0;
+    for(int i = 0; i < kernelSize; ++i)
+    {
+        // get sample position
+        vec3 samplePos = TBN * samples[i]; // from tangent to view-space
+        samplePos = fragPos + samplePos * radius; 
+        
+        // project sample position (to sample texture) (to get position on screen/texture)
+        vec4 offset = vec4(samplePos, 1.0);
+        offset = projection * offset; // from view to clip-space
+        offset.xyz /= offset.w; // perspective divide
+        offset.xyz = offset.xyz * 0.5 + 0.5; // transform to range 0.0 - 1.0
+        
+        // get sample depth
+        float sampleDepth = texture(gPosition, offset.xy).z; // get depth value of kernel sample
+        
+        // range check & accumulate
+        float rangeCheck = smoothstep(0.0, 1.0, radius / abs(fragPos.z - sampleDepth));
+        occlusion += (sampleDepth >= samplePos.z + bias ? 1.0 : 0.0) * rangeCheck;           
+    }
+    occlusion = 1.0 - (occlusion / kernelSize);
+    
+    FragColor = occlusion;
 }

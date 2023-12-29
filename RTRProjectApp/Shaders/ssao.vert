@@ -1,12 +1,11 @@
-#version 460
+#version 330 core
+layout (location = 0) in vec3 aPos;
+layout (location = 1) in vec2 aTexCoords;
 
-attribute vec2 positionIn;
-
-varying vec2 texCoord;
+out vec2 TexCoords;
 
 void main()
 {
-  // Scale and bias [-1, 1] to [0, 1]
-  texCoord = (positionIn * vec2(0.5)) + vec2(0.5);
-  gl_Position = vec4(positionIn, 0.0, 1.0);
+    TexCoords = aTexCoords;
+    gl_Position = vec4(aPos, 1.0);
 }

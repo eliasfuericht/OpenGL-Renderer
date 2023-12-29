@@ -29,7 +29,10 @@
 
 #include <assimp/Importer.hpp>
 
+//settings
 const float toRadians = 3.14159265f / 180.0f;
+const unsigned int WIDTH = 1920;
+const unsigned int HEIGHT = 1080;
 
 Window mainWindow;
 
@@ -156,6 +159,17 @@ static const char* vShader = "Shaders/vertex.glsl";
 // Fragment Shader
 static const char* fShader = "Shaders/fragment.glsl";
 
+//SSAO Vertex Shaders
+static const char* vGeometryShader = "Shaders/ssao_geometry.vert";
+static const char* vSSAOShader = "Shaders/ssao.vert";
+
+//SSAO Fragment Shaders
+static const char* fGeometryShader = "Shaders/ssao_geometry.frag";
+static const char* fSSAOShader = "Shaders/ssao.frag";
+static const char* fLightningShader = "Shaders/ssao_lightning.frag";
+static const char* fBlurShader = "Shaders/blur.frag";
+
+
 // setting up GLuints for uniform locations for later use
 GLuint uniformProjection = 0, uniformModel = 0, uniformView = 0, uniformEyePosition = 0, uniformSpecularIntensity = 0, uniformShininess = 0, uniformLightSpace = 0, uniformDShadowMap = 0;
 
@@ -238,7 +252,7 @@ void renderRealScene() {
 int main()
 {
 
-	mainWindow = Window(1920, 1080, false);
+	mainWindow = Window(WIDTH, HEIGHT, false);
 	mainWindow.Initialise();
 
 	// During init, enable debug output
@@ -271,8 +285,18 @@ int main()
 	Shader* shader0 = new Shader();
 	Shader* shader1 = new Shader();
 
+	//ssao shaders
+	Shader* shaderGeometryPass = new Shader();
+	Shader* shaderLightingPass = new Shader();
+	Shader* shaderSSAO = new Shader();
+	Shader* shaderSSAOBlur = new Shader();
+
 	shader0->CreateFromFiles(dShadowVertShader, dShadowFragShader);
 	shader1->CreateFromFiles(vShader, fShader);
+	shaderGeometryPass->CreateFromFiles(vGeometryShader, fGeometryShader);
+	shaderLightingPass->CreateFromFiles(vSSAOShader, fLightningShader);
+	shaderSSAO->CreateFromFiles(vSSAOShader, fSSAOShader);
+	shaderSSAOBlur->CreateFromFiles(vSSAOShader, fBlurShader);
 
 	// camera with correct startposition for final scene
 	camera = Camera(glm::vec3(19.5f, -0.60f, 17.0f), glm::vec3(0.0f, 1.0f, 0.0f), -60.0f, 0.0f, 5.0f, 0.05f);
