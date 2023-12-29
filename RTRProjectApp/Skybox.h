@@ -18,6 +18,7 @@ public:
 	Skybox(std::string folder);
 	unsigned int LoadCubemap();
 	void RenderSkybox(GLuint projectionLocation, glm::mat4 projection, GLuint viewLocation, glm::mat4 view, GLuint modelLocation);
+	GLuint GetSkybox() { return cubemapTexture; };
 
 private:
 	std::vector<std::string> faces {};

@@ -265,6 +265,11 @@ void Shader::SetDirectionalShadowMap(GLuint textureUnit)
 	glUniform1i(uniformDShadowMap, textureUnit);
 }
 
+void Shader::SetSkybox(GLuint textureUnit)
+{
+	glUniform1i(uniformSkyBox, textureUnit);
+}
+
 void Shader::UseShader()
 {
 	// sets executables of shaderprogram (at location ShaderID) to be used for rendering

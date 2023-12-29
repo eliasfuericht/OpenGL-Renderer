@@ -46,6 +46,7 @@ public:
 	void SetSpotLights(SpotLight * sLight, unsigned int lightCount);
 	void SetTexture(GLuint textureUnit);
 	void SetDirectionalShadowMap(GLuint textureUnit);
+	void SetSkybox(GLuint textureUnit);
 
 	void UseShader();
 	void ClearShader();

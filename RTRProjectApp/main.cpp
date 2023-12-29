@@ -133,6 +133,9 @@ Model debugPlane;
 Model debugCube;
 Model scene;
 
+Model trees;
+Model museum;
+
 Texture dirtTexture;
 
 DirectionalLight mainDirectionalLight;
@@ -160,7 +163,7 @@ static const char* skyBoxVertShader = "Shaders/skyBoxVertex.glsl";
 static const char* skyBoxFragShader = "Shaders/skyBoxFragment.glsl";
 
 // setting up GLuints for uniform locations for later use
-GLuint uniformProjection = 0, uniformModel = 0, uniformView = 0, uniformEyePosition = 0, uniformSpecularIntensity = 0, uniformShininess = 0, uniformLightSpace = 0, uniformDShadowMap = 0;
+GLuint uniformProjection = 0, uniformModel = 0, uniformView = 0, uniformEyePosition = 0, uniformSpecularIntensity = 0, uniformShininess = 0, uniformLightSpace = 0, uniformDShadowMap = 0, uniformSkybox = 0;
 
 #ifdef _WIN32
 // Use discrete GPU by default.
@@ -219,6 +222,17 @@ void renderDebugScene() {
 	debugCube.RenderModel();
 }
 
+void renderRealSceneShadows() {
+	glm::mat4 model(1.0f);
+
+	model = glm::mat4(1.0f);
+
+	model = glm::translate(model, glm::vec3(0.0f, -1.25f, 0.0f));
+
+	glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+
+	trees.RenderModel();
+}
 void renderRealScene() {
 	glm::mat4 model(1.0f);
 
@@ -229,6 +243,8 @@ void renderRealScene() {
 	glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 
 	scene.RenderModel();
+	/*trees.RenderModel();
+	museum.RenderModel();*/
 }
 
 int main()
@@ -290,15 +306,21 @@ int main()
 	debugCube = Model();
 	debugCube.LoadModel("Models/cube.obj");
 
-	//scene = Model();
-	//scene.LoadModel("Models/scene.obj");
+	scene = Model();
+	scene.LoadModel("Models/sceneNewGround.obj");
+
+	/*trees = Model();
+	trees.LoadModel("Models/trees.obj");
+
+	museum = Model();
+	museum.LoadModel("Models/museum.obj");*/
 
 	printf("Initial loading took: %f seconds\n", glfwGetTime());
 
 	mainDirectionalLight = DirectionalLight(80.0f/255.0f, 104.0f /255.0f, 134.0f /255.0f,
 											1.0f, 0.5f,
 											0.82f, 0.96f, 1.61f, 
-											2048, 2048);
+											8192, 8192);
 
 	unsigned int pointLightCount = 0;
 	pointLights[0] = PointLight(1.0f, 0.0f, 0.0f,
@@ -320,7 +342,7 @@ int main()
 	skybox = Skybox("skybox1");
 
 	// calculating prespective projection matrix
-	glm::mat4 projection = glm::perspective(glm::radians(45.0f), (GLfloat)mainWindow.getBufferWidth() / mainWindow.getBufferHeight(), 0.1f, 100.0f);
+	glm::mat4 projection = glm::perspective(glm::radians(45.0f), (GLfloat)mainWindow.getBufferWidth() / mainWindow.getBufferHeight(), 0.1f, 200.0f);
 
 	double lastFrame = 0.0f;
 	int frameCount = 0;
@@ -384,7 +406,7 @@ int main()
 			ImGui::NewFrame();
 
 			ImGui::Begin("finally working");
-			ImGui::DragFloat4("lightdir", glm::value_ptr(dir), 0.01f, -100.0f, 100.0f);
+			ImGui::DragFloat3("lightdir", glm::value_ptr(dir), 0.01f, -100.0f, 100.0f);
 			//ImGui::SliderFloat("left", &orthoLeft, -100.0f, 100.0f);
 			ImGui::End();
 
@@ -397,15 +419,16 @@ int main()
 		// sets shaderprogram at sDShadowPass as shaderprogram to use
 		// sDShadowPass = shadowpass
 		sDShadowPass->UseShader();
-
+		
 		uniformLightSpace = sDShadowPass->GetLightSpaceMatrixLocation();
 		uniformModel = sDShadowPass->GetModelLocation();
 
 		mainDirectionalLight.WriteShadowMap(uniformLightSpace);
 
-		renderDebugScene();
+		//renderDebugScene();
 
-		//renderRealScene();
+		renderRealScene();
+		//renderRealSceneShadows();
 
 		mainDirectionalLight.UnbindShadowMap();
 
@@ -423,6 +446,7 @@ int main()
 		uniformShininess = sRenderPass->GetShininessLocation();
 		uniformDShadowMap = sRenderPass->GetDShadowMapLocation();
 		uniformLightSpace = sRenderPass->GetLightSpaceMatrixLocation();
+		uniformSkybox = sRenderPass->GetSkyBoxLocation();
 
 		glViewport(0, 0, mainWindow.getBufferWidth(), mainWindow.getBufferHeight());
 
@@ -431,9 +455,12 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		//rotates spotlight around origin
-		float angle = now;
+		/*float angle = now;
 		spotLights[0].SetLightPosition(glm::vec3(5.0f * cos(angle), 5.0f, 5.0f * sin(angle)));
-		spotLights[0].SetLightDirection(glm::vec3(0.0,0.0,0.0));
+		spotLights[0].SetLightDirection(glm::vec3(0.0,0.0,0.0));*/
+
+		glm::vec3 flashLightPosition = camera.getCameraPosition();
+		spotLights[0].SetFlash(flashLightPosition, camera.getCameraDirection());
 
 		// sends data about the lights from CPU to the (fragement)shader at corresponding locations
 		sRenderPass->SetDirectionalLight(&mainDirectionalLight);
@@ -442,8 +469,12 @@ int main()
 
 		mainDirectionalLight.ReadShadowMap();
 
+		/*glActiveTexture(2);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, skybox.GetSkybox());*/
+
 		sRenderPass->SetTexture(0);
 		sRenderPass->SetDirectionalShadowMap(1);
+		sRenderPass->SetSkybox(2);
 
 		glUniformMatrix4fv(uniformProjection, 1, GL_FALSE, glm::value_ptr(projection));
 		glUniformMatrix4fv(uniformView, 1, GL_FALSE, glm::value_ptr(camera.calculateViewMatrix()));
@@ -451,11 +482,11 @@ int main()
 		glUniform3f(uniformEyePosition, camera.getCameraPosition().x, camera.getCameraPosition().y, camera.getCameraPosition().z);
 
 		//comparable to UseLight() in DirectionalLight.cpp but for Material
-		dullMaterial.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		shinyMaterial.UseMaterial(uniformSpecularIntensity, uniformShininess);
 
-		renderDebugScene();
+		//renderDebugScene();
 
-		//renderRealScene();
+		renderRealScene();
 
 		sSkybox->UseShader();
 

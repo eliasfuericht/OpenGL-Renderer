@@ -64,7 +64,7 @@ void Skybox::RenderSkybox(GLuint projectionLocation, glm::mat4 projection, GLuin
 
 	model = glm::mat4(1.0f);
 
-	model = glm::scale(model, glm::vec3(50.0f, 50.0f, 50.0f));
+	model = glm::scale(model, glm::vec3(100.0f, 100.0f, 100.0f));
 
 	glUniformMatrix4fv(modelLocation, 1, GL_FALSE, glm::value_ptr(model));
 }
