@@ -1,9 +1,94 @@
 #include "ssao.h"
 
 
-std::uniform_real_distribution<GLfloat> randomFloats(0.0, 1.0); // generates random floats between 0.0 and 1.0
 
-void Ssao::configureGBuffer(const unsigned int width, const unsigned int height) {
+Ssao::Ssao() {
+
+    width = 1080;
+    height = 1080;
+    std::uniform_real_distribution<GLfloat> randomFloats(0.0, 1.0); // generates random floats between 0.0 and 1.0
+
+    gBuffer;
+    gPosition;
+    gNormal;
+    gAlbedo;
+
+    rboDepth;
+    ssaoFBO;
+    ssaoBlurFBO;
+    ssaoColorBuffer;
+    ssaoColorBufferBlur;
+
+    ssaoNoise;
+    generator;
+    ssaoKernel;
+    noiseTexture;
+}
+
+Ssao::Ssao(GLuint w, GLuint h) {
+
+    width = w;
+    height = h;
+    std::uniform_real_distribution<GLfloat> randomFloats(0.0, 1.0); // generates random floats between 0.0 and 1.0
+
+    gBuffer;
+    gPosition; 
+    gNormal; 
+    gAlbedo;
+
+    rboDepth;
+    ssaoFBO;
+    ssaoBlurFBO;
+    ssaoColorBuffer; 
+    ssaoColorBufferBlur;
+
+    ssaoNoise;
+    generator;
+    ssaoKernel;
+    noiseTexture;
+}
+
+unsigned int Ssao::getGBuffer() {
+    return gBuffer;
+}
+
+unsigned int Ssao::getGNormal() {
+    return gNormal;
+}
+
+unsigned int Ssao::getGAlbedo() {
+    return gAlbedo;
+}
+
+unsigned int Ssao::getGPosition() {
+    return gPosition;
+}
+
+unsigned int Ssao::getSsaoFBO() {
+    return ssaoFBO;
+}
+
+std::vector<glm::vec3> Ssao::getSsaoKernel() {
+    return ssaoKernel;
+}
+
+unsigned int Ssao::getNoiseTexture() {
+    return noiseTexture;
+}
+
+unsigned int Ssao::getBlurFBO() {
+    return ssaoBlurFBO;
+}
+
+unsigned int Ssao::getColorBuffer() {
+    return ssaoColorBuffer;
+}
+
+unsigned int Ssao::getColorBufferBlur() {
+    return ssaoColorBufferBlur;
+}
+
+void Ssao::configureGBuffer() {
     glGenFramebuffers(1, &gBuffer);
     glBindFramebuffer(GL_FRAMEBUFFER, gBuffer);
     // position color buffer
@@ -43,7 +128,7 @@ void Ssao::configureGBuffer(const unsigned int width, const unsigned int height)
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void Ssao::createSsaoFrameBuffer(const unsigned int width, const unsigned int height) {
+void Ssao::createSsaoFrameBuffer() {
     glGenFramebuffers(1, &ssaoFBO);  glGenFramebuffers(1, &ssaoBlurFBO);
     glBindFramebuffer(GL_FRAMEBUFFER, ssaoFBO);
     // SSAO color buffer
@@ -87,13 +172,12 @@ void Ssao::generateKernel() {
 }
 
 void Ssao::generateNoise() {
-    std::vector<glm::vec3> ssaoNoise;
     for (unsigned int i = 0; i < 16; i++)
     {
         glm::vec3 noise(randomFloats(generator) * 2.0 - 1.0, randomFloats(generator) * 2.0 - 1.0, 0.0f); // rotate around z-axis (in tangent space)
         ssaoNoise.push_back(noise);
     }
-    unsigned int noiseTexture; glGenTextures(1, &noiseTexture);
+    glGenTextures(1, &noiseTexture);
     glBindTexture(GL_TEXTURE_2D, noiseTexture);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, 4, 4, 0, GL_RGB, GL_FLOAT, &ssaoNoise[0]);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);

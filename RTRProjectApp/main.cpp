@@ -26,6 +26,7 @@
 #include "Material.h"
 #include "Model.h"
 #include "quadratic_uniform_b_spline.h"
+#include "ssao.h"
 
 #include <assimp/Importer.hpp>
 
@@ -141,6 +142,8 @@ DirectionalLight mainDirectionalLight;
 PointLight pointLights[MAX_POINT_LIGHTS];
 SpotLight spotLights[MAX_SPOT_LIGHTS];
 
+Ssao ssao;
+
 double deltaTime = 0.0f;
 double elapsedTime = 0.0f;
 double animationDuration = 120.0f;
@@ -206,6 +209,7 @@ void renderDebugScene() {
 	model = glm::scale(model, glm::vec3(10.0f, 10.0f, 10.0f));
 
 	glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+	//geometryShader->setMat4("model", model);
 
 	debugPlane.RenderModel();
 
@@ -215,6 +219,7 @@ void renderDebugScene() {
 	model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
 
 	glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+	//geometryShader->setMat4("model", model);
 
 	debugCube.RenderModel();
 
@@ -224,6 +229,7 @@ void renderDebugScene() {
 	model = glm::translate(model, glm::vec3(0.0f, 0.0f, 5.0f));
 
 	glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+	//geometryShader->setMat4("model", model);
 
 	debugCube.RenderModel();
 
@@ -233,6 +239,7 @@ void renderDebugScene() {
 	model = glm::translate(model, spotLights[0].GetLightPosition());
 
 	glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+	//geometryShader->setMat4("model", model);
 
 	debugCube.RenderModel();
 }
@@ -297,6 +304,30 @@ int main()
 	shaderLightingPass->CreateFromFiles(vSSAOShader, fLightningShader);
 	shaderSSAO->CreateFromFiles(vSSAOShader, fSSAOShader);
 	shaderSSAOBlur->CreateFromFiles(vSSAOShader, fBlurShader);
+
+	//ssao configuration
+	ssao = Ssao(WIDTH, HEIGHT);
+	// configure g-buffer framebuffer
+	ssao.configureGBuffer();
+	// also create framebuffer to hold SSAO processing stage 
+	ssao.createSsaoFrameBuffer();
+	ssao.generateKernel();
+	ssao.generateNoise();
+	// shader configuration
+    // --------------------
+    shaderLightingPass->UseShader();
+    shaderLightingPass->setInt("gPosition", 0);
+    shaderLightingPass->setInt("gNormal", 1);
+    shaderLightingPass->setInt("gAlbedo", 2);
+    shaderLightingPass->setInt("ssao", 3);
+
+    shaderSSAO->UseShader();
+    shaderSSAO->setInt("gPosition", 0);
+    shaderSSAO->setInt("gNormal", 1);
+    shaderSSAO->setInt("texNoise", 2);
+
+    shaderSSAOBlur->UseShader();
+    shaderSSAOBlur->setInt("ssaoInput", 0);
 
 	// camera with correct startposition for final scene
 	camera = Camera(glm::vec3(19.5f, -0.60f, 17.0f), glm::vec3(0.0f, 1.0f, 0.0f), -60.0f, 0.0f, 5.0f, 0.05f);
@@ -425,7 +456,7 @@ int main()
 
 		mainDirectionalLight.WriteShadowMap(uniformLightSpace);
 
-		renderDebugScene();
+		//renderDebugScene();
 
 		//renderRealScene();
 
@@ -446,7 +477,7 @@ int main()
 		uniformDShadowMap = shader1->GetDShadowMapLocation();
 		uniformLightSpace = shader1->GetLightSpaceMatrixLocation();
 
-		glViewport(0, 0, 1920, 1080);
+		glViewport(0, 0, WIDTH, HEIGHT);
 
 		// Clear the window
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
@@ -476,9 +507,72 @@ int main()
 		dullMaterial.UseMaterial(uniformSpecularIntensity, uniformShininess);
 
 		renderDebugScene();
-
 		//renderRealScene();
-		
+
+		////ssao geometry pass
+		//// 1. geometry pass: render scene's geometry/color data into gbuffer
+		//// -----------------------------------------------------------------
+		//glBindFramebuffer(GL_FRAMEBUFFER, ssao.getGBuffer());
+		//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		//shaderGeometryPass->UseShader();
+		//shaderGeometryPass->setMat4("projection", projection);
+		//shaderGeometryPass->setMat4("view", camera.calculateViewMatrix());
+		//// debug scene
+		//renderDebugScene(shaderGeometryPass);
+		//glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+		////2. generate SSAO texture
+		//// ------------------------
+		//glBindFramebuffer(GL_FRAMEBUFFER, ssao.getSsaoFBO());
+		//glClear(GL_COLOR_BUFFER_BIT);
+		//shaderSSAO->UseShader();
+		//// Send kernel + rotation 
+		//for (unsigned int i = 0; i < 64; ++i)
+		//	shaderSSAO->setVec3("samples[" + std::to_string(i) + "]", ssao.getSsaoKernel()[i]);
+		//shaderSSAO->setMat4("projection", projection);
+		//glActiveTexture(GL_TEXTURE0);
+		//glBindTexture(GL_TEXTURE_2D, ssao.getGPosition());
+		//glActiveTexture(GL_TEXTURE1);
+		//glBindTexture(GL_TEXTURE_2D, ssao.getGNormal());
+		//glActiveTexture(GL_TEXTURE2);
+		//glBindTexture(GL_TEXTURE_2D, ssao.getNoiseTexture());
+		////renderQuad();
+		//glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+
+		//// 3. blur SSAO texture to remove noise
+		//// ------------------------------------
+		//glBindFramebuffer(GL_FRAMEBUFFER, ssao.getBlurFBO());
+		//glClear(GL_COLOR_BUFFER_BIT);
+		//shaderSSAOBlur->UseShader();
+		//glActiveTexture(GL_TEXTURE0);
+		//glBindTexture(GL_TEXTURE_2D, ssao.getColorBuffer());
+		////renderQuad();
+		//glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+
+		//// 4. lighting pass: traditional deferred Blinn-Phong lighting with added screen-space ambient occlusion
+		//// -----------------------------------------------------------------------------------------------------
+		//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		//shaderLightingPass->UseShader();
+		//// send light relevant uniforms
+		//shaderLightingPass->setVec3("light.Position", mainDirectionalLight.GetDirection());
+		//shaderLightingPass->setVec3("light.Color", glm::vec3(0.2, 0.2, 0.7));
+		//// Update attenuation parameters
+		//const float linear = 0.09f;
+		//const float quadratic = 0.032f;
+		//shaderLightingPass->setFloat("light.Linear", linear);
+		//shaderLightingPass->setFloat("light.Quadratic", quadratic);
+		//glActiveTexture(GL_TEXTURE0);
+		//glBindTexture(GL_TEXTURE_2D, ssao.getGPosition());
+		//glActiveTexture(GL_TEXTURE1);
+		//glBindTexture(GL_TEXTURE_2D, ssao.getGNormal());
+		//glActiveTexture(GL_TEXTURE2);
+		//glBindTexture(GL_TEXTURE_2D, ssao.getGAlbedo());
+		//glActiveTexture(GL_TEXTURE3); // add extra SSAO texture to lighting pass
+		//glBindTexture(GL_TEXTURE_2D, ssao.getColorBufferBlur());
+		////renderQuad();
+
 		glUseProgram(0);
 
 		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)

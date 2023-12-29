@@ -16,19 +16,38 @@
 class Ssao
 {
 public:
-	void configureGBuffer(const unsigned int width, const unsigned int height);
-	void createSsaoFrameBuffer(const unsigned int width, const unsigned int height);
+	Ssao();
+	Ssao(GLuint w, GLuint h);
+
+	void configureGBuffer();
+	void createSsaoFrameBuffer();
 	void generateKernel();
 	void generateNoise();
 
-	void doGeometryPass();
+	unsigned int getGBuffer();
+	unsigned int getSsaoFBO();
+	std::vector<glm::vec3> getSsaoKernel();
+	unsigned int getGPosition();
+	unsigned int getGNormal();
+	unsigned int getGAlbedo();
+	unsigned int getNoiseTexture();
+	unsigned int getColorBuffer();
+	unsigned int getBlurFBO();
+	unsigned int getColorBufferBlur();
+
+
+private:
+	GLuint width, height;
 
 	unsigned int gBuffer;
 	unsigned int gPosition, gNormal, gAlbedo;
 	unsigned int rboDepth;
 	unsigned int ssaoFBO, ssaoBlurFBO;
 	unsigned int ssaoColorBuffer, ssaoColorBufferBlur;
+	std::vector<glm::vec3> ssaoNoise;
+	unsigned int noiseTexture;
 
+	std::uniform_real_distribution<GLfloat> randomFloats;
 	std::default_random_engine generator;
 	std::vector<glm::vec3> ssaoKernel;
 };

@@ -270,6 +270,7 @@ void Shader::UseShader()
 	glUseProgram(shaderID);
 }
 
+
 // Getters for the uniform variable locations (used in main.cpp to retrieve uniform variable locations)
 GLuint Shader::GetProjectionLocation()
 {
