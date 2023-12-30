@@ -21,6 +21,11 @@ public:
 	void SetFlash(glm::vec3 pos, glm::vec3 dir);
 	void SetLightDirection(glm::vec3 dir);
 
+	void SetConLinExpEdg(glm::vec4 in);
+
+	glm::vec4 GetConLinExpEdg() { return glm::vec4(constant, linear, exponent, edge); };
+
+
 	~SpotLight();
 
 private:

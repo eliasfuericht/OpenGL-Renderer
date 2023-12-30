@@ -64,6 +64,14 @@ void SpotLight::SetLightDirection(glm::vec3 dir)
 	direction = -glm::normalize(position - dir);
 }
 
+void SpotLight::SetConLinExpEdg(glm::vec4 in)
+{
+	constant = in.x;
+	linear = in.y;
+	exponent = in.z;
+	edge = in.w;
+}
+
 SpotLight::~SpotLight()
 {
 }

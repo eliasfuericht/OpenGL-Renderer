@@ -351,6 +351,8 @@ int main()
 	glfwSetTime(0.0f);
 	double animationTime = 0.0f;
 	glm::vec3 dir = mainDirectionalLight.GetDirection();
+
+	glm::vec4 temp = spotLights[0].GetConLinExpEdg();
 	// Loop until window closed
 	while (!mainWindow.getShouldClose())
 	{
@@ -406,7 +408,8 @@ int main()
 			ImGui::NewFrame();
 
 			ImGui::Begin("finally working");
-			ImGui::DragFloat3("lightdir", glm::value_ptr(dir), 0.01f, -100.0f, 100.0f);
+			//ImGui::DragFloat3("lightdir", glm::value_ptr(dir), 0.01f, -100.0f, 100.0f);
+			ImGui::DragFloat4("flashlight", glm::value_ptr(temp), 0.01f, -10.0f, 10.0f);
 			//ImGui::SliderFloat("left", &orthoLeft, -100.0f, 100.0f);
 			ImGui::End();
 
@@ -414,6 +417,7 @@ int main()
 			ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 		}
 
+		spotLights[0].SetConLinExpEdg(temp);
 		mainDirectionalLight.SetDirection(dir);
 
 		// sets shaderprogram at sDShadowPass as shaderprogram to use
