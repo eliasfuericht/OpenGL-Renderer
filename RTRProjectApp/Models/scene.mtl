@@ -63,7 +63,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 3
-map_Kd C:\\Users\\eliaf\\OneDrive\\TU Wien\\1.Semester\\Echtzeitgraphik\\Project\\rtr23-nightatthemuseum\\RTRProjectApp\\Textures\\1f1f1f.png
+map_Kd D:\\Program Files (x86)\\Megascans Assets\\Downloaded\\surface\\marble_tile_wgildhmv\\wgildhmv_2K_Albedo.png
 
 newmtl Trank
 Ns 250.000000
@@ -96,3 +96,4 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 2
+map_Kd D:\\Program Files (x86)\\Megascans Assets\\Downloaded\\surface\\concrete_painted_vdxibet\\vdxibet_2K_Albedo.png
