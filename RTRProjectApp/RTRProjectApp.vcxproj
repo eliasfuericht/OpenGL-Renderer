@@ -173,9 +173,11 @@
     <ClCompile Include="math_utils.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="Model.cpp" />
+    <ClCompile Include="OShadowMap.cpp" />
     <ClCompile Include="PointLight.cpp" />
     <ClCompile Include="quadratic_uniform_b_spline.cpp" />
     <ClCompile Include="Shader.cpp" />
+    <ClCompile Include="Skybox.cpp" />
     <ClCompile Include="SpotLight.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="Vendor\imgui\imgui.cpp" />
@@ -199,9 +201,11 @@
     <ClInclude Include="math_utils.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="Model.h" />
+    <ClInclude Include="OShadowMap.h" />
     <ClInclude Include="PointLight.h" />
     <ClInclude Include="quadratic_uniform_b_spline.h" />
     <ClInclude Include="Shader.h" />
+    <ClInclude Include="Skybox.h" />
     <ClInclude Include="SpotLight.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="Vendor\imgui\imconfig.h" />
@@ -221,6 +225,8 @@
     <None Include="Shaders\fragment.glsl" />
     <None Include="Shaders\oShadowMapFragment.glsl" />
     <None Include="Shaders\oShadowMapVertex.glsl" />
+    <None Include="Shaders\skyBoxFragment.glsl" />
+    <None Include="Shaders\skyBoxVertex.glsl" />
     <None Include="Shaders\vertex.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

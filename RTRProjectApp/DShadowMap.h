@@ -11,10 +11,10 @@ public:
 	DShadowMap();
 	DShadowMap(GLuint w, GLuint h);
 
-	void Init();
-	void Write();
-	void Read(GLenum textureUnit);
-	void Unbind();
+	virtual void Init();
+	virtual void Write();
+	virtual void Read(GLenum textureUnit);
+	virtual void Unbind();
 
 	int GetShadowMap() { return shadowMap; };
 
