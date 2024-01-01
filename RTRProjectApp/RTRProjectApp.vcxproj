@@ -224,6 +224,7 @@
     <None Include="Shaders\dShadowMapVertex.glsl" />
     <None Include="Shaders\fragment.glsl" />
     <None Include="Shaders\oShadowMapFragment.glsl" />
+    <None Include="Shaders\oShadowMapGeometry.glsl" />
     <None Include="Shaders\oShadowMapVertex.glsl" />
     <None Include="Shaders\skyBoxFragment.glsl" />
     <None Include="Shaders\skyBoxVertex.glsl" />

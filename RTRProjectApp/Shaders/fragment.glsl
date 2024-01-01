@@ -56,11 +56,32 @@ uniform SpotLight spotLights[MAX_SPOT_LIGHTS];
 uniform sampler2D theTexture;
 uniform sampler2D dShadowMap;
 
-uniform samplerCube skybox;
+uniform samplerCube oShadowMap;
+
+//uniform samplerCube skybox;
 
 uniform Material material;
 
 uniform vec3 eyePosition;
+
+uniform float farPlane;
+
+float CalcOmniDirectionalShadow(PointLight pLight)
+{
+	// get vector between fragment position and light position
+	vec3 fragToLight = FragPos - pLight.position;
+	// use the light to fragment vector to sample from the depth map    
+	float closestDepth = texture(oShadowMap, fragToLight).r;
+	// it is currently in linear range between [0,1]. Re-transform back to original value
+	closestDepth *= farPlane;
+	// now get current linear depth as the length between the fragment and light position
+	float currentDepth = length(fragToLight);
+	// now test for shadows
+	float bias = 0.05;
+	float shadow = currentDepth - bias > closestDepth ? 1.0 : 0.0;
+
+	return shadow;
+}
 
 float CalcDirectionalShadow(DirectionalLight light)
 {
@@ -130,6 +151,8 @@ vec4 CalcPointLight(PointLight pLight)
 	float distance = length(direction);
 	direction = normalize(direction);
 	
+	float shadow = CalcOmniDirectionalShadow(pLight);
+
 	vec4 color = CalcLightByDirection(pLight.base, direction, 0.0f);
 	float attenuation = pLight.exponent * distance * distance +
 						pLight.linear * distance +

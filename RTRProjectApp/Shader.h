@@ -18,8 +18,8 @@ class Shader
 public:
 	Shader();
 
-	void CreateFromString(const char* vertexCode, const char* fragmentCode);
-	void CreateFromFiles(const char* vertexLocation, const char* fragmentLocation);
+	void CreateFromString(const char* vertexCode, const char* geometryCode, const char* fragmentCode);
+	void CreateFromFiles(const char* vertexLocation, const char* geometryLocation, const char* fragmentLocation);
 
 	std::string ReadFile(const char* fileLocation);
 
@@ -37,8 +37,12 @@ public:
 	GLuint GetEyePositionLocation();
 	GLuint GetTextureLocation();
 	GLuint GetDShadowMapLocation();
+	GLuint GetOShadowMapLocation();
 	GLuint GetLightSpaceMatrixLocation();
 	GLuint GetSkyBoxLocation();
+	GLuint* GetOShadowMatrices();
+	GLuint GetLightPosLocation();
+	GLuint GetLightFarPlane();
 
 
 	void SetDirectionalLight(DirectionalLight * dLight);
@@ -46,6 +50,7 @@ public:
 	void SetSpotLights(SpotLight * sLight, unsigned int lightCount);
 	void SetTexture(GLuint textureUnit);
 	void SetDirectionalShadowMap(GLuint textureUnit);
+	void SetOmniDirectionalShadowMap(GLuint textureUnit);
 	void SetSkybox(GLuint textureUnit);
 
 	void UseShader();
@@ -58,8 +63,9 @@ private:
 	int spotLightCount;
 
 	GLuint shaderID, uniformProjection, uniformModel, uniformView, uniformEyePosition,
-		uniformSpecularIntensity, uniformShininess, uniformTexture, uniformDShadowMap, uniformLightSpaceMatrix,
-		uniformSkyBox;
+		uniformSpecularIntensity, uniformShininess, uniformTexture, uniformDShadowMap, uniformOShadowMap, uniformLightSpaceMatrix,
+		uniformSkyBox, uniformLightPos, uniformlightFarPlane;
+	GLuint uniformOShadowMatrices[6];
 
 	struct {
 		GLuint uniformcolor;
@@ -98,7 +104,7 @@ private:
 		GLuint uniformEdge;
 	} uniformSpotLight[MAX_SPOT_LIGHTS];
 
-	void CompileShader(const char* vertexCode, const char* fragmentCode);
+	void CompileShader(const char* vertexCode, const char* geometryCode, const char* fragmentCode);
 	void AddShader(GLuint shaderProgram, const char* shaderCode, GLenum shaderType);
 };
 

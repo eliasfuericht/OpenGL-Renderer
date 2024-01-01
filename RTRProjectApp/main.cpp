@@ -148,20 +148,26 @@ double animationDuration = 120.0f;
 double lastTime = 0.0f;
 double t = 0.0f;
 
+//Renderpass
 static const char* vShader = "Shaders/vertex.glsl";
-
 static const char* fShader = "Shaders/fragment.glsl";
 
+//Directional Shadowmapping
 static const char* dShadowVertShader = "Shaders/dShadowMapVertex.glsl";
-
 static const char* dShadowFragShader = "Shaders/dShadowMapFragment.glsl";
 
-static const char* skyBoxVertShader = "Shaders/skyBoxVertex.glsl";
+//Omnidirectional Shadowmapping
+static const char* oShadowVertShader = "Shaders/oShadowMapVertex.glsl";
+static const char* oShadowGeoShader = "Shaders/oShadowMapGeometry.glsl";
+static const char* oShadowFragShader = "Shaders/oShadowMapFragment.glsl";
 
+//Skybox
+static const char* skyBoxVertShader = "Shaders/skyBoxVertex.glsl";
 static const char* skyBoxFragShader = "Shaders/skyBoxFragment.glsl";
 
 // setting up GLuints for uniform locations for later use
-GLuint uniformProjection = 0, uniformModel = 0, uniformView = 0, uniformEyePosition = 0, uniformSpecularIntensity = 0, uniformShininess = 0, uniformLightSpace = 0, uniformDShadowMap = 0, uniformSkybox = 0;
+GLuint uniformProjection = 0, uniformModel = 0, uniformView = 0, uniformEyePosition = 0, uniformSpecularIntensity = 0, uniformShininess = 0, uniformLightSpace = 0, uniformDShadowMap = 0, uniformSkybox = 0, uniformLightPos = 0, uniformLightFarPlane = 0;
+GLuint* uniformOShadowMatrices = 0;
 
 #ifdef _WIN32
 // Use discrete GPU by default.
@@ -269,12 +275,14 @@ int main()
 	ImGui_ImplOpenGL3_Init("#version 460");
 
 	Shader* sDShadowPass = new Shader();
+	Shader* sOShadowPass = new Shader();
 	Shader* sRenderPass = new Shader();
 	Shader* sSkybox = new Shader();
 
-	sDShadowPass->CreateFromFiles(dShadowVertShader, dShadowFragShader);
-	sRenderPass->CreateFromFiles(vShader, fShader);
-	sSkybox->CreateFromFiles(skyBoxVertShader, skyBoxFragShader);
+	sDShadowPass->CreateFromFiles(dShadowVertShader, "", dShadowFragShader);
+	sOShadowPass->CreateFromFiles(oShadowVertShader, oShadowGeoShader, oShadowFragShader);
+	sRenderPass->CreateFromFiles(vShader, "", fShader);
+	sSkybox->CreateFromFiles(skyBoxVertShader, "",  skyBoxFragShader);
 
 	// camera with correct startposition for final scene
 	camera = Camera(glm::vec3(19.5f, -0.60f, 17.0f), glm::vec3(0.0f, 1.0f, 0.0f), -60.0f, 0.0f, 5.0f, 0.05f);
@@ -294,8 +302,8 @@ int main()
 	debugCube = Model();
 	debugCube.LoadModel("Models/cube.obj");
 
-	scene = Model();
-	scene.LoadModel("Models/scene.obj");
+	//scene = Model();
+	//scene.LoadModel("Models/scene.obj");
 
 	//flashLight = Model();
 	//flashLight.LoadModel("Models/flashlight.obj");
@@ -311,7 +319,8 @@ int main()
 	pointLights[0] = PointLight(1.0f, 0.0f, 0.0f,
 								0.75f, 0.1f,
 								0.0f, 2.5f, 0.0f,
-								0.3f, 0.2f, 0.1f);
+								0.3f, 0.2f, 0.1f,
+								1024, 1024);
 	pointLightCount++;
 
 	unsigned int spotLightCount = 0;
@@ -401,7 +410,7 @@ int main()
 			ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 		}
 
-
+		//DIRECTIONAL SHADOWPASS
 		// sets shaderprogram at sDShadowPass as shaderprogram to use
 		// sDShadowPass = shadowpass
 		sDShadowPass->UseShader();
@@ -411,12 +420,27 @@ int main()
 
 		mainDirectionalLight.WriteShadowMap(uniformLightSpace);
 
-		//renderDebugScene();
+		renderDebugScene();
 		
-		renderRealScene();
+		//renderRealScene();
 
 		mainDirectionalLight.UnbindShadowMap();
 
+		//OMNIDIRECTIONAL SHADOWPASS
+		sOShadowPass->UseShader();
+		
+		uniformModel = sOShadowPass->GetModelLocation();
+		uniformOShadowMatrices = sOShadowPass->GetOShadowMatrices();
+		uniformLightPos = sOShadowPass->GetLightPosLocation();
+		uniformLightFarPlane = sOShadowPass->GetLightFarPlane();
+		
+		pointLights[0].WriteShadowMap(uniformOShadowMatrices, uniformLightPos, uniformLightFarPlane);
+
+		renderDebugScene();
+
+		pointLights[0].UnbindShadowMap();
+
+		//RENDERPASS
 		// sets shaderprogram at sRenderPass as shaderprogram to use
 		// = renderpass
 		sRenderPass->UseShader();
@@ -432,6 +456,7 @@ int main()
 		uniformDShadowMap = sRenderPass->GetDShadowMapLocation();
 		uniformLightSpace = sRenderPass->GetLightSpaceMatrixLocation();
 		uniformSkybox = sRenderPass->GetSkyBoxLocation();
+		uniformLightFarPlane = sRenderPass->GetLightFarPlane();
 
 		// Clear window and reset scene
 		glViewport(0, 0, mainWindow.getBufferWidth(), mainWindow.getBufferHeight());
@@ -439,9 +464,9 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		//rotates spotlight around origin
-		/*float angle = now;
+		float angle = now;
 		spotLights[0].SetLightPosition(glm::vec3(5.0f * cos(angle), 5.0f, 5.0f * sin(angle)));
-		spotLights[0].SetLightDirection(glm::vec3(0.0,0.0,0.0));*/
+		spotLights[0].SetLightDirection(glm::vec3(0.0,0.0,0.0));
 
 		// sends data about the lights from CPU to the (fragement)shader at corresponding locations
 		sRenderPass->SetDirectionalLight(&mainDirectionalLight);
@@ -449,22 +474,26 @@ int main()
 		sRenderPass->SetSpotLights(spotLights, spotLightCount);
 
 		mainDirectionalLight.ReadShadowMap();
+		pointLights[0].ReadShadowMap();
 
 		sRenderPass->SetTexture(0);
 		sRenderPass->SetDirectionalShadowMap(1);
+		sRenderPass->SetOmniDirectionalShadowMap(2);
 
 		glUniformMatrix4fv(uniformProjection, 1, GL_FALSE, glm::value_ptr(projection));
 		glUniformMatrix4fv(uniformView, 1, GL_FALSE, glm::value_ptr(camera.calculateViewMatrix()));
 		glUniformMatrix4fv(uniformLightSpace, 1, GL_FALSE, glm::value_ptr(mainDirectionalLight.GetLightSpaceMatrix()));
 		glUniform3f(uniformEyePosition, camera.getCameraPosition().x, camera.getCameraPosition().y, camera.getCameraPosition().z);
+		glUniform1f(uniformLightFarPlane, 25.0f);
 
 		//comparable to UseLight() in DirectionalLight.cpp but for Material
 		shinyMaterial.UseMaterial(uniformSpecularIntensity, uniformShininess);
 
-		//renderDebugScene();
+		renderDebugScene();
 
-		renderRealScene();
+		//renderRealScene();
 
+		//SKYBOX PASS
 		sSkybox->UseShader();
 
 		uniformProjection = sSkybox->GetProjectionLocation();

@@ -10,12 +10,12 @@ Shader::Shader()
 	spotLightCount = 0;
 }
 
-void Shader::CreateFromString(const char* vertexCode, const char* fragmentCode)
+void Shader::CreateFromString(const char* vertexCode, const char* geometryCode, const char* fragmentCode)
 {
-	CompileShader(vertexCode, fragmentCode);
+	CompileShader(vertexCode, geometryCode, fragmentCode);
 }
 
-void Shader::CreateFromFiles(const char* vertexLocation, const char* fragmentLocation)
+void Shader::CreateFromFiles(const char* vertexLocation, const char* geometryLocation, const char* fragmentLocation)
 {
 	// read vertex and fragment shaders from files
 	std::string vertexString = ReadFile(vertexLocation);
@@ -23,7 +23,16 @@ void Shader::CreateFromFiles(const char* vertexLocation, const char* fragmentLoc
 	const char* vertexCode = vertexString.c_str();
 	const char* fragmentCode = fragmentString.c_str();
 
-	CompileShader(vertexCode, fragmentCode);
+	//checks if pipline is initialized with geometry shader
+	if (strlen(geometryLocation) != 0) {
+		std::string geometryString = ReadFile(geometryLocation);
+		const char* geometryCode = geometryString.c_str();
+		CompileShader(vertexCode, geometryCode, fragmentCode);
+	}
+	else {
+		CompileShader(vertexCode, "", fragmentCode);
+	}
+
 }
 
 // function to parse shader file and return its content as a string
@@ -48,7 +57,7 @@ std::string Shader::ReadFile(const char* fileLocation)
 	return content;
 }
 
-void Shader::CompileShader(const char* vertexCode, const char* fragmentCode)
+void Shader::CompileShader(const char* vertexCode, const char* geometryCode, const char* fragmentCode)
 {
 	// creates shaderprogram and returns its ID - a shaderprogram is a collection of shaders (not just vertex or just fragment, both combined!)
 	shaderID = glCreateProgram();
@@ -62,6 +71,9 @@ void Shader::CompileShader(const char* vertexCode, const char* fragmentCode)
 	// compile vertex and fragment shaders and attach them to shaderprogram
 	AddShader(shaderID, vertexCode, GL_VERTEX_SHADER);
 	AddShader(shaderID, fragmentCode, GL_FRAGMENT_SHADER);
+	if (strlen(geometryCode) != 0) {
+		AddShader(shaderID, geometryCode, GL_GEOMETRY_SHADER);
+	}
 
 	GLint result = 0;
 	GLchar eLog[1024] = { 0 };
@@ -171,7 +183,16 @@ void Shader::CompileShader(const char* vertexCode, const char* fragmentCode)
 
 	uniformTexture = glGetUniformLocation(shaderID, "theTexture");
 	uniformDShadowMap = glGetUniformLocation(shaderID, "dShadowMap");
+	uniformOShadowMap = glGetUniformLocation(shaderID, "oShadowMap");
 	uniformSkyBox = glGetUniformLocation(shaderID, "skybox");
+
+	for (int i = 0; i < 6; ++i) {
+		std::string matrixName = "shadowMatrices[" + std::to_string(i) + "]";
+		uniformOShadowMatrices[i] = glGetUniformLocation(shaderID, matrixName.c_str());
+	}
+
+	uniformLightPos = glGetUniformLocation(shaderID, "lightPos");
+	uniformlightFarPlane = glGetUniformLocation(shaderID, "lightFarPlane");
 }
 
 // function to compile shaderCode and attach to shaderprogram
@@ -265,6 +286,12 @@ void Shader::SetDirectionalShadowMap(GLuint textureUnit)
 	glUniform1i(uniformDShadowMap, textureUnit);
 }
 
+void Shader::SetOmniDirectionalShadowMap(GLuint textureUnit)
+{
+	glUniform1i(uniformOShadowMap, textureUnit);
+}
+
+
 void Shader::SetSkybox(GLuint textureUnit)
 {
 	glUniform1i(uniformSkyBox, textureUnit);
@@ -328,6 +355,11 @@ GLuint Shader::GetDShadowMapLocation()
 	return uniformDShadowMap;
 }
 
+GLuint Shader::GetOShadowMapLocation()
+{
+	return uniformOShadowMap;
+}
+
 GLuint Shader::GetLightSpaceMatrixLocation()
 {
 	return uniformLightSpaceMatrix;
@@ -336,6 +368,21 @@ GLuint Shader::GetLightSpaceMatrixLocation()
 GLuint Shader::GetSkyBoxLocation() 
 {
 	return uniformSkyBox;
+}
+
+GLuint* Shader::GetOShadowMatrices()
+{
+	return uniformOShadowMatrices;
+}
+
+GLuint Shader::GetLightPosLocation()
+{
+	return uniformLightPos;
+}
+
+GLuint Shader::GetLightFarPlane()
+{
+	return uniformlightFarPlane;
 }
 
 // cleanup function
