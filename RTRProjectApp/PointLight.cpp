@@ -11,9 +11,8 @@ PointLight::PointLight() : Light()
 
 	shadowMap = OShadowMap();
 	float aspect = (float)shadowMap.GetWidth() / (float)shadowMap.GetHeight();
-	float near = 0.1f;
-	float far = 50.0f;
-	shadowProj = glm::perspective(glm::radians(90.0f), aspect, near, far);
+	float near = 0.01f;
+	shadowProj = glm::perspective(glm::radians(90.0f), aspect, near, farPlane);
 }
 
 PointLight::PointLight(GLfloat red, GLfloat green, GLfloat blue, 
@@ -30,9 +29,8 @@ PointLight::PointLight(GLfloat red, GLfloat green, GLfloat blue,
 	shadowMap = OShadowMap(sw, sh);
 	shadowMap.Init();
 	float aspect = (float)shadowMap.GetWidth() / (float)shadowMap.GetHeight();
-	float near = 0.1f;
-	float far = 50.0f;
-	shadowProj = glm::perspective(glm::radians(90.0f), aspect, near, far);
+	float near = 0.01f;
+	shadowProj = glm::perspective(glm::radians(90.0f), aspect, near, farPlane);
 	shadowTransforms.push_back(shadowProj *
 		glm::lookAt(position, position + glm::vec3(1.0, 0.0, 0.0), glm::vec3(0.0, -1.0, 0.0)));
 	shadowTransforms.push_back(shadowProj *

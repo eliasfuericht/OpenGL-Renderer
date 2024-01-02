@@ -38,6 +38,8 @@ public:
 	void SetConLinExp(glm::vec3 in);
 	glm::vec3 GetConLinExp() { return glm::vec3(constant, linear, exponent); };
 
+	float GetFarPlane() { return farPlane; };
+
 	~PointLight();
 
 protected:

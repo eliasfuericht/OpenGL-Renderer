@@ -217,11 +217,11 @@ void renderDebugScene() {
 	debugCube.RenderModel();
 
 
-	model = glm::mat4(1.0f);
+	//model = glm::mat4(1.0f);
 
-	model = glm::translate(model, spotLights[0].GetLightPosition());
+	//model = glm::translate(model, spotLights[0].GetLightPosition());
 
-	glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+	//glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 
 	//debugCube.RenderModel();
 }
@@ -302,25 +302,25 @@ int main()
 	debugCube = Model();
 	debugCube.LoadModel("Models/cube.obj");
 
-	//scene = Model();
-	//scene.LoadModel("Models/scene.obj");
+	scene = Model();
+	scene.LoadModel("Models/scene.obj");
 
 	//flashLight = Model();
 	//flashLight.LoadModel("Models/flashlight.obj");
 
 	printf("Initial loading took: %f seconds\n", glfwGetTime());
 
-	mainDirectionalLight = DirectionalLight(80.0f/255.0f, 104.0f /255.0f, 134.0f /255.0f,
+	mainDirectionalLight = DirectionalLight(80.0f/255.0f, 104.0f/255.0f, 134.0f/255.0f,
 											1.0f, 0.5f,
 											0.82f, 0.96f, 1.61f, 
 											8192, 8192);
 
 	unsigned int pointLightCount = 0;
 	pointLights[0] = PointLight(1.0f, 1.0f, 1.0f,
-								0.75f, 0.1f,
+								1.0f, 0.1f,
 								0.0f, 2.5f, 0.0f,
 								10.0f, -1.5f, 0.1f,
-								1024, 1024);
+								2048, 2048);
 	pointLightCount++;
 
 	unsigned int spotLightCount = 0;
@@ -331,7 +331,7 @@ int main()
 								0.8f, 0.0f, 0.0f,
 								10.0f,
 								1024, 1024);
-	spotLightCount++;
+	//spotLightCount++;
 
 	skybox = Skybox("skybox1");
 
@@ -376,7 +376,9 @@ int main()
 			t = animationTime / animationDuration;
 			t = glm::clamp(t, 0.0, 1.0);
 
-			camera.setCameraPosition(cameraPath.value_at(t));
+			glm::vec3 newCameraPos = cameraPath.value_at(t);
+
+			camera.setCameraPosition(newCameraPos);
 
 			glm::vec3 target = targetPath.value_at(t);
 
@@ -389,7 +391,7 @@ int main()
 
 			camera.setCameraDirection(-cameraDirection);
 
-			//pointLights[0].SetLightPosition(cameraPath.value_at(t+0.01f));
+			pointLights[0].SetLightPosition(cameraPath.value_at(t + 0.01f));
 		}
 		// if animation is toggled off -> use WASD and mouse to navigate
 		else {
@@ -414,6 +416,7 @@ int main()
 		}
 
 		//pointLights[0].SetConLinExp(temp);
+		//pointLights[0].SetLightPosition(temp);
 
 		//DIRECTIONAL SHADOWPASS
 		// sets shaderprogram at sDShadowPass as shaderprogram to use
@@ -425,9 +428,9 @@ int main()
 
 		mainDirectionalLight.WriteShadowMap(uniformLightSpace);
 
-		renderDebugScene();
+		//renderDebugScene();
 		
-		//renderRealScene();
+		renderRealScene();
 
 		mainDirectionalLight.UnbindShadowMap();
 
@@ -438,18 +441,14 @@ int main()
 		uniformOShadowMatrices = sOShadowPass->GetOShadowMatrices();
 		uniformLightPos = sOShadowPass->GetLightPosLocation();
 		uniformLightFarPlane = sOShadowPass->GetLightFarPlane();
-
-		spotLights[0].SetFlash(camera.getCameraPosition(), camera.getCameraDirection());
 		
-		//pointLights[0].WriteShadowMap(uniformOShadowMatrices, uniformLightPos, uniformLightFarPlane);
-		spotLights[0].WriteShadowMap(uniformOShadowMatrices, uniformLightPos, uniformLightFarPlane);
+		pointLights[0].WriteShadowMap(uniformOShadowMatrices, uniformLightPos, uniformLightFarPlane);
 
-		renderDebugScene();
+		//renderDebugScene();
 
-		//renderRealScene();
+		renderRealScene();
 
-		//pointLights[0].UnbindShadowMap();
-		spotLights[0].UnbindShadowMap();
+		pointLights[0].UnbindShadowMap();
 
 		//RENDERPASS
 		// sets shaderprogram at sRenderPass as shaderprogram to use
@@ -488,22 +487,33 @@ int main()
 		mainDirectionalLight.ReadShadowMap();
 		sRenderPass->SetDirectionalShadowMap(1);
 
-		//pointLights[0].ReadShadowMap();
-		spotLights[0].ReadShadowMap();
+		pointLights[0].ReadShadowMap();
 		sRenderPass->SetOmniDirectionalShadowMap(2);
 
 		glUniformMatrix4fv(uniformProjection, 1, GL_FALSE, glm::value_ptr(projection));
 		glUniformMatrix4fv(uniformView, 1, GL_FALSE, glm::value_ptr(camera.calculateViewMatrix()));
 		glUniformMatrix4fv(uniformLightSpace, 1, GL_FALSE, glm::value_ptr(mainDirectionalLight.GetLightSpaceMatrix()));
 		glUniform3f(uniformEyePosition, camera.getCameraPosition().x, camera.getCameraPosition().y, camera.getCameraPosition().z);
-		glUniform1f(uniformLightFarPlane, 50.0f);
+		glUniform1f(uniformLightFarPlane, pointLights[0].GetFarPlane());
 
 		//comparable to UseLight() in DirectionalLight.cpp but for Material
 		shinyMaterial.UseMaterial(uniformSpecularIntensity, uniformShininess);
 
-		renderDebugScene();
+		//renderDebugScene();
 
-		//renderRealScene();
+		renderRealScene();
+
+		glm::mat4 model(1.0f);
+
+		model = glm::mat4(1.0f);
+
+		model = glm::translate(model,pointLights[0].GetLightPosition());
+
+		model = glm::scale(model,glm::vec3(0.1,0.1,0.1));
+
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		
+		//debugCube.RenderModel();
 
 		//SKYBOX PASS
 		sSkybox->UseShader();
@@ -512,7 +522,7 @@ int main()
 		uniformView = sSkybox->GetViewLocation();
 		uniformModel = sSkybox->GetModelLocation();
 		
-		//pointLights[0].ReadShadowMap();
+		pointLights[0].ReadShadowMap();
 
 		sSkybox->SetOmniDirectionalShadowMap(2);
 

@@ -153,7 +153,7 @@ vec4 CalcPointLight(PointLight pLight)
 	
 	float shadow = CalcOmniDirectionalShadow(pLight);
 
-	vec4 color = CalcLightByDirection(pLight.base, direction, shadow * 5.0f);
+	vec4 color = CalcLightByDirection(pLight.base, direction, shadow);
 	float attenuation = pLight.exponent * distance * distance +
 						pLight.linear * distance +
 						pLight.constant;
