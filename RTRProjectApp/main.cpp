@@ -223,7 +223,7 @@ void renderDebugScene() {
 
 	glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 
-	debugCube.RenderModel();
+	//debugCube.RenderModel();
 }
 
 void renderRealScene() {
@@ -316,10 +316,10 @@ int main()
 											8192, 8192);
 
 	unsigned int pointLightCount = 0;
-	pointLights[0] = PointLight(1.0f, 0.0f, 0.0f,
+	pointLights[0] = PointLight(1.0f, 1.0f, 1.0f,
 								0.75f, 0.1f,
 								0.0f, 2.5f, 0.0f,
-								0.3f, 0.2f, 0.1f,
+								10.0f, -1.5f, 0.1f,
 								1024, 1024);
 	pointLightCount++;
 
@@ -329,7 +329,8 @@ int main()
 								2.0f, 2.0f, 2.0f,
 								0.0f, -1.0f, 0.0f,
 								0.8f, 0.0f, 0.0f,
-								10.0f);
+								10.0f,
+								1024, 1024);
 	spotLightCount++;
 
 	skybox = Skybox("skybox1");
@@ -343,6 +344,8 @@ int main()
 	std::vector<int> fpsList;
 	glfwSetTime(0.0f);
 	double animationTime = 0.0f;
+
+	glm::vec3 temp = pointLights[0].GetConLinExp();
 
 	// Loop until window closed
 	while (!mainWindow.getShouldClose())
@@ -386,7 +389,7 @@ int main()
 
 			camera.setCameraDirection(-cameraDirection);
 
-			pointLights[0].SetLightPosition(cameraPath.value_at(t+0.1));
+			//pointLights[0].SetLightPosition(cameraPath.value_at(t+0.01f));
 		}
 		// if animation is toggled off -> use WASD and mouse to navigate
 		else {
@@ -402,13 +405,15 @@ int main()
 
 			ImGui::Begin("finally working");
 			//ImGui::DragFloat3("lightdir", glm::value_ptr(dir), 0.01f, -100.0f, 100.0f);
-			//ImGui::DragFloat4("flashlight", glm::value_ptr(temp), 0.01f, -10.0f, 10.0f);
+			ImGui::DragFloat3("pointLight", glm::value_ptr(temp), 0.01f, -10.0f, 10.0f);
 			//ImGui::SliderFloat("left", &orthoLeft, -100.0f, 100.0f);
 			ImGui::End();
 
 			ImGui::Render();
 			ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 		}
+
+		//pointLights[0].SetConLinExp(temp);
 
 		//DIRECTIONAL SHADOWPASS
 		// sets shaderprogram at sDShadowPass as shaderprogram to use
@@ -433,12 +438,18 @@ int main()
 		uniformOShadowMatrices = sOShadowPass->GetOShadowMatrices();
 		uniformLightPos = sOShadowPass->GetLightPosLocation();
 		uniformLightFarPlane = sOShadowPass->GetLightFarPlane();
+
+		spotLights[0].SetFlash(camera.getCameraPosition(), camera.getCameraDirection());
 		
-		pointLights[0].WriteShadowMap(uniformOShadowMatrices, uniformLightPos, uniformLightFarPlane);
+		//pointLights[0].WriteShadowMap(uniformOShadowMatrices, uniformLightPos, uniformLightFarPlane);
+		spotLights[0].WriteShadowMap(uniformOShadowMatrices, uniformLightPos, uniformLightFarPlane);
 
 		renderDebugScene();
 
-		pointLights[0].UnbindShadowMap();
+		//renderRealScene();
+
+		//pointLights[0].UnbindShadowMap();
+		spotLights[0].UnbindShadowMap();
 
 		//RENDERPASS
 		// sets shaderprogram at sRenderPass as shaderprogram to use
@@ -453,7 +464,6 @@ int main()
 		uniformEyePosition = sRenderPass->GetEyePositionLocation();
 		uniformSpecularIntensity = sRenderPass->GetSpecularIntensityLocation();
 		uniformShininess = sRenderPass->GetShininessLocation();
-		uniformDShadowMap = sRenderPass->GetDShadowMapLocation();
 		uniformLightSpace = sRenderPass->GetLightSpaceMatrixLocation();
 		uniformSkybox = sRenderPass->GetSkyBoxLocation();
 		uniformLightFarPlane = sRenderPass->GetLightFarPlane();
@@ -465,26 +475,28 @@ int main()
 
 		//rotates spotlight around origin
 		float angle = now;
-		spotLights[0].SetLightPosition(glm::vec3(5.0f * cos(angle), 5.0f, 5.0f * sin(angle)));
-		spotLights[0].SetLightDirection(glm::vec3(0.0,0.0,0.0));
+		//spotLights[0].SetLightPosition(glm::vec3(5.0f * cos(angle), 5.0f, 5.0f * sin(angle)));
+		//spotLights[0].SetLightDirection(glm::vec3(0.0,0.0,0.0));
 
 		// sends data about the lights from CPU to the (fragement)shader at corresponding locations
 		sRenderPass->SetDirectionalLight(&mainDirectionalLight);
 		sRenderPass->SetPointLights(pointLights, pointLightCount);
 		sRenderPass->SetSpotLights(spotLights, spotLightCount);
 
-		mainDirectionalLight.ReadShadowMap();
-		pointLights[0].ReadShadowMap();
-
 		sRenderPass->SetTexture(0);
+
+		mainDirectionalLight.ReadShadowMap();
 		sRenderPass->SetDirectionalShadowMap(1);
+
+		//pointLights[0].ReadShadowMap();
+		spotLights[0].ReadShadowMap();
 		sRenderPass->SetOmniDirectionalShadowMap(2);
 
 		glUniformMatrix4fv(uniformProjection, 1, GL_FALSE, glm::value_ptr(projection));
 		glUniformMatrix4fv(uniformView, 1, GL_FALSE, glm::value_ptr(camera.calculateViewMatrix()));
 		glUniformMatrix4fv(uniformLightSpace, 1, GL_FALSE, glm::value_ptr(mainDirectionalLight.GetLightSpaceMatrix()));
 		glUniform3f(uniformEyePosition, camera.getCameraPosition().x, camera.getCameraPosition().y, camera.getCameraPosition().z);
-		glUniform1f(uniformLightFarPlane, 25.0f);
+		glUniform1f(uniformLightFarPlane, 50.0f);
 
 		//comparable to UseLight() in DirectionalLight.cpp but for Material
 		shinyMaterial.UseMaterial(uniformSpecularIntensity, uniformShininess);
@@ -499,6 +511,10 @@ int main()
 		uniformProjection = sSkybox->GetProjectionLocation();
 		uniformView = sSkybox->GetViewLocation();
 		uniformModel = sSkybox->GetModelLocation();
+		
+		//pointLights[0].ReadShadowMap();
+
+		sSkybox->SetOmniDirectionalShadowMap(2);
 
 		skybox.RenderSkybox(uniformProjection, projection, uniformView, camera.calculateViewMatrix(), uniformModel);
 		

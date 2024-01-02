@@ -11,8 +11,8 @@ PointLight::PointLight() : Light()
 
 	shadowMap = OShadowMap();
 	float aspect = (float)shadowMap.GetWidth() / (float)shadowMap.GetHeight();
-	float near = 1.0f;
-	float far = 25.0f;
+	float near = 0.1f;
+	float far = 50.0f;
 	shadowProj = glm::perspective(glm::radians(90.0f), aspect, near, far);
 }
 
@@ -30,8 +30,8 @@ PointLight::PointLight(GLfloat red, GLfloat green, GLfloat blue,
 	shadowMap = OShadowMap(sw, sh);
 	shadowMap.Init();
 	float aspect = (float)shadowMap.GetWidth() / (float)shadowMap.GetHeight();
-	float near = 1.0f;
-	float far = 25.0f;
+	float near = 0.1f;
+	float far = 50.0f;
 	shadowProj = glm::perspective(glm::radians(90.0f), aspect, near, far);
 	shadowTransforms.push_back(shadowProj *
 		glm::lookAt(position, position + glm::vec3(1.0, 0.0, 0.0), glm::vec3(0.0, -1.0, 0.0)));
@@ -69,6 +69,24 @@ void PointLight::UseLight(GLuint ambientIntensityLocation, GLuint ambientcolorLo
 	glUniform1f(linearLocation, linear);
 	// = struct PointLight.exponent (float)
 	glUniform1f(exponentLocation, exponent);
+
+	UpdateShadowTransforms();
+}
+
+void PointLight::UpdateShadowTransforms() {
+	shadowTransforms.clear();
+	shadowTransforms.push_back(shadowProj *
+		glm::lookAt(position, position + glm::vec3(1.0, 0.0, 0.0), glm::vec3(0.0, -1.0, 0.0)));
+	shadowTransforms.push_back(shadowProj *
+		glm::lookAt(position, position + glm::vec3(-1.0, 0.0, 0.0), glm::vec3(0.0, -1.0, 0.0)));
+	shadowTransforms.push_back(shadowProj *
+		glm::lookAt(position, position + glm::vec3(0.0, 1.0, 0.0), glm::vec3(0.0, 0.0, 1.0)));
+	shadowTransforms.push_back(shadowProj *
+		glm::lookAt(position, position + glm::vec3(0.0, -1.0, 0.0), glm::vec3(0.0, 0.0, -1.0)));
+	shadowTransforms.push_back(shadowProj *
+		glm::lookAt(position, position + glm::vec3(0.0, 0.0, 1.0), glm::vec3(0.0, -1.0, 0.0)));
+	shadowTransforms.push_back(shadowProj *
+		glm::lookAt(position, position + glm::vec3(0.0, 0.0, -1.0), glm::vec3(0.0, -1.0, 0.0)));
 }
 
 void PointLight::WriteShadowMap(GLuint* uniformOShadowMatricesLocation, GLuint uniformLightPosLocation, GLuint uniformFarPlaneLocation)
@@ -89,6 +107,14 @@ void PointLight::UnbindShadowMap()
 void PointLight::ReadShadowMap()
 {
 	shadowMap.Read(GL_TEXTURE2);
+}
+
+void PointLight::SetConLinExp(glm::vec3 in)
+{
+	constant = in.x;
+	linear = in.y;
+	exponent = in.z;
+
 }
 
 PointLight::~PointLight()

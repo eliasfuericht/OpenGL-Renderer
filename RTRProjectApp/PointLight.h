@@ -23,6 +23,8 @@ public:
 		GLuint diffuseIntensityLocation, GLuint positionLocation,
 		GLuint constantLocation, GLuint linearLocation, GLuint exponentLocation);
 
+	void UpdateShadowTransforms();
+
 	void SetLightPosition(glm::vec3 pos) { position = pos; }
 
 	glm::vec3 GetLightPosition() { return position; }
@@ -33,11 +35,14 @@ public:
 
 	OShadowMap GetDShadowMap() { return shadowMap; };
 
+	void SetConLinExp(glm::vec3 in);
+	glm::vec3 GetConLinExp() { return glm::vec3(constant, linear, exponent); };
+
 	~PointLight();
 
 protected:
 	glm::vec3 position;
-	float farPlane = 25.0f;
+	float farPlane = 50.0f;
 
 	GLfloat constant, linear, exponent;
 

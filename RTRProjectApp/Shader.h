@@ -64,7 +64,7 @@ private:
 
 	GLuint shaderID, uniformProjection, uniformModel, uniformView, uniformEyePosition,
 		uniformSpecularIntensity, uniformShininess, uniformTexture, uniformDShadowMap, uniformOShadowMap, uniformLightSpaceMatrix,
-		uniformSkyBox, uniformLightPos, uniformlightFarPlane;
+		uniformSkyBox, uniformLightPos, uniformLightFarPlane;
 	GLuint uniformOShadowMatrices[6];
 
 	struct {

@@ -192,7 +192,7 @@ void Shader::CompileShader(const char* vertexCode, const char* geometryCode, con
 	}
 
 	uniformLightPos = glGetUniformLocation(shaderID, "lightPos");
-	uniformlightFarPlane = glGetUniformLocation(shaderID, "lightFarPlane");
+	uniformLightFarPlane = glGetUniformLocation(shaderID, "lightFarPlane");
 }
 
 // function to compile shaderCode and attach to shaderprogram
@@ -382,7 +382,7 @@ GLuint Shader::GetLightPosLocation()
 
 GLuint Shader::GetLightFarPlane()
 {
-	return uniformlightFarPlane;
+	return uniformLightFarPlane;
 }
 
 // cleanup function
