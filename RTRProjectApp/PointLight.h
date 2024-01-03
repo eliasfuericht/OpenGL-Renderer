@@ -33,7 +33,7 @@ public:
 	void UnbindShadowMap();
 	void ReadShadowMap();
 
-	OShadowMap GetDShadowMap() { return shadowMap; };
+	OShadowMap GetOShadowMap() { return shadowMap; };
 
 	void SetConLinExp(glm::vec3 in);
 	glm::vec3 GetConLinExp() { return glm::vec3(constant, linear, exponent); };

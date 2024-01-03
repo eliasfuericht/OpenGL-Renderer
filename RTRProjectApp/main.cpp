@@ -323,15 +323,22 @@ int main()
 								2048, 2048);
 	pointLightCount++;
 
+	pointLights[1] = PointLight(1.0f, 1.0f, 1.0f,
+								1.0f, 0.1f,
+								1.0f, 2.5f, 1.0f,
+								10.0f, -1.5f, 0.1f,
+								2048, 2048);
+	pointLightCount++;
+
 	unsigned int spotLightCount = 0;
-	spotLights[0] = SpotLight(	1.0f, 1.0f, 1.0f,
+	spotLights[0] = SpotLight(	1.0f, 0.0f, 0.0f,
 								0.1f, 0.35f,
 								2.0f, 2.0f, 2.0f,
 								0.0f, -1.0f, 0.0f,
 								0.8f, 0.0f, 0.0f,
 								10.0f,
 								1024, 1024);
-	//spotLightCount++;
+	spotLightCount++;
 
 	skybox = Skybox("skybox1");
 
@@ -392,6 +399,7 @@ int main()
 			camera.setCameraDirection(-cameraDirection);
 
 			pointLights[0].SetLightPosition(cameraPath.value_at(t + 0.01f));
+			pointLights[1].SetLightPosition(cameraPath.value_at(t - 0.05f));
 		}
 		// if animation is toggled off -> use WASD and mouse to navigate
 		else {
@@ -414,9 +422,6 @@ int main()
 			ImGui::Render();
 			ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 		}
-
-		//pointLights[0].SetConLinExp(temp);
-		//pointLights[0].SetLightPosition(temp);
 
 		//DIRECTIONAL SHADOWPASS
 		// sets shaderprogram at sDShadowPass as shaderprogram to use
@@ -441,14 +446,16 @@ int main()
 		uniformOShadowMatrices = sOShadowPass->GetOShadowMatrices();
 		uniformLightPos = sOShadowPass->GetLightPosLocation();
 		uniformLightFarPlane = sOShadowPass->GetLightFarPlane();
-		
-		pointLights[0].WriteShadowMap(uniformOShadowMatrices, uniformLightPos, uniformLightFarPlane);
 
-		//renderDebugScene();
+		for (size_t i = 0; i < pointLightCount; i++) {
+			pointLights[i].WriteShadowMap(uniformOShadowMatrices, uniformLightPos, uniformLightFarPlane);
 
-		renderRealScene();
+			//renderDebugScene();
 
-		pointLights[0].UnbindShadowMap();
+			renderRealScene();
+
+			pointLights[i].UnbindShadowMap();
+		}
 
 		//RENDERPASS
 		// sets shaderprogram at sRenderPass as shaderprogram to use
@@ -474,21 +481,20 @@ int main()
 
 		//rotates spotlight around origin
 		float angle = now;
-		//spotLights[0].SetLightPosition(glm::vec3(5.0f * cos(angle), 5.0f, 5.0f * sin(angle)));
-		//spotLights[0].SetLightDirection(glm::vec3(0.0,0.0,0.0));
+		spotLights[0].SetFlash(camera.getCameraPosition(), camera.getCameraDirection());
 
 		// sends data about the lights from CPU to the (fragement)shader at corresponding locations
 		sRenderPass->SetDirectionalLight(&mainDirectionalLight);
-		sRenderPass->SetPointLights(pointLights, pointLightCount);
-		sRenderPass->SetSpotLights(spotLights, spotLightCount);
+		sRenderPass->SetPointLights(pointLights, pointLightCount, 3, 0);
+		sRenderPass->SetSpotLights(spotLights, spotLightCount, 3+pointLightCount, pointLightCount);
 
-		sRenderPass->SetTexture(0);
+		sRenderPass->SetTexture(1);
 
 		mainDirectionalLight.ReadShadowMap();
-		sRenderPass->SetDirectionalShadowMap(1);
+		sRenderPass->SetDirectionalShadowMap(2);
 
-		pointLights[0].ReadShadowMap();
-		sRenderPass->SetOmniDirectionalShadowMap(2);
+		/*pointLights[0].ReadShadowMap();
+		sRenderPass->SetOmniDirectionalShadowMap(2);*/
 
 		glUniformMatrix4fv(uniformProjection, 1, GL_FALSE, glm::value_ptr(projection));
 		glUniformMatrix4fv(uniformView, 1, GL_FALSE, glm::value_ptr(camera.calculateViewMatrix()));

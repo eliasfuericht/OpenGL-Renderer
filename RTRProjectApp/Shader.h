@@ -46,8 +46,8 @@ public:
 
 
 	void SetDirectionalLight(DirectionalLight * dLight);
-	void SetPointLights(PointLight * pLight, unsigned int lightCount);
-	void SetSpotLights(SpotLight * sLight, unsigned int lightCount);
+	void SetPointLights(PointLight * pLight, unsigned int lightCount, unsigned int textureUnit, unsigned int offset);
+	void SetSpotLights(SpotLight * sLight, unsigned int lightCount, unsigned int textureUnit, unsigned int offset);
 	void SetTexture(GLuint textureUnit);
 	void SetDirectionalShadowMap(GLuint textureUnit);
 	void SetOmniDirectionalShadowMap(GLuint textureUnit);
@@ -103,6 +103,11 @@ private:
 		GLuint uniformDirection;
 		GLuint uniformEdge;
 	} uniformSpotLight[MAX_SPOT_LIGHTS];
+
+	struct {
+		GLuint uniformShadowMap;
+		GLuint uniformFarPlane;
+	} uniformOmniShadowMap[MAX_SPOT_LIGHTS + MAX_POINT_LIGHTS];
 
 	void CompileShader(const char* vertexCode, const char* geometryCode, const char* fragmentCode);
 	void AddShader(GLuint shaderProgram, const char* shaderCode, GLenum shaderType);

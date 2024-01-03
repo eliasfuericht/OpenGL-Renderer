@@ -191,6 +191,16 @@ void Shader::CompileShader(const char* vertexCode, const char* geometryCode, con
 		uniformOShadowMatrices[i] = glGetUniformLocation(shaderID, matrixName.c_str());
 	}
 
+	for (int i = 0; i < MAX_POINT_LIGHTS + MAX_SPOT_LIGHTS; ++i) {
+		char locBuff[100] = { '\0' };
+
+		snprintf(locBuff, sizeof(locBuff), "oShadowMaps[%d].shadowMap", i);
+		uniformOmniShadowMap[i].uniformShadowMap = glGetUniformLocation(shaderID, locBuff);
+
+		snprintf(locBuff, sizeof(locBuff), "oShadowMaps[%d].farPlane", i);
+		uniformOmniShadowMap[i].uniformFarPlane = glGetUniformLocation(shaderID, locBuff);
+	}
+
 	uniformLightPos = glGetUniformLocation(shaderID, "lightPos");
 	uniformLightFarPlane = glGetUniformLocation(shaderID, "lightFarPlane");
 }
@@ -239,7 +249,7 @@ void Shader::SetDirectionalLight(DirectionalLight * dLight)
 		uniformDirectionalLight.uniformDiffuseIntensity, uniformDirectionalLight.uniformDirection);
 }
 
-void Shader::SetPointLights(PointLight * pLight, unsigned int lightCount)
+void Shader::SetPointLights(PointLight * pLight, unsigned int lightCount, unsigned int textureUnit, unsigned int offset)
 {
 	// MAX_POINT_LIGHTS is defined in CommonValues.h
 	if (lightCount > MAX_POINT_LIGHTS) lightCount = MAX_POINT_LIGHTS;
@@ -254,10 +264,14 @@ void Shader::SetPointLights(PointLight * pLight, unsigned int lightCount)
 		pLight[i].UseLight(uniformPointLight[i].uniformAmbientIntensity, uniformPointLight[i].uniformcolor,
 			uniformPointLight[i].uniformDiffuseIntensity, uniformPointLight[i].uniformPosition,
 			uniformPointLight[i].uniformConstant, uniformPointLight[i].uniformLinear, uniformPointLight[i].uniformExponent);
+
+		pLight[i].GetOShadowMap().Read(GL_TEXTURE0 + textureUnit + i);
+		glUniform1i(uniformOmniShadowMap[i+offset].uniformShadowMap, textureUnit + i);
+		glUniform1f(uniformOmniShadowMap[i + offset].uniformFarPlane, pLight[i].GetFarPlane());
 	}
 }
 
-void Shader::SetSpotLights(SpotLight * sLight, unsigned int lightCount)
+void Shader::SetSpotLights(SpotLight * sLight, unsigned int lightCount, unsigned int textureUnit, unsigned int offset)
 {
 	// MAX_SPOT_LIGHTS is defined in CommonValues.h
 	if (lightCount > MAX_SPOT_LIGHTS) lightCount = MAX_SPOT_LIGHTS;
@@ -273,6 +287,10 @@ void Shader::SetSpotLights(SpotLight * sLight, unsigned int lightCount)
 			uniformSpotLight[i].uniformDiffuseIntensity, uniformSpotLight[i].uniformPosition, uniformSpotLight[i].uniformDirection,
 			uniformSpotLight[i].uniformConstant, uniformSpotLight[i].uniformLinear, uniformSpotLight[i].uniformExponent,
 			uniformSpotLight[i].uniformEdge);
+
+		sLight[i].GetOShadowMap().Read(GL_TEXTURE0 + textureUnit + i);
+		glUniform1i(uniformOmniShadowMap[i + offset].uniformShadowMap, textureUnit + i);
+		glUniform1f(uniformOmniShadowMap[i + offset].uniformFarPlane, sLight[i].GetFarPlane());
 	}
 }
 
