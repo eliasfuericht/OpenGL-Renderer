@@ -15,6 +15,8 @@
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
 
+#include <SFML/Audio.hpp>
+
 #include "Window.h"
 #include "Mesh.h"
 #include "Shader.h"
@@ -307,6 +309,16 @@ int main()
 
 	//flashLight = Model();
 	//flashLight.LoadModel("Models/flashlight.obj");
+
+	sf::SoundBuffer buffer;
+	if (!buffer.loadFromFile("Audio/ambient music short.wav")) {
+		// Error handling if file loading fails
+		return EXIT_FAILURE;
+	}
+
+	sf::Sound sound;
+	sound.setBuffer(buffer);
+	sound.play();
 
 	printf("Initial loading took: %f seconds\n", glfwGetTime());
 
