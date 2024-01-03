@@ -304,8 +304,8 @@ int main()
 	debugCube = Model();
 	debugCube.LoadModel("Models/cube.obj");
 
-	//scene = Model();
-	//scene.LoadModel("Models/scene.obj");
+	scene = Model();
+	scene.LoadModel("Models/scene.obj");
 
 	//flashLight = Model();
 	//flashLight.LoadModel("Models/flashlight.obj");
@@ -493,7 +493,7 @@ int main()
 
 		//rotates spotlight around origin
 		float angle = now;
-		spotLights[0].SetFlash(camera.getCameraPosition(), camera.getCameraDirection());
+		//pointLights[1].SetLightPosition(glm::vec3(5.0f * cos(angle), 5.0f, 5.0f * sin(angle)));
 
 		// sends data about the lights from CPU to the (fragement)shader at corresponding locations
 		sRenderPass->SetDirectionalLight(&mainDirectionalLight);
