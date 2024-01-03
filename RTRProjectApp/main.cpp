@@ -304,14 +304,14 @@ int main()
 	debugCube = Model();
 	debugCube.LoadModel("Models/cube.obj");
 
-	scene = Model();
-	scene.LoadModel("Models/scene.obj");
+	//scene = Model();
+	//scene.LoadModel("Models/scene.obj");
 
 	//flashLight = Model();
 	//flashLight.LoadModel("Models/flashlight.obj");
 
 	sf::SoundBuffer buffer;
-	if (!buffer.loadFromFile("Audio/ambient music short.wav")) {
+	if (!buffer.loadFromFile("Audio/ambient music short.mp3")) {
 		// Error handling if file loading fails
 		return EXIT_FAILURE;
 	}
