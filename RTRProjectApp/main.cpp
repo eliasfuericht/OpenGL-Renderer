@@ -311,20 +311,20 @@ int main()
 	printf("Initial loading took: %f seconds\n", glfwGetTime());
 
 	mainDirectionalLight = DirectionalLight(80.0f/255.0f, 104.0f/255.0f, 134.0f/255.0f,
-											1.0f, 0.5f,
+											0.5f, 0.1f,
 											0.82f, 0.96f, 1.61f, 
 											8192, 8192);
 
 	unsigned int pointLightCount = 0;
 	pointLights[0] = PointLight(1.0f, 1.0f, 1.0f,
-								1.0f, 0.1f,
+								0.5f, 0.1f,
 								0.0f, 2.5f, 0.0f,
 								10.0f, -1.5f, 0.1f,
 								2048, 2048);
 	pointLightCount++;
 
 	pointLights[1] = PointLight(1.0f, 1.0f, 1.0f,
-								1.0f, 0.1f,
+								0.5f, 0.1f,
 								1.0f, 2.5f, 1.0f,
 								10.0f, -1.5f, 0.1f,
 								2048, 2048);
@@ -399,7 +399,7 @@ int main()
 			camera.setCameraDirection(-cameraDirection);
 
 			pointLights[0].SetLightPosition(cameraPath.value_at(t + 0.01f));
-			pointLights[1].SetLightPosition(cameraPath.value_at(t - 0.05f));
+			pointLights[1].SetLightPosition(cameraPath.value_at(t - 0.01f));
 		}
 		// if animation is toggled off -> use WASD and mouse to navigate
 		else {
