@@ -128,6 +128,11 @@ void Window::handleKeys(GLFWwindow* window, int key, int code, int action, int m
 		theWindow->animation = !theWindow->animation;
 	}
 
+	if (key == GLFW_KEY_F2 && action == GLFW_PRESS)
+	{
+		theWindow->speedUp = !theWindow->speedUp;
+	}
+
 	// sets key to true if pressed and false if released
 	if (key >= 0 && key < 1024)
 	{

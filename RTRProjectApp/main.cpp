@@ -130,11 +130,13 @@ quadratic_uniform_b_spline targetPath;
 
 Material shinyMaterial;
 Material dullMaterial;
+Material lightMaterial;
 
 Model debugPlane;
 Model debugCube;
 Model scene;
-Model flashLight;
+Model sculptures;
+Model lightSphere;
 
 Texture dirtTexture;
 
@@ -229,6 +231,9 @@ void renderDebugScene() {
 }
 
 void renderRealScene() {
+
+	dullMaterial.UseMaterial(uniformSpecularIntensity, uniformShininess);
+
 	glm::mat4 model(1.0f);
 
 	model = glm::mat4(1.0f);
@@ -239,9 +244,9 @@ void renderRealScene() {
 
 	scene.RenderModel();
 
-	glm::vec3 flashLightPosition = camera.getCameraPosition();
+	shinyMaterial.UseMaterial(uniformSpecularIntensity, uniformShininess);
 
-	spotLights[0].SetFlash(glm::vec3(flashLightPosition.x, flashLightPosition.y-0.3f, flashLightPosition.z), camera.getCameraDirection());
+	sculptures.RenderModel();
 }
 
 int main()
@@ -250,8 +255,8 @@ int main()
 	mainWindow.Initialise();
 
 	// During init, enable debug output
-	glEnable(GL_DEBUG_OUTPUT);
-	glDebugMessageCallback(MessageCallback, 0);
+	//glEnable(GL_DEBUG_OUTPUT);
+	//glDebugMessageCallback(MessageCallback, 0);
 
 	//imgui setup
 	IMGUI_CHECKVERSION();
@@ -292,8 +297,10 @@ int main()
 	cameraPath = quadratic_uniform_b_spline(controlPointsComplete);
 	targetPath = quadratic_uniform_b_spline(targetPoints);
 
-	shinyMaterial = Material(4.0f, 256);
+	shinyMaterial = Material(8.0f, 256);
 	dullMaterial = Material(0.3f, 4);
+
+	lightMaterial = Material(20.0f, 128);
 
 	dirtTexture = Texture("Textures/dirt.png");
 	dirtTexture.LoadTextureA();
@@ -306,13 +313,15 @@ int main()
 
 	scene = Model();
 	scene.LoadModel("Models/scene.obj");
+	
+	sculptures = Model();
+	sculptures.LoadModel("Models/sculptures.obj");
 
-	//flashLight = Model();
-	//flashLight.LoadModel("Models/flashlight.obj");
+	lightSphere = Model();
+	lightSphere.LoadModel("Models/sphere.obj");
 
 	sf::SoundBuffer buffer;
 	if (!buffer.loadFromFile("Audio/ambient music short.mp3")) {
-		// Error handling if file loading fails
 		return EXIT_FAILURE;
 	}
 
@@ -323,7 +332,7 @@ int main()
 	printf("Initial loading took: %f seconds\n", glfwGetTime());
 
 	mainDirectionalLight = DirectionalLight(80.0f/255.0f, 104.0f/255.0f, 134.0f/255.0f,
-											0.5f, 0.1f,
+											0.5f, 0.0f,
 											0.82f, 0.96f, 1.61f, 
 											8192, 8192);
 
@@ -350,7 +359,7 @@ int main()
 								0.8f, 0.0f, 0.0f,
 								10.0f,
 								1024, 1024);
-	spotLightCount++;
+	//spotLightCount++;
 
 	skybox = Skybox("skybox1");
 
@@ -360,11 +369,12 @@ int main()
 	double lastFrame = 0.0f;
 	int frameCount = 0;
 	int fps = 0;
-	std::vector<int> fpsList;
 	glfwSetTime(0.0f);
 	double animationTime = 0.0f;
 
-	glm::vec3 temp = pointLights[0].GetConLinExp();
+	glm::vec3 pL0 = pointLights[0].GetConLinExp();
+	glm::vec3 pL1 = pointLights[1].GetConLinExp();
+
 
 	// Loop until window closed
 	while (!mainWindow.getShouldClose())
@@ -391,7 +401,13 @@ int main()
 		// camera animation
 		if (mainWindow.getAnimationBool()) {
 			//set t to control duration of animation
-			animationTime += deltaTime;
+
+			float multiplicator = 1.0f;
+
+			if (mainWindow.getSpeedUpBool()) {
+				//multiplicator = 5.0f;
+			}
+			animationTime += deltaTime * multiplicator;
 			t = animationTime / animationDuration;
 			t = glm::clamp(t, 0.0, 1.0);
 
@@ -426,14 +442,17 @@ int main()
 			ImGui::NewFrame();
 
 			ImGui::Begin("finally working");
-			//ImGui::DragFloat3("lightdir", glm::value_ptr(dir), 0.01f, -100.0f, 100.0f);
-			ImGui::DragFloat3("pointLight", glm::value_ptr(temp), 0.01f, -10.0f, 10.0f);
+			ImGui::DragFloat3("pL0", glm::value_ptr(pL0), 0.01f, -10.0f, 10.0f);
+			ImGui::DragFloat3("pL1", glm::value_ptr(pL1), 0.01f, -10.0f, 10.0f);
 			//ImGui::SliderFloat("left", &orthoLeft, -100.0f, 100.0f);
 			ImGui::End();
 
 			ImGui::Render();
 			ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 		}
+
+		//pointLights[0].SetConLinExp(pL0);
+		//pointLights[1].SetConLinExp(pL1);
 
 		//DIRECTIONAL SHADOWPASS
 		// sets shaderprogram at sDShadowPass as shaderprogram to use
@@ -498,7 +517,7 @@ int main()
 		// sends data about the lights from CPU to the (fragement)shader at corresponding locations
 		sRenderPass->SetDirectionalLight(&mainDirectionalLight);
 		sRenderPass->SetPointLights(pointLights, pointLightCount, 3, 0);
-		sRenderPass->SetSpotLights(spotLights, spotLightCount, 3+pointLightCount, pointLightCount);
+		//sRenderPass->SetSpotLights(spotLights, spotLightCount, 3+pointLightCount, pointLightCount);
 
 		sRenderPass->SetTexture(1);
 
@@ -521,17 +540,29 @@ int main()
 
 		renderRealScene();
 
+		lightMaterial.UseMaterial(uniformSpecularIntensity, uniformShininess);
+
 		glm::mat4 model(1.0f);
 
 		model = glm::mat4(1.0f);
 
 		model = glm::translate(model,pointLights[0].GetLightPosition());
 
-		model = glm::scale(model,glm::vec3(0.1,0.1,0.1));
+		model = glm::scale(model,glm::vec3(0.01,0.01,0.01));
 
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		
-		//debugCube.RenderModel();
+		lightSphere.RenderModel();
+
+		model = glm::mat4(1.0f);
+
+		model = glm::translate(model, pointLights[1].GetLightPosition());
+
+		model = glm::scale(model,glm::vec3(0.01,0.01,0.01));
+
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+
+		lightSphere.RenderModel();
 
 		//SKYBOX PASS
 		sSkybox->UseShader();

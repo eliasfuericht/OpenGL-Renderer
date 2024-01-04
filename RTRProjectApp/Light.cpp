@@ -16,6 +16,12 @@ Light::Light(GLfloat red, GLfloat green, GLfloat blue, GLfloat aIntensity, GLflo
 	diffuseIntensity = dIntensity;
 }
 
+void Light::SetAmbDif(GLfloat a, GLfloat d)
+{
+	ambientIntensity = a;
+	diffuseIntensity = d;
+}
+
 Light::~Light()
 {
 }

@@ -25,6 +25,7 @@ public:
 	GLfloat getXChange();
 	GLfloat getYChange();
 	bool getAnimationBool() { return animation; }
+	bool getSpeedUpBool() { return speedUp; }
 
 	void swapBuffers() { glfwSwapBuffers(mainWindow); }
 
@@ -45,6 +46,7 @@ private:
 	GLfloat yChange;
 	bool mouseFirstMoved;
 	bool animation;
+	bool speedUp;
 
 	void createCallbacks();
 	static void handleKeys(GLFWwindow* window, int key, int code, int action, int mode);

@@ -214,4 +214,8 @@ void main()
 	FragColor = vec4(texture(skybox, R).rgb, 1.0);*/
 	
 	FragColor = texture(theTexture, TexCoord) * finalcolor;
+
+	if (material.specularIntensity > 15.0f) {
+		FragColor = vec4(1.0);
+	}
 }
