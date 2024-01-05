@@ -41,59 +41,6 @@ std::vector<Shader> shaderList;
 
 Camera camera;
 
-std::vector<glm::vec3> controlPointsComplete = {
-	//forest path
-	glm::vec3(19.50, -0.60, 17.00),
-	glm::vec3(19.50, -0.60, 17.00),
-	glm::vec3(16.03, -0.55, 19.66),
-	glm::vec3(16.03, -0.55, 19.66),
-	glm::vec3(15.62, -0.19, 15.26),
-	glm::vec3(15.84, -0.06, 9.98),
-	glm::vec3(14.71, -0.02, 7.99),
-	glm::vec3(9.73, 0.41, 6.60),
-	glm::vec3(5.44, 0.79, 6.14),
-
-	//bunny
-	glm::vec3(4.72, 1.24, 5.25),
-	glm::vec3(4.37, 1.26, 3.97),
-	glm::vec3(5.85, 1.29, 3.49),
-	glm::vec3(7.06, 1.30, 2.31),
-	glm::vec3(7.06, 1.30, 2.31),
-	glm::vec3(7.17, 1.38, 0.38),
-	glm::vec3(5.59, 1.32, -0.84),
-	glm::vec3(3.98, 1.35, -2.88),
-
-	//teapot
-	glm::vec3(2.77, 1.29, -4.22),
-	glm::vec3(2.80, 1.51, -6.13),
-	glm::vec3(1.98, 1.33, -7.89),
-	glm::vec3(1.98, 1.33, -7.89),
-	glm::vec3(0.27, 1.43, -8.98),
-	glm::vec3(-1.32, 1.45, -8.16),
-	glm::vec3(-2.01, 1.40, -6.65),
-
-	//dragon
-	glm::vec3(-2.97, 1.34, -5.63),
-	glm::vec3(-2.93, 1.32, -3.27),
-	glm::vec3(-2.93, 1.32, -3.27),
-	glm::vec3(-5.33, 1.56, -5.14),
-	glm::vec3(-7.19, 1.45, -3.83),
-	glm::vec3(-6.68, 1.38, -1.68),
-
-	//end
-	glm::vec3(-5.07, 1.32, 0.64),
-	glm::vec3(-3.81, 1.29, 3.15),
-	glm::vec3(-1.51, 1.34, 4.21),
-	glm::vec3(2.05, 1.33, 4.22),
-	glm::vec3(4.92, 1.34, 5.24),
-	glm::vec3(8.66, 0.84, 7.09),
-	glm::vec3(12.37, 0.40, 7.79),
-	glm::vec3(15.00, 0.39, 9.00),
-	glm::vec3(14.20, 0.51, 8.65)
-
-	
-};
-
 std::vector<glm::vec3> testControlPoints = {
 	glm::vec3(19.5, -0.6, 17)				   ,
 glm::vec3(19.3418, -0.597721, 17.1212)		   ,
@@ -114,7 +61,6 @@ glm::vec3(4.5628, 1.25948, 4.13546)			   ,
 glm::vec3(5.22638, 1.27731, 3.68978)		   ,
 glm::vec3(6.1181, 1.29157, 3.19336)			   ,
 glm::vec3(6.82881, 1.29809, 2.53546)		   ,
-//glm::vec3(7.06006, 1.30005, 2.30887)		   ,
 glm::vec3(7.08591, 1.31884, 1.85537)		   ,
 glm::vec3(7.05608, 1.35901, 0.73483)		   ,
 glm::vec3(6.39788, 1.35067, -0.21606)		   ,
@@ -149,40 +95,7 @@ glm::vec3(1.09561, 1.33319, 4.24583)		   ,
 glm::vec3(3.15841, 1.334, 4.62184)			   ,
 glm::vec3(5.15947, 1.26621, 5.40086)		   ,
 glm::vec3(7.50135, 0.995914, 6.49631)		   ,
-glm::vec3(9.92399, 0.690808, 7.31399)
-};
-
-std::vector<glm::vec3> targetPoints = {
-	//museum
-	glm::vec3(0.0f, 0.0, 3.0f),
-	glm::vec3(3.0f, 0.0, -3.0f),
-	//bunny
-	glm::vec3(5.08, 1.30, 1.20),
-	glm::vec3(5.08, 1.30, 1.20),
-	glm::vec3(5.08, 1.30, 1.20),
-	//teapot
-	glm::vec3(5.18, 1.54, -1.12),
-	glm::vec3(2.92, 1.35, -4.29),
-	glm::vec3(2.92, 1.35, -4.29),
-	glm::vec3(0.26, 1.33, -7.20),
-	glm::vec3(0.26, 1.33, -7.20),
-	glm::vec3(0.26, 1.33, -7.20),
-	glm::vec3(0.26, 1.33, -7.20),
-	glm::vec3(1.0, 1.35, -5.29),
-	//dragon
-	glm::vec3(-4.89, 1.30, -2.62),
-	glm::vec3(-5.45, 1.25, -2.94),
-	glm::vec3(-5.45, 1.25, -2.94),
-	glm::vec3(-5.45, 1.25, -2.94),
-	glm::vec3(-4.89, 1.30, -2.62),
-	glm::vec3(-4.89, 1.30, -2.62),
-	//outwards
-	glm::vec3(-3.33, 1.40, 3.31),
-	glm::vec3(4.42, 1.38, 4.39),
-	glm::vec3(13.71, 0.94, 8.88),
-	glm::vec3(13.71, 0.94, 8.88),
-	glm::vec3(13.71, 0.94, 8.88),
-	glm::vec3(3.48, 1.37, 2.68)
+glm::vec3(10.2399, 0.690808, 7.31399)
 };
 
 std::vector<glm::vec3> testTargetPoint = {
@@ -215,21 +128,17 @@ std::vector<glm::vec3> testTargetPoint = {
 
 	glm::vec3(6.86635, 1.09922, 6.03722),
 
-	glm::vec3(16.0616, 2.46968, 7.42632),
-	glm::vec3(16.0616, 2.46968, 7.42632)
+	glm::vec3(14.0616, 2.46968, 7.42632),
+	glm::vec3(14.0616, 2.46968, 7.42632)
 };
 
-quadratic_uniform_b_spline cameraPath;
 quadratic_uniform_b_spline testCameraPath;
-
-quadratic_uniform_b_spline targetPath;
 quadratic_uniform_b_spline testTargetPath;
 
 Material shinyMaterial;
 Material dullMaterial;
 Material lightMaterial;
 
-Model debugPlane;
 Model debugCube;
 Model scene;
 Model sculptures;
@@ -239,7 +148,6 @@ Texture dirtTexture;
 
 DirectionalLight mainDirectionalLight;
 PointLight pointLights[MAX_POINT_LIGHTS];
-SpotLight spotLights[MAX_SPOT_LIGHTS];
 
 Skybox skybox;
 
@@ -279,54 +187,6 @@ extern "C"
 }
 #endif
 
-void GLAPIENTRY MessageCallback(GLenum source,GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam)
-{
-	fprintf(stderr, "GL CALLBACK: %s type = 0x%x, severity = 0x%x, message = %s\n",
-		(type == GL_DEBUG_TYPE_ERROR ? "** GL ERROR **" : ""),
-		type, severity, message);
-}
-
-void renderDebugScene() {
-	glm::mat4 model(1.0f);
-
-	model = glm::mat4(1.0f);
-
-	model = glm::translate(model, glm::vec3(0.0f, -1.0f, 0.0f));
-
-	model = glm::scale(model, glm::vec3(10.0f, 10.0f, 10.0f));
-
-	glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-
-	debugPlane.RenderModel();
-
-
-	model = glm::mat4(1.0f);
-
-	model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
-
-	glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-
-	debugCube.RenderModel();
-
-
-	model = glm::mat4(1.0f);
-
-	model = glm::translate(model, glm::vec3(0.0f, 0.0f, 5.0f));
-
-	glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-
-	debugCube.RenderModel();
-
-
-	//model = glm::mat4(1.0f);
-
-	//model = glm::translate(model, spotLights[0].GetLightPosition());
-
-	//glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-
-	//debugCube.RenderModel();
-}
-
 void renderRealScene() {
 
 	dullMaterial.UseMaterial(uniformSpecularIntensity, uniformShininess);
@@ -351,33 +211,6 @@ int main()
 	mainWindow = Window(1920, 1080, false);
 	mainWindow.Initialise();
 
-	// During init, enable debug output
-	//glEnable(GL_DEBUG_OUTPUT);
-	//glDebugMessageCallback(MessageCallback, 0);
-
-	//imgui setup
-	IMGUI_CHECKVERSION();
-	ImGui::CreateContext();
-	ImGuiIO& io = ImGui::GetIO();
-	(void)io;
-	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-	io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
-	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
-	io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
-	io.FontGlobalScale = 1.25f;
-
-	ImGui::StyleColorsDark();
-
-	ImGuiStyle& style = ImGui::GetStyle();
-	if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-	{
-		style.WindowRounding = 0.0f;
-		style.Colors[ImGuiCol_WindowBg].w = 1.0f;
-	}
-
-	ImGui_ImplGlfw_InitForOpenGL(mainWindow.getGLFWWindow(), true);
-	ImGui_ImplOpenGL3_Init("#version 460");
-
 	Shader* sDShadowPass = new Shader();
 	Shader* sOShadowPass = new Shader();
 	Shader* sRenderPass = new Shader();
@@ -391,9 +224,7 @@ int main()
 	// camera with correct startposition for final scene
 	camera = Camera(glm::vec3(19.5f, -0.60f, 17.0f), glm::vec3(0.0f, 1.0f, 0.0f), -60.0f, 0.0f, 5.0f, 0.05f);
 
-	cameraPath = quadratic_uniform_b_spline(controlPointsComplete);
 	testCameraPath = quadratic_uniform_b_spline(testControlPoints);
-	targetPath = quadratic_uniform_b_spline(targetPoints);
 	testTargetPath = quadratic_uniform_b_spline(testTargetPoint);
 
 	shinyMaterial = Material(8.0f, 256);
@@ -401,20 +232,14 @@ int main()
 
 	lightMaterial = Material(20.0f, 128);
 
-	dirtTexture = Texture("Textures/dirt.png");
-	dirtTexture.LoadTextureA();
-
-	debugPlane = Model();
-	debugPlane.LoadModel("Models/plane.obj");
-
 	debugCube = Model();
 	debugCube.LoadModel("Models/cube.obj");
 
 	scene = Model();
-	scene.LoadModel("Models/simplifiedScene.obj");
+	scene.LoadModel("Models/scene.obj");
 	
-	//sculptures = Model();
-	//sculptures.LoadModel("Models/sculptures.obj");
+	sculptures = Model();
+	sculptures.LoadModel("Models/sculptures.obj");
 
 	lightSphere = Model();
 	lightSphere.LoadModel("Models/sphere.obj");
@@ -450,16 +275,6 @@ int main()
 								2048, 2048);
 	pointLightCount++;
 
-	unsigned int spotLightCount = 0;
-	spotLights[0] = SpotLight(	1.0f, 0.0f, 0.0f,
-								0.1f, 0.35f,
-								2.0f, 2.0f, 2.0f,
-								0.0f, -1.0f, 0.0f,
-								0.8f, 0.0f, 0.0f,
-								10.0f,
-								1024, 1024);
-	//spotLightCount++;
-
 	skybox = Skybox("skybox1");
 
 	// calculating prespective projection matrix
@@ -470,10 +285,6 @@ int main()
 	int fps = 0;
 	glfwSetTime(0.0f);
 	double animationTime = 0.0f;
-
-	glm::vec3 pL0 = pointLights[0].GetConLinExp();
-	glm::vec3 pL1 = pointLights[1].GetConLinExp();
-
 
 	// Loop until window closed
 	while (!mainWindow.getShouldClose())
@@ -492,77 +303,34 @@ int main()
 			std::string FPS = std::to_string(fps);
 			std::string newTitle = "Night at the museum - " + FPS + "FPS";
 			glfwSetWindowTitle(mainWindow.getGLFWWindow(), newTitle.c_str());
-			if ((int)now % 2 == 0) {
-				// glm::vec3(14.20, 0.51, 8.65)
-				//std::cout << "glm::vec3(" << camera.getCameraPosition().x << ", " << camera.getCameraPosition().y << ", " << camera.getCameraPosition().z << ")," << std::endl;
-			}
 		}
-
-		
 
 		// Get + Handle User Input
 		glfwPollEvents();
 
 		// camera animation
-		if (mainWindow.getAnimationBool()) {
-			//set t to control duration of animation
+		//set t to control duration of animation
+		animationTime += deltaTime;
+		t = animationTime / animationDuration;
+		t = glm::clamp(t, 0.0, 1.0);
 
-			float multiplicator = 1.0f;
+		glm::vec3 newCameraPos = testCameraPath.value_at(t);
 
-			if (mainWindow.getSpeedUpBool()) {
-				multiplicator = 10.0f;
-				//std::cout << "glm::vec3(" << camera.getCameraPosition().x << ", " << camera.getCameraPosition().y << ", " << camera.getCameraPosition().z << ")," << std::endl;
-			}
-			animationTime += deltaTime * multiplicator;
-			t = animationTime / animationDuration;
-			t = glm::clamp(t, 0.0, 1.0);
+		camera.setCameraPosition(newCameraPos);
 
-			glm::vec3 newCameraPos = testCameraPath.value_at(t);
+		glm::vec3 target = testTargetPath.value_at(t);
 
-			camera.setCameraPosition(newCameraPos);
+		camera.setCameraUp(glm::vec3(0.0f, 1.0f, 0.0f));
 
-			glm::vec3 target = testTargetPath.value_at(t);
+		glm::mat4 viewMatrix = glm::lookAt(camera.getCameraPosition(), target, camera.getCameraUp());
 
-			camera.setCameraUp(glm::vec3(0.0f, 1.0f, 0.0f));
+		// Extract the direction vector from the view matrix
+		glm::vec3 cameraDirection = glm::normalize(glm::vec3(viewMatrix[0][2], viewMatrix[1][2], viewMatrix[2][2]));
 
-			glm::mat4 viewMatrix = glm::lookAt(camera.getCameraPosition(), target, camera.getCameraUp());
+		camera.setCameraDirection(-cameraDirection);
 
-			// Extract the direction vector from the view matrix
-			glm::vec3 cameraDirection = glm::normalize(glm::vec3(viewMatrix[0][2], viewMatrix[1][2], viewMatrix[2][2]));
-
-			camera.setCameraDirection(-cameraDirection);
-
-			pointLights[0].SetLightPosition(testCameraPath.value_at(t + 0.01f));
-			pointLights[1].SetLightPosition(testCameraPath.value_at(t - 0.01f));
-		}
-		// if animation is toggled off -> use WASD and mouse to navigate
-		else {
-			if (mainWindow.getSpeedUpBool()) {
-				//multiplicator = 5.0f;
-				std::cout << "glm::vec3(" << camera.getCameraPosition().x << ", " << camera.getCameraPosition().y << ", " << camera.getCameraPosition().z << ")," << std::endl;
-			}
-			camera.mouseControl(mainWindow.getXChange(), mainWindow.getYChange());
-			camera.keyControl(mainWindow.getKeys(), deltaTime);
-		}
-
-		//imgui window
-		{
-			ImGui_ImplOpenGL3_NewFrame();
-			ImGui_ImplGlfw_NewFrame();
-			ImGui::NewFrame();
-
-			ImGui::Begin("finally working");
-			ImGui::DragFloat3("pL0", glm::value_ptr(pL0), 0.01f, -10.0f, 10.0f);
-			ImGui::DragFloat3("pL1", glm::value_ptr(pL1), 0.01f, -10.0f, 10.0f);
-			//ImGui::SliderFloat("left", &orthoLeft, -100.0f, 100.0f);
-			ImGui::End();
-
-			ImGui::Render();
-			ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-		}
-
-		//pointLights[0].SetConLinExp(pL0);
-		//pointLights[1].SetConLinExp(pL1);
+		pointLights[0].SetLightPosition(testCameraPath.value_at(t + 0.02f));
+		pointLights[1].SetLightPosition(testCameraPath.value_at(t - 0.02f));
 
 		//DIRECTIONAL SHADOWPASS
 		// sets shaderprogram at sDShadowPass as shaderprogram to use
@@ -573,8 +341,6 @@ int main()
 		uniformModel = sDShadowPass->GetModelLocation();
 
 		mainDirectionalLight.WriteShadowMap(uniformLightSpace);
-
-		//renderDebugScene();
 		
 		renderRealScene();
 
@@ -590,8 +356,6 @@ int main()
 
 		for (size_t i = 0; i < pointLightCount; i++) {
 			pointLights[i].WriteShadowMap(uniformOShadowMatrices, uniformLightPos, uniformLightFarPlane);
-
-			//renderDebugScene();
 
 			renderRealScene();
 
@@ -620,22 +384,14 @@ int main()
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		//rotates spotlight around origin
-		float angle = now;
-		//pointLights[1].SetLightPosition(glm::vec3(5.0f * cos(angle), 5.0f, 5.0f * sin(angle)));
-
 		// sends data about the lights from CPU to the (fragement)shader at corresponding locations
 		sRenderPass->SetDirectionalLight(&mainDirectionalLight);
 		sRenderPass->SetPointLights(pointLights, pointLightCount, 3, 0);
-		//sRenderPass->SetSpotLights(spotLights, spotLightCount, 3+pointLightCount, pointLightCount);
 
 		sRenderPass->SetTexture(1);
 
 		mainDirectionalLight.ReadShadowMap();
 		sRenderPass->SetDirectionalShadowMap(2);
-
-		/*pointLights[0].ReadShadowMap();
-		sRenderPass->SetOmniDirectionalShadowMap(2);*/
 
 		glUniformMatrix4fv(uniformProjection, 1, GL_FALSE, glm::value_ptr(projection));
 		glUniformMatrix4fv(uniformView, 1, GL_FALSE, glm::value_ptr(camera.calculateViewMatrix()));
@@ -645,8 +401,6 @@ int main()
 
 		//comparable to UseLight() in DirectionalLight.cpp but for Material
 		shinyMaterial.UseMaterial(uniformSpecularIntensity, uniformShininess);
-
-		//renderDebugScene();
 
 		renderRealScene();
 
@@ -691,20 +445,8 @@ int main()
 
 		glUseProgram(0);
 
-		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-		{
-			GLFWwindow* backup_current_context = glfwGetCurrentContext();
-			ImGui::UpdatePlatformWindows();
-			ImGui::RenderPlatformWindowsDefault();
-			glfwMakeContextCurrent(backup_current_context);
-		}
-
 		mainWindow.swapBuffers();
 	}
-
-	ImGui_ImplOpenGL3_Shutdown();
-	ImGui_ImplGlfw_Shutdown();
-	ImGui::DestroyContext();
 
 	glfwDestroyWindow(mainWindow.getGLFWWindow());
 	glfwTerminate();
