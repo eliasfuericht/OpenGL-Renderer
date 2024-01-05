@@ -90,6 +90,66 @@ std::vector<glm::vec3> controlPointsComplete = {
 	glm::vec3(12.37, 0.40, 7.79),
 	glm::vec3(15.00, 0.39, 9.00),
 	glm::vec3(14.20, 0.51, 8.65)
+
+	
+};
+
+std::vector<glm::vec3> testControlPoints = {
+	glm::vec3(19.5, -0.6, 17)				   ,
+glm::vec3(19.3418, -0.597721, 17.1212)		   ,
+glm::vec3(17.9147, -0.577157, 18.2153)		   ,
+glm::vec3(16.2959, -0.553832, 19.4561)		   ,
+glm::vec3(16.0162, -0.537844, 19.5114)		   ,
+glm::vec3(15.8594, -0.400165, 17.8287)		   ,
+glm::vec3(15.694, -0.203628, 14.8403)		   ,
+glm::vec3(15.7461, -0.0991198, 11.5604)		   ,
+glm::vec3(15.4128, -0.0460886, 9.27749)		   ,
+glm::vec3(14.1674, 0.0334897, 8.03158)		   ,
+glm::vec3(11.3728, 0.268294, 7.06946)		   ,
+glm::vec3(8.35249, 0.53219, 6.46561)		   ,
+glm::vec3(5.9528, 0.787951, 6.10371)		   ,
+glm::vec3(4.99258, 1.06807, 5.58027)		   ,
+glm::vec3(4.63211, 1.23488, 4.88537)		   ,
+glm::vec3(4.5628, 1.25948, 4.13546)			   ,
+glm::vec3(5.22638, 1.27731, 3.68978)		   ,
+glm::vec3(6.1181, 1.29157, 3.19336)			   ,
+glm::vec3(6.82881, 1.29809, 2.53546)		   ,
+//glm::vec3(7.06006, 1.30005, 2.30887)		   ,
+glm::vec3(7.08591, 1.31884, 1.85537)		   ,
+glm::vec3(7.05608, 1.35901, 0.73483)		   ,
+glm::vec3(6.39788, 1.35067, -0.21606)		   ,
+glm::vec3(5.36421, 1.33003, -1.17704)		   ,
+glm::vec3(5.1351, 1.33992, -2.42194)		   ,
+glm::vec3(3.54918, 1.32348, -3.46738)		   ,
+glm::vec3(2.87568, 1.33361, -4.44419)		   ,
+glm::vec3(2.76701, 1.44178, -5.63667)		   ,
+glm::vec3(2.47016, 1.43646, -6.82742)		   ,
+glm::vec3(2.0637, 1.34837, -7.71035)		   ,
+glm::vec3(1.94551, 1.33202, -7.91199)		   ,
+glm::vec3(1.35909, 1.36631, -8.28579)		   ,
+glm::vec3(0.276196, 1.42032, -8.74194)		   ,
+glm::vec3(-0.762164, 1.44227, -8.43364)		   ,
+glm::vec3(-1.51647, 1.43329, -7.68134)		   ,
+glm::vec3(-2.0107, 1.40096, -6.76266)		   ,
+glm::vec3(-2.59054, 1.36358, -6.01834)		   ,
+glm::vec3(-2.93153, 1.33584, -4.97027)		   ,
+glm::vec3(-2.9368, 1.3234, -3.67107)		   ,
+glm::vec3(-2.93578, 1.32058, -3.2745)		   ,
+glm::vec3(-3.55258, 1.38226, -3.75509)		   ,
+glm::vec3(-4.98679, 1.50513, -4.68103)		   ,
+glm::vec3(-6.30466, 1.50233, -4.4528)		   ,
+glm::vec3(-6.97657, 1.43954, -3.40217)		   ,
+glm::vec3(-6.70778, 1.39252, -2.03872)		   ,
+glm::vec3(-5.90654, 1.35119, -0.565722)		   ,
+glm::vec3(-4.92745, 1.31807, 0.984055)		   ,
+glm::vec3(-4.5405, 1.29971, 2.54898)		   ,
+glm::vec3(-2.90876, 1.31189, 3.60728)		   ,
+glm::vec3(-1.09819, 1.33399, 4.12053)		   ,
+glm::vec3(1.09561, 1.33319, 4.24583)		   ,
+glm::vec3(3.15841, 1.334, 4.62184)			   ,
+glm::vec3(5.15947, 1.26621, 5.40086)		   ,
+glm::vec3(7.50135, 0.995914, 6.49631)		   ,
+glm::vec3(9.92399, 0.690808, 7.31399)
 };
 
 std::vector<glm::vec3> targetPoints = {
@@ -125,8 +185,45 @@ std::vector<glm::vec3> targetPoints = {
 	glm::vec3(3.48, 1.37, 2.68)
 };
 
+std::vector<glm::vec3> testTargetPoint = {
+	glm::vec3(16.1251, -0.425445, 18.584),
+
+	glm::vec3(16.4956, 0.121049, 8.80819),
+
+	glm::vec3(10.9728, 0.459552, 7.047),
+
+	glm::vec3(3.98437, 1.28137, 4.54027),
+	glm::vec3(3.98437, 1.28137, 4.54027),
+
+	//bunny
+	glm::vec3(5.03575, 1.28534, 1.18781),
+	glm::vec3(5.03575, 1.28534, 1.18781),
+	glm::vec3(5.03575, 1.28534, 1.18781),
+	glm::vec3(5.03575, 1.28534, 1.18781),
+	
+	//teapot
+	glm::vec3(0.302491, 1.33864, -6.84412),
+	glm::vec3(0.302491, 1.33864, -6.84412),
+	glm::vec3(0.302491, 1.33864, -6.84412),
+	
+	//dragon
+	glm::vec3(-5.08298, 1.4183, -2.57099),
+	glm::vec3(-5.08298, 1.4183, -2.57099),
+	glm::vec3(-5.08298, 1.33864, -2.57099),
+	glm::vec3(-5.08298, 1.28534, -2.57099),
+	glm::vec3(-5.08298, 1.28534, -2.57099),
+
+	glm::vec3(6.86635, 1.09922, 6.03722),
+
+	glm::vec3(16.0616, 2.46968, 7.42632),
+	glm::vec3(16.0616, 2.46968, 7.42632)
+};
+
 quadratic_uniform_b_spline cameraPath;
+quadratic_uniform_b_spline testCameraPath;
+
 quadratic_uniform_b_spline targetPath;
+quadratic_uniform_b_spline testTargetPath;
 
 Material shinyMaterial;
 Material dullMaterial;
@@ -295,7 +392,9 @@ int main()
 	camera = Camera(glm::vec3(19.5f, -0.60f, 17.0f), glm::vec3(0.0f, 1.0f, 0.0f), -60.0f, 0.0f, 5.0f, 0.05f);
 
 	cameraPath = quadratic_uniform_b_spline(controlPointsComplete);
+	testCameraPath = quadratic_uniform_b_spline(testControlPoints);
 	targetPath = quadratic_uniform_b_spline(targetPoints);
+	testTargetPath = quadratic_uniform_b_spline(testTargetPoint);
 
 	shinyMaterial = Material(8.0f, 256);
 	dullMaterial = Material(0.3f, 4);
@@ -312,10 +411,10 @@ int main()
 	debugCube.LoadModel("Models/cube.obj");
 
 	scene = Model();
-	scene.LoadModel("Models/scene.obj");
+	scene.LoadModel("Models/simplifiedScene.obj");
 	
-	sculptures = Model();
-	sculptures.LoadModel("Models/sculptures.obj");
+	//sculptures = Model();
+	//sculptures.LoadModel("Models/sculptures.obj");
 
 	lightSphere = Model();
 	lightSphere.LoadModel("Models/sphere.obj");
@@ -393,7 +492,13 @@ int main()
 			std::string FPS = std::to_string(fps);
 			std::string newTitle = "Night at the museum - " + FPS + "FPS";
 			glfwSetWindowTitle(mainWindow.getGLFWWindow(), newTitle.c_str());
+			if ((int)now % 2 == 0) {
+				// glm::vec3(14.20, 0.51, 8.65)
+				//std::cout << "glm::vec3(" << camera.getCameraPosition().x << ", " << camera.getCameraPosition().y << ", " << camera.getCameraPosition().z << ")," << std::endl;
+			}
 		}
+
+		
 
 		// Get + Handle User Input
 		glfwPollEvents();
@@ -405,17 +510,18 @@ int main()
 			float multiplicator = 1.0f;
 
 			if (mainWindow.getSpeedUpBool()) {
-				//multiplicator = 5.0f;
+				multiplicator = 10.0f;
+				//std::cout << "glm::vec3(" << camera.getCameraPosition().x << ", " << camera.getCameraPosition().y << ", " << camera.getCameraPosition().z << ")," << std::endl;
 			}
 			animationTime += deltaTime * multiplicator;
 			t = animationTime / animationDuration;
 			t = glm::clamp(t, 0.0, 1.0);
 
-			glm::vec3 newCameraPos = cameraPath.value_at(t);
+			glm::vec3 newCameraPos = testCameraPath.value_at(t);
 
 			camera.setCameraPosition(newCameraPos);
 
-			glm::vec3 target = targetPath.value_at(t);
+			glm::vec3 target = testTargetPath.value_at(t);
 
 			camera.setCameraUp(glm::vec3(0.0f, 1.0f, 0.0f));
 
@@ -426,11 +532,15 @@ int main()
 
 			camera.setCameraDirection(-cameraDirection);
 
-			pointLights[0].SetLightPosition(cameraPath.value_at(t + 0.01f));
-			pointLights[1].SetLightPosition(cameraPath.value_at(t - 0.01f));
+			pointLights[0].SetLightPosition(testCameraPath.value_at(t + 0.01f));
+			pointLights[1].SetLightPosition(testCameraPath.value_at(t - 0.01f));
 		}
 		// if animation is toggled off -> use WASD and mouse to navigate
 		else {
+			if (mainWindow.getSpeedUpBool()) {
+				//multiplicator = 5.0f;
+				std::cout << "glm::vec3(" << camera.getCameraPosition().x << ", " << camera.getCameraPosition().y << ", " << camera.getCameraPosition().z << ")," << std::endl;
+			}
 			camera.mouseControl(mainWindow.getXChange(), mainWindow.getYChange());
 			camera.keyControl(mainWindow.getKeys(), deltaTime);
 		}
