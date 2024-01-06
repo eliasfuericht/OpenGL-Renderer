@@ -1,4 +1,5 @@
 #version 330 core
+//apply occlusion factors to lightning
 
 in vec2 TexCoords;
 

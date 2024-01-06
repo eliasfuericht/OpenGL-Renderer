@@ -91,7 +91,8 @@ unsigned int Ssao::getColorBufferBlur() {
 void Ssao::configureGBuffer() {
     glGenFramebuffers(1, &gBuffer);
     glBindFramebuffer(GL_FRAMEBUFFER, gBuffer);
-    // position color buffer
+
+    //configure gPosition color buffer texture
     glGenTextures(1, &gPosition);
     glBindTexture(GL_TEXTURE_2D, gPosition);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height, 0, GL_RGBA, GL_FLOAT, NULL);
@@ -99,7 +100,10 @@ void Ssao::configureGBuffer() {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, gPosition, 0);
+
+    //TODO: Remove and adjust to existing buffer
     // normal color buffer
     glGenTextures(1, &gNormal);
     glBindTexture(GL_TEXTURE_2D, gNormal);
@@ -129,8 +133,10 @@ void Ssao::configureGBuffer() {
 }
 
 void Ssao::createSsaoFrameBuffer() {
+    //create Framebuffer object to store result of the SSAO stage (final lighting shader)
     glGenFramebuffers(1, &ssaoFBO);  glGenFramebuffers(1, &ssaoBlurFBO);
     glBindFramebuffer(GL_FRAMEBUFFER, ssaoFBO);
+
     // SSAO color buffer
     glGenTextures(1, &ssaoColorBuffer);
     glBindTexture(GL_TEXTURE_2D, ssaoColorBuffer);
@@ -138,9 +144,11 @@ void Ssao::createSsaoFrameBuffer() {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, ssaoColorBuffer, 0);
+
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
         std::cout << "SSAO Framebuffer not complete!" << std::endl;
-    // and blur stage
+
+    //Create Framebuffer object for storing the blur result
     glBindFramebuffer(GL_FRAMEBUFFER, ssaoBlurFBO);
     glGenTextures(1, &ssaoColorBufferBlur);
     glBindTexture(GL_TEXTURE_2D, ssaoColorBufferBlur);
@@ -154,14 +162,15 @@ void Ssao::createSsaoFrameBuffer() {
 }
 
 void Ssao::generateKernel() {
+    //sample kernel (unit hemisphere) with 64 sample values 
     for (unsigned int i = 0; i < 64; ++i)
     {
         glm::vec3 sample(randomFloats(generator) * 2.0 - 1.0, randomFloats(generator) * 2.0 - 1.0, randomFloats(generator));
         sample = glm::normalize(sample);
         sample *= randomFloats(generator);
-        float scale = float(i) / 64.0f;
 
-        // scale samples s.t. they're more aligned to center of kernel
+        // larger weight on occlusions closer to actual fragment
+        float scale = float(i) / 64.0f;
         float a = 0.1f;
         float b = 1.0f;
         float f = scale * scale;
@@ -172,11 +181,14 @@ void Ssao::generateKernel() {
 }
 
 void Ssao::generateNoise() {
+    //randomness reduces number of samples
     for (unsigned int i = 0; i < 16; i++)
     {
         glm::vec3 noise(randomFloats(generator) * 2.0 - 1.0, randomFloats(generator) * 2.0 - 1.0, 0.0f); // rotate around z-axis (in tangent space)
         ssaoNoise.push_back(noise);
     }
+
+    //create texture to hold the random rotation vectors
     glGenTextures(1, &noiseTexture);
     glBindTexture(GL_TEXTURE_2D, noiseTexture);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, 4, 4, 0, GL_RGB, GL_FLOAT, &ssaoNoise[0]);

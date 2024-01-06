@@ -57,6 +57,8 @@ uniform sampler2D theTexture;
 uniform sampler2D dShadowMap;
 uniform Material material;
 
+uniform sampler2D ssao;
+
 uniform vec3 eyePosition;
 
 float ShadowCalculation()
@@ -180,7 +182,9 @@ vec4 CalcSpotLights()
 
 void main()
 {
-	vec4 finalcolor = CalcDirectionalLight();
+	float AmbientOcclusion = texture(ssao, TexCoord).r;
+
+	vec4 finalcolor = CalcDirectionalLight() * AmbientOcclusion; //add occlusion factor
 	finalcolor += CalcPointLights();
 	finalcolor += CalcSpotLights();
 
