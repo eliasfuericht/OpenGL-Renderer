@@ -219,7 +219,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\blur.frag" />
-    <None Include="Shaders\blur.vert" />
     <None Include="Shaders\dShadowMapFragment.glsl" />
     <None Include="Shaders\dShadowMapVertex.glsl" />
     <None Include="Shaders\fragment.glsl" />
@@ -229,8 +228,6 @@
     <None Include="Shaders\ssao.vert" />
     <None Include="Shaders\vertex.glsl" />
     <None Include="ssao_geometry.frag" />
-    <None Include="ssao_geometry.vert" />
-    <None Include="ssao_lightning.frag" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

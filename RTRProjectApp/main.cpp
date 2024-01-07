@@ -162,14 +162,9 @@ static const char* vShader = "Shaders/vertex.glsl";
 // Fragment Shader
 static const char* fShader = "Shaders/fragment.glsl";
 
-//SSAO Vertex Shaders
-static const char* vGeometryShader = "Shaders/ssao_geometry.vert";
-static const char* vSSAOShader = "Shaders/ssao.vert";
-
-//SSAO Fragment Shaders
+//SSAO Shaders
 static const char* fGeometryShader = "Shaders/ssao_geometry.frag";
 static const char* fSSAOShader = "Shaders/ssao.frag";
-static const char* fLightningShader = "Shaders/ssao_lightning.frag";
 static const char* fBlurShader = "Shaders/blur.frag";
 
 
@@ -209,7 +204,7 @@ void renderDebugScene() {
 	model = glm::scale(model, glm::vec3(10.0f, 10.0f, 10.0f));
 
 	glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-	//geometryShader->setMat4("model", model);
+
 
 	debugPlane.RenderModel();
 
@@ -219,7 +214,6 @@ void renderDebugScene() {
 	model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
 
 	glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-	//geometryShader->setMat4("model", model);
 
 	debugCube.RenderModel();
 
@@ -229,7 +223,6 @@ void renderDebugScene() {
 	model = glm::translate(model, glm::vec3(0.0f, 0.0f, 5.0f));
 
 	glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-	//geometryShader->setMat4("model", model);
 
 	debugCube.RenderModel();
 
@@ -289,21 +282,20 @@ int main()
 	ImGui_ImplGlfw_InitForOpenGL(mainWindow.getGLFWWindow(), true);
 	ImGui_ImplOpenGL3_Init("#version 460");
 
-	Shader* shader0 = new Shader();
-	Shader* shader1 = new Shader();
+	Shader* shaderShadow = new Shader();
+	Shader* shaderLighting = new Shader();
 
 	//ssao shaders
 	Shader* shaderGeometryPass = new Shader();
-	Shader* shaderLightingPass = new Shader();
 	Shader* shaderSSAO = new Shader();
 	Shader* shaderSSAOBlur = new Shader();
 
-	shader0->CreateFromFiles(dShadowVertShader, dShadowFragShader);
-	shader1->CreateFromFiles(vShader, fShader);
-	shaderGeometryPass->CreateFromFiles(vGeometryShader, fGeometryShader);
-	shaderLightingPass->CreateFromFiles(vSSAOShader, fLightningShader);
-	shaderSSAO->CreateFromFiles(vSSAOShader, fSSAOShader);
-	shaderSSAOBlur->CreateFromFiles(vSSAOShader, fBlurShader);
+	shaderShadow->CreateFromFiles(dShadowVertShader, dShadowFragShader);
+	shaderLighting->CreateFromFiles(vShader, fShader);
+
+	shaderGeometryPass->CreateFromFiles(vShader, fGeometryShader);
+	shaderSSAO->CreateFromFiles(vShader, fSSAOShader);
+	shaderSSAOBlur->CreateFromFiles(vShader, fBlurShader);
 
 	//ssao configuration
 	ssao = Ssao(WIDTH, HEIGHT);
@@ -313,21 +305,16 @@ int main()
 	ssao.createSsaoFrameBuffer();
 	ssao.generateKernel();
 	ssao.generateNoise();
-	// shader configuration
-    // --------------------
-    shaderLightingPass->UseShader();
-    shaderLightingPass->setInt("gPosition", 0);
-    shaderLightingPass->setInt("gNormal", 1);
-    shaderLightingPass->setInt("gAlbedo", 2);
-    shaderLightingPass->setInt("ssao", 3);
 
-    shaderSSAO->UseShader();
+	// shader configuration
+    // -------------------
+    /*shaderSSAO->UseShader();
     shaderSSAO->setInt("gPosition", 0);
     shaderSSAO->setInt("gNormal", 1);
     shaderSSAO->setInt("texNoise", 2);
 
     shaderSSAOBlur->UseShader();
-    shaderSSAOBlur->setInt("ssaoInput", 0);
+    shaderSSAOBlur->setInt("ssaoInput", 0);*/
 
 	// camera with correct startposition for final scene
 	camera = Camera(glm::vec3(19.5f, -0.60f, 17.0f), glm::vec3(0.0f, 1.0f, 0.0f), -60.0f, 0.0f, 5.0f, 0.05f);
@@ -447,12 +434,47 @@ int main()
 			ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 		}
 
-		// sets shaderprogram at shader0 as shaderprogram to use
-		// shader0 = shadowpass
-		shader0->UseShader();
+		//1. geometry pass: render into G-buffer
+		glBindFramebuffer(GL_FRAMEBUFFER, ssao.getGBuffer());
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		shaderGeometryPass->UseShader();
+		shaderGeometryPass->setMat4("projection", projection);
+		shaderGeometryPass->setMat4("view", camera.calculateViewMatrix());
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-		uniformLightSpace = shader0->GetLightSpaceMatrixLocation();
-		uniformModel = shader0->GetModelLocation();
+		//2. generate SSAO texture
+		// ------------------------
+		glBindFramebuffer(GL_FRAMEBUFFER, ssao.getSsaoFBO());
+		glClear(GL_COLOR_BUFFER_BIT);
+		shaderSSAO->UseShader();
+		// Send kernel + rotation 
+		for (unsigned int i = 0; i < 64; ++i)
+			shaderSSAO->setVec3("samples[" + std::to_string(i) + "]", ssao.getSsaoKernel()[i]);
+		shaderSSAO->setMat4("projection", projection);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, ssao.getGPosition());
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, ssao.getGNormal());
+		glActiveTexture(GL_TEXTURE2);
+		glBindTexture(GL_TEXTURE_2D, ssao.getNoiseTexture());
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+		//// 3. blur SSAO texture to remove noise
+		//// ------------------------------------
+		glBindFramebuffer(GL_FRAMEBUFFER, ssao.getBlurFBO());
+		glClear(GL_COLOR_BUFFER_BIT);
+		shaderSSAOBlur->UseShader();
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, ssao.getColorBuffer());
+		//renderQuad();
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+		// sets shaderprogram at shaderShadow as shaderprogram to use
+		// 4. shaderShadow = shadowpass
+		shaderShadow->UseShader();
+
+		uniformLightSpace = shaderShadow->GetLightSpaceMatrixLocation();
+		uniformModel = shaderShadow->GetModelLocation();
 
 		mainDirectionalLight.WriteShadowMap(uniformLightSpace);
 
@@ -462,20 +484,21 @@ int main()
 
 		mainDirectionalLight.UnbindShadowMap();
 
-		// sets shaderprogram at shader1 as shaderprogram to use
-		// = renderpass
-		shader1->UseShader();
+		// sets shaderprogram at shaderLighting as shaderprogram to use
+		// 5. = lighting renderpass
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		shaderLighting->UseShader();
 
 		// retreive uniform locations (ID) from shader membervariables
 		// and stores them in local varibale for passing projection, model and view matrices to shader
-		uniformModel = shader1->GetModelLocation();
-		uniformProjection = shader1->GetProjectionLocation();
-		uniformView = shader1->GetViewLocation();
-		uniformEyePosition = shader1->GetEyePositionLocation();
-		uniformSpecularIntensity = shader1->GetSpecularIntensityLocation();
-		uniformShininess = shader1->GetShininessLocation();
-		uniformDShadowMap = shader1->GetDShadowMapLocation();
-		uniformLightSpace = shader1->GetLightSpaceMatrixLocation();
+		uniformModel = shaderLighting->GetModelLocation();
+		uniformProjection = shaderLighting->GetProjectionLocation();
+		uniformView = shaderLighting->GetViewLocation();
+		uniformEyePosition = shaderLighting->GetEyePositionLocation();
+		uniformSpecularIntensity = shaderLighting->GetSpecularIntensityLocation();
+		uniformShininess = shaderLighting->GetShininessLocation();
+		uniformDShadowMap = shaderLighting->GetDShadowMapLocation();
+		uniformLightSpace = shaderLighting->GetLightSpaceMatrixLocation();
 
 		glViewport(0, 0, WIDTH, HEIGHT);
 
@@ -489,89 +512,28 @@ int main()
 		spotLights[0].SetLightDirection(glm::vec3(0.0,0.0,0.0));
 
 		// sends data about the lights from CPU to the (fragement)shader at corresponding locations
-		shader1->SetDirectionalLight(&mainDirectionalLight);
-		shader1->SetPointLights(pointLights, pointLightCount);
-		shader1->SetSpotLights(spotLights, spotLightCount);
+		shaderLighting->SetDirectionalLight(&mainDirectionalLight);
+		shaderLighting->SetPointLights(pointLights, pointLightCount);
+		shaderLighting->SetSpotLights(spotLights, spotLightCount);
 
 		mainDirectionalLight.ReadShadowMap();
 
-		shader1->SetTexture(0);
-		shader1->SetDirectionalShadowMap(1);
+		shaderLighting->SetTexture(0);
+		shaderLighting->SetDirectionalShadowMap(1);
 
 		glUniformMatrix4fv(uniformProjection, 1, GL_FALSE, glm::value_ptr(projection));
 		glUniformMatrix4fv(uniformView, 1, GL_FALSE, glm::value_ptr(camera.calculateViewMatrix()));
 		glUniformMatrix4fv(uniformLightSpace, 1, GL_FALSE, glm::value_ptr(mainDirectionalLight.GetLightSpaceMatrix()));
 		glUniform3f(uniformEyePosition, camera.getCameraPosition().x, camera.getCameraPosition().y, camera.getCameraPosition().z);
 
+		glActiveTexture(GL_TEXTURE3); // add extra SSAO texture to lighting pass
+		glBindTexture(GL_TEXTURE_2D, ssao.getColorBufferBlur());
+
 		//comparable to UseLight() in DirectionalLight.cpp but for Material
 		dullMaterial.UseMaterial(uniformSpecularIntensity, uniformShininess);
 
 		renderDebugScene();
 		//renderRealScene();
-
-		////ssao geometry pass
-		//// 1. geometry pass: render scene's geometry/color data into gbuffer
-		//// -----------------------------------------------------------------
-		//glBindFramebuffer(GL_FRAMEBUFFER, ssao.getGBuffer());
-		//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		//shaderGeometryPass->UseShader();
-		//shaderGeometryPass->setMat4("projection", projection);
-		//shaderGeometryPass->setMat4("view", camera.calculateViewMatrix());
-		//// debug scene
-		//renderDebugScene(shaderGeometryPass);
-		//glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-		////2. generate SSAO texture
-		//// ------------------------
-		//glBindFramebuffer(GL_FRAMEBUFFER, ssao.getSsaoFBO());
-		//glClear(GL_COLOR_BUFFER_BIT);
-		//shaderSSAO->UseShader();
-		//// Send kernel + rotation 
-		//for (unsigned int i = 0; i < 64; ++i)
-		//	shaderSSAO->setVec3("samples[" + std::to_string(i) + "]", ssao.getSsaoKernel()[i]);
-		//shaderSSAO->setMat4("projection", projection);
-		//glActiveTexture(GL_TEXTURE0);
-		//glBindTexture(GL_TEXTURE_2D, ssao.getGPosition());
-		//glActiveTexture(GL_TEXTURE1);
-		//glBindTexture(GL_TEXTURE_2D, ssao.getGNormal());
-		//glActiveTexture(GL_TEXTURE2);
-		//glBindTexture(GL_TEXTURE_2D, ssao.getNoiseTexture());
-		////renderQuad();
-		//glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-
-		//// 3. blur SSAO texture to remove noise
-		//// ------------------------------------
-		//glBindFramebuffer(GL_FRAMEBUFFER, ssao.getBlurFBO());
-		//glClear(GL_COLOR_BUFFER_BIT);
-		//shaderSSAOBlur->UseShader();
-		//glActiveTexture(GL_TEXTURE0);
-		//glBindTexture(GL_TEXTURE_2D, ssao.getColorBuffer());
-		////renderQuad();
-		//glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-
-		//// 4. lighting pass: traditional deferred Blinn-Phong lighting with added screen-space ambient occlusion
-		//// -----------------------------------------------------------------------------------------------------
-		//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		//shaderLightingPass->UseShader();
-		//// send light relevant uniforms
-		//shaderLightingPass->setVec3("light.Position", mainDirectionalLight.GetDirection());
-		//shaderLightingPass->setVec3("light.Color", glm::vec3(0.2, 0.2, 0.7));
-		//// Update attenuation parameters
-		//const float linear = 0.09f;
-		//const float quadratic = 0.032f;
-		//shaderLightingPass->setFloat("light.Linear", linear);
-		//shaderLightingPass->setFloat("light.Quadratic", quadratic);
-		//glActiveTexture(GL_TEXTURE0);
-		//glBindTexture(GL_TEXTURE_2D, ssao.getGPosition());
-		//glActiveTexture(GL_TEXTURE1);
-		//glBindTexture(GL_TEXTURE_2D, ssao.getGNormal());
-		//glActiveTexture(GL_TEXTURE2);
-		//glBindTexture(GL_TEXTURE_2D, ssao.getGAlbedo());
-		//glActiveTexture(GL_TEXTURE3); // add extra SSAO texture to lighting pass
-		//glBindTexture(GL_TEXTURE_2D, ssao.getColorBufferBlur());
-		////renderQuad();
 
 		glUseProgram(0);
 
