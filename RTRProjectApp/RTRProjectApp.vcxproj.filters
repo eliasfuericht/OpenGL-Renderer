@@ -214,5 +214,8 @@
     <None Include="Shaders\skyBoxFragment.glsl">
       <Filter>Resource Files\Shaders</Filter>
     </None>
+    <None Include="Shaders\oShadowMapGeometry.glsl">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>
