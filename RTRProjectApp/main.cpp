@@ -211,7 +211,7 @@ void renderRealScene() {
 
 int main()
 {
-	mainWindow = Window(1920, 1080, false);
+	mainWindow = Window(1920, 1080, true);
 	mainWindow.Initialise();
 
 	Shader* sDShadowPass = new Shader();
