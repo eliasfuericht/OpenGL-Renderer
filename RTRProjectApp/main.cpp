@@ -144,6 +144,9 @@ Model scene;
 Model sculptures;
 Model lightSphere;
 
+sf::SoundBuffer buffer;
+sf::Sound sound;
+
 Texture dirtTexture;
 
 DirectionalLight mainDirectionalLight;
@@ -232,6 +235,9 @@ int main()
 
 	lightMaterial = Material(20.0f, 128);
 
+	buffer = sf::SoundBuffer();
+	buffer.loadFromFile("Audio/ambientMusic.mp3");
+
 	debugCube = Model();
 	debugCube.LoadModel("Models/cube.obj");
 
@@ -243,13 +249,8 @@ int main()
 
 	lightSphere = Model();
 	lightSphere.LoadModel("Models/sphere.obj");
-
-	sf::SoundBuffer buffer;
-	if (!buffer.loadFromFile("Audio/ambient music short.mp3")) {
-		return EXIT_FAILURE;
-	}
-
-	sf::Sound sound;
+	
+	sound = sf::Sound();
 	sound.setBuffer(buffer);
 	sound.play();
 
