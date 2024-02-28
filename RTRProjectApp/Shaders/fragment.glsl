@@ -205,17 +205,9 @@ vec4 CalcSpotLights()
 
 void main()
 {
-	vec4 finalcolor = CalcDirectionalLight();
+	/*vec4 finalcolor = CalcDirectionalLight();
 	finalcolor += CalcPointLights();
-	finalcolor += CalcSpotLights();
-
-	/*vec3 I = normalize(FragPos - eyePosition);
-	vec3 R = reflect(I, normalize(Normal));
-	FragColor = vec4(texture(skybox, R).rgb, 1.0);*/
+	finalcolor += CalcSpotLights();*/
 	
-	FragColor = texture(theTexture, TexCoord) * finalcolor;
-
-	if (material.specularIntensity > 15.0f) {
-		FragColor = vec4(1.0);
-	}
+	FragColor = texture(theTexture, TexCoord);
 }

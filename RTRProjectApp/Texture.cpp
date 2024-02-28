@@ -112,7 +112,7 @@ bool Texture::LoadTextureA()
 void Texture::UseTexture()
 {
 	// dont understand what this does...
-	glActiveTexture(GL_TEXTURE1);
+	glActiveTexture(GL_TEXTURE0);
 	// binds this object's texture to GL_TEXTURE_2D
 	glBindTexture(GL_TEXTURE_2D, textureID);
 }

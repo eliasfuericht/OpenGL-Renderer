@@ -48,10 +48,10 @@ int Window::Initialise()
 
 	// Create window
 	if (fullscreen) {
-		mainWindow = glfwCreateWindow(width, height, "Night at the museum", glfwGetPrimaryMonitor(), NULL);
+		mainWindow = glfwCreateWindow(width, height, "artisEngine", glfwGetPrimaryMonitor(), NULL);
 	}
 	else {
-		mainWindow = glfwCreateWindow(width, height, "Night at the museum", NULL, NULL);
+		mainWindow = glfwCreateWindow(width, height, "artisEngine", NULL, NULL);
 	}
 	
 	if (!mainWindow)
