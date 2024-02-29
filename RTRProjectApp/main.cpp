@@ -145,7 +145,7 @@ void clothSimulation() {
 		vertices[i] = x;
 	}
 
-	cloth.CreateMesh(vertices.data(), indices.data(), vertices.size(), indices.size());
+	cloth.UpdateMesh(vertices.data());
 }
 
 int main()
@@ -196,7 +196,7 @@ int main()
 	debugPlane = Model();
 	debugPlane.LoadModel("Models/plane.obj");
 
-	createCloth(50,3);
+	createCloth(50, 2);
 
 	printf("Initial loading took: %f seconds\n", glfwGetTime());
 

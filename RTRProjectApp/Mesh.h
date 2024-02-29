@@ -10,13 +10,13 @@ public:
 
 	void CreateMesh(GLfloat *vertices, unsigned int *indices, unsigned int numOfVertices, unsigned int numOfIndices);
 	void RenderMesh();
-	void GetMeshData();
+	void UpdateMesh(GLfloat* vertices);
 	void ClearMesh();
 
 	~Mesh();
 
 public:
-	int vertexCount;
+	unsigned int vertexCount;
 private:
 	GLuint VAO, VBO, IBO;
 	GLsizei indexCount;

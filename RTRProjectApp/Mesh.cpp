@@ -63,6 +63,14 @@ void Mesh::CreateMesh(GLfloat *vertices, unsigned int *indices, unsigned int num
 	glBindVertexArray(0);
 }
 
+void Mesh::UpdateMesh(GLfloat* vertices) {
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	// copy data from vertices array to Vertex Buffer (VBO)
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices[0]) * vertexCount, vertices, GL_STATIC_DRAW);
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+}
+
 void Mesh::RenderMesh()
 {
 	// bind/activate VAO of this mesh
