@@ -13,7 +13,6 @@ void Mesh::CreateMesh(GLfloat *vertices, unsigned int *indices, unsigned int num
 {
 	indexCount = numOfIndices;
 	vertexCount = numOfVertices;
-
 	// generate Vertex Array Object(VAO) (stores information about how vertex attribute data is laid out in VBO)
 	glGenVertexArrays(1, &VAO);
 	// bind VAO, meaning "make this VAO the currently used VAO"

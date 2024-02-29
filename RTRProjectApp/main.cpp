@@ -139,11 +139,9 @@ void createCloth(int div, float w) {
 }
 
 void clothSimulation() {
-	//std::cout << vertices.size();
-	auto temp = sin(glfwGetTime());
-	for (int i = 0; i < cloth.vertexCount; i+=6) {
+	for (int i = 1; i < cloth.vertexCount; i+=8) {
 		auto x = vertices[i];
-		x = sin(temp);
+		x += sin(glfwGetTime() + i) * 0.0001f;
 		vertices[i] = x;
 	}
 
@@ -198,7 +196,7 @@ int main()
 	debugPlane = Model();
 	debugPlane.LoadModel("Models/plane.obj");
 
-	createCloth(2,3);
+	createCloth(50,3);
 
 	printf("Initial loading took: %f seconds\n", glfwGetTime());
 
