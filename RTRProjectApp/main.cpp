@@ -7,6 +7,8 @@
 #include <numeric>
 #include <cstdlib>
 #include <Windows.h>
+#include <cstdlib>
+#include <ctime> 
 
 #include <GL\glew.h>
 #include <GLFW\glfw3.h>
@@ -45,6 +47,9 @@ Model debugCube;
 Model debugPlane;
 Model lightSphere;
 
+std::vector<GLfloat> vertices;
+std::vector<GLfloat> normals;
+std::vector<unsigned int> indices;
 Mesh cloth;
 
 Texture dirtTexture;
@@ -82,43 +87,66 @@ void GLAPIENTRY MessageCallback(GLenum source, GLenum type, GLuint id, GLenum se
 		type, severity, message);
 }
 
-void createCloth(int div, float w) {
+template<typename T> void printVector(const std::vector<T>& vec) {
+	std::cout << "Vector contents:" << std::endl;
+	for (const auto& element : vec) {
+		std::cout << element << " ";
+	}
+	std::cout << std::endl;
+}
 
-	std::vector<GLfloat> vertices;
-	std::vector<GLfloat> normals;
-	std::vector<unsigned int> indices;
+void createCloth(int div, float w) {
 
 	float triangleSide = w / div;
 
 	for (int row = 0; row < div + 1; row++) {
 		for (int col = 0; col < div + 1; col++) {
 			glm::vec3 vert = glm::vec3(col * triangleSide, 0.0f, row * -triangleSide);
+			
+			//vertices
 			vertices.push_back(vert.x);
-			vertices.push_back(vert.y);
+			vertices.push_back(vert.y + glm::sin(vert.y));
 			vertices.push_back(vert.z);
 
-			normals.push_back(0.0f);
-			normals.push_back(0.0f);
-			normals.push_back(1.0f);
+			//texture coords
+			vertices.push_back(vert.x);
+			vertices.push_back(vert.z);
+
+			//normals
+			vertices.push_back(0.0f);
+			vertices.push_back(0.0f);
+			vertices.push_back(1.0f);
 		}
 	}
 
 	for (int row = 0; row < div; row++) {
 		for (int col = 0; col < div; col++) {
 			int index = row * (div + 1) + col;
-
+	
 			indices.push_back(index);
 			indices.push_back(index + (div + 1) + 1);
 			indices.push_back(index + (div + 1));
-
+	
 			indices.push_back(index);
 			indices.push_back(index + 1);
-			indices.push_back(index +(div + 1) + 1);
+			indices.push_back(index + (div + 1) + 1);
 		}
 	}
 
+	//bufferlayout: x, y, z, u, v, nx, ny, nz, i, i, i, i, i, i
 	cloth = Mesh();
-	GLfloat* temp = vertices.data();
+	cloth.CreateMesh(vertices.data(), indices.data(), vertices.size(), indices.size());
+}
+
+void clothSimulation() {
+	//std::cout << vertices.size();
+	auto temp = sin(glfwGetTime());
+	for (int i = 0; i < cloth.vertexCount; i+=6) {
+		auto x = vertices[i];
+		x = sin(temp);
+		vertices[i] = x;
+	}
+
 	cloth.CreateMesh(vertices.data(), indices.data(), vertices.size(), indices.size());
 }
 
@@ -127,8 +155,8 @@ int main()
 	mainWindow = Window(1920, 1080, false);
 	mainWindow.Initialise();
 
-	glEnable(GL_DEBUG_OUTPUT);
-	glDebugMessageCallback(MessageCallback, 0);
+	//glEnable(GL_DEBUG_OUTPUT);
+	//glDebugMessageCallback(MessageCallback, 0);
 
 	//imgui setup
 	IMGUI_CHECKVERSION();
@@ -170,7 +198,7 @@ int main()
 	debugPlane = Model();
 	debugPlane.LoadModel("Models/plane.obj");
 
-	createCloth(5,5);
+	createCloth(2,3);
 
 	printf("Initial loading took: %f seconds\n", glfwGetTime());
 
@@ -255,7 +283,13 @@ int main()
 
 		model = glm::mat4(1.0f);
 
+		model = glm::translate(model, glm::vec3(-1.0f, -1.0f, 0.0f));
+
+		//model = glm::rotate(model, (float)sin(now), glm::vec3(1.0f, 0.0f, 0.0f));
+
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+
+		clothSimulation();
 
 		cloth.RenderMesh();
 
