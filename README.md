@@ -6,8 +6,6 @@ A OpenGL renderer that supports loading `.obj` models and implements lighting te
 
 ---
 
-## Getting Started
-
 ### Prerequisites
 
 - **Windows OS**  
